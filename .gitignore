@@ -1,4 +1,5 @@
 .ssh
 .idea
 .git
+lib
 node_modules

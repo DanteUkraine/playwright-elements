@@ -10,7 +10,7 @@ export enum BrowserName {
     MSEDGE = 'msedge'
 }
 
-class Context {
+export class Context {
 
     private readonly context: BrowserContext
     private _pages: Page[];
@@ -43,65 +43,71 @@ class Context {
 
 export class BrowserInstance {
 
-    public name: BrowserName | undefined;
-    private _browser: Browser | undefined;
-    private _currentContext: Context | undefined;
-    private _currentPage: Page | undefined;
+    public static browserName: BrowserName | undefined;
+    private static _browser: Browser | undefined;
+    private static _currentContext: Context | undefined;
+    private static _currentPage: Page | undefined;
+
+    private constructor() {
+    }
 
     // page - getter, setter, builder method
 
-    get currentPage() {
+    static get currentPage() {
         if (this._currentPage) return this._currentPage;
         throw new Error(`Page was not started`);
     }
 
-    set currentPage(page: Page) {
+    static set currentPage(page: Page) {
+        if (!this._currentContext) this._currentContext = new Context(page.context());
+        const currentBrowser = page.context().browser();
+        if (!this._browser) this._browser = currentBrowser ? currentBrowser : undefined;
         this._currentPage = page;
     }
 
-    withPage(page: Page) {
-        this._currentPage = page;
+    static withPage(page: Page) {
+        this.currentPage = page;
     }
 
     // context - getter, setter, builder method
 
-    private get context(): Context {
+    private static get context(): Context {
         if (this._currentContext) return this._currentContext;
         throw new Error(`Context was not started`);
     }
 
-    get currentContext(): BrowserContext {
+    static get currentContext(): BrowserContext {
         if (this._currentContext) return this._currentContext.get;
         throw new Error(`Context was not started`);
     }
 
-    set currentContext(context: BrowserContext) {
+    static set currentContext(context: BrowserContext) {
         this._currentContext = new Context(context);
     }
 
-    withContext(context: BrowserContext) {
+    static withContext(context: BrowserContext) {
         this._currentContext = new Context(context);
     }
 
     // browser - getter, setter, builder method
 
-    get browser() {
+    static get browser(): Browser {
         if (this._browser) return this._browser;
         throw new Error(`Browser was not started`);
     }
 
-    set browser(browser: Browser) {
+    static set browser(browser: Browser) {
         this._browser = browser;
     }
 
-    withBrowser(browser: Browser) {
+    static withBrowser(browser: Browser) {
         this._browser = browser;
     }
 
     //
 
-    private async launch(browserName: BrowserName, options?: LaunchOptions): Promise<Browser> {
-        this.name = browserName;
+    private static async launch(browserName?: BrowserName, options?: LaunchOptions): Promise<Browser> {
+        this.browserName = browserName;
         switch (browserName) {
             case BrowserName.CHROME:
                 return await chromium.launch({...options, ...{channel: 'chrome'}});
@@ -116,14 +122,13 @@ export class BrowserInstance {
         }
     }
 
-    public async start(browserName: BrowserName, options?: LaunchOptions): Promise<Browser> {
+    public static async start(browserName?: BrowserName, options?: LaunchOptions): Promise<Browser> {
         this.browser = await this.launch(browserName, options);
         return this.browser;
     }
 
-    public async startNewContext(options: BrowserContextOptions): Promise<BrowserContext> {
-        const contextOptions: BrowserContextOptions = {...options, ...{ignoreHTTPSErrors: true}};
-        this.currentContext = await this.browser.newContext(contextOptions);
+    public static async startNewContext(options?: BrowserContextOptions): Promise<BrowserContext> {
+        this.currentContext = await this.browser.newContext(options);
         this.currentContext.on('page', page => {
             if (this._currentPage) this.context.previousPage = this.currentPage;
             this.currentPage = page;
@@ -131,38 +136,30 @@ export class BrowserInstance {
         return this.currentContext;
     }
 
-    public async startNewPage(): Promise<Page> {
-        this.currentPage = await this.currentContext.newPage();
+    public static async startNewPage(options?: BrowserContextOptions): Promise<Page> {
+        try {
+            this.currentPage = await this.currentContext.newPage();
+        } catch {
+            this.currentPage = await this.browser.newPage(options)
+        }
         return this.currentPage;
     }
 
-    public async close() {
+    public static async close() {
         await this.browser.close();
+        this._currentPage = undefined;
+        this._currentContext = undefined;
+        this._browser = undefined;
     }
 
     // helpers
-    public currentUrl(): string {
+    public static currentUrl(): string {
         return this.currentPage.url();
     }
 
     // tab actions
-    public async switchToPreviousTab() {
+    public static async switchToPreviousTab() {
         this.currentPage = this.context.previousPage;
         await this.currentPage.bringToFront();
     }
 }
-
-let instance: BrowserInstance | undefined;
-
-export const browser = {
-    init(): BrowserInstance {
-        instance = new BrowserInstance();
-        return instance;
-    },
-
-    get get(): BrowserInstance {
-        if(instance) return instance;
-        throw new Error(`Browser instance was not created please use use`)
-    }
-}
-
