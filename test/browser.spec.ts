@@ -3,7 +3,7 @@ import {expect} from "chai";
 import {afterEach, test} from "mocha";
 
 describe('Browser Instance start', function (this: Mocha.Suite) {
-    this.timeout(5000);
+    this.timeout(10000);
 
     afterEach(async () => {
         await BrowserInstance.close();
