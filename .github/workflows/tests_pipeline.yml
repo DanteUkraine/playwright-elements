@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         platform: [ ubuntu-latest ]
-        node: [ '16', '18' ]
+        node: [ '14', '16', '18' ]
     name: ${{ matrix.platform }} - Node ${{ matrix.node }}
     runs-on: ${{ matrix.platform }}
     steps:
@@ -35,7 +35,7 @@ jobs:
     strategy:
       matrix:
         platform: [ macos-latest ]
-        node: [ '16', '18' ]
+        node: [ '14', '16', '18' ]
     name: ${{ matrix.platform }} - Node ${{ matrix.node }}
     runs-on: ${{ matrix.platform }}
     steps:
@@ -55,7 +55,7 @@ jobs:
     strategy:
       matrix:
         platform: [ windows-latest ]
-        node: [ '16', '18' ]
+        node: [ '14', '16', '18' ]
     name: ${{ matrix.platform }} - Node ${{ matrix.node }}
     runs-on: ${{ matrix.platform }}
     steps:

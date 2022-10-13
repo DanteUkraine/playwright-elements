@@ -169,7 +169,7 @@ export abstract class AbstractWebElement {
     public withMethods<T extends AbstractWebElement, A>(this: T, augment: A): T & A {
         const methods = augment as unknown as { [key: string]: Function };
         Object.keys(methods).forEach(key => {
-            if (Object.hasOwn(this, key)) throw new Error(`Can not add method with name '${key}' because such method already exists.`);
+            if (this.hasOwnProperty(key)) throw new Error(`Can not add method with name '${key}' because such method already exists.`);
             Object.defineProperty(this, key, {value: methods[key]})
         });
         return this as unknown as T & A;
