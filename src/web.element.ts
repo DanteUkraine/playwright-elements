@@ -169,7 +169,7 @@ export abstract class AbstractWebElement {
     public withMethods<T extends AbstractWebElement, A>(this: T, augment: A): T & A {
         const methods = augment as unknown as { [key: string]: Function };
         Object.keys(methods).forEach(key => {
-            if (this.hasOwnProperty(key)) throw new Error(`Can not add method with name '${key}' because such method already exists.`);
+            if (key in this) throw new Error(`Can not add method with name '${key}' because such method already exists.`);
             Object.defineProperty(this, key, {value: methods[key]})
         });
         return this as unknown as T & A;
@@ -353,7 +353,7 @@ export class WebElement extends AbstractWebElement {
         if (!result.passed) {
             throw new AssertionError({
                 message: `${message}
-            ${actual ? '\nActual: ' + actual : '\n' + result.internalErrorMessage}
+            ${actual ? '\nActual: ' + actual : '\n' + (result.internalErrorMessage || '')}
             ${expected ? '\nExpected: ' + expected : ''}`
             });
         }
@@ -415,9 +415,8 @@ export class WebElement extends AbstractWebElement {
             if (actualResult) return actualResult.split(" ").includes(expectedClazz);
             return false;
         }, wait);
-        this.assertCheck(result, `Selector: ${this.selector} does not contain class.`, actualResult, expectedClazz);
+        this.assertCheck(result, `Selector: ${this.selector} does not contain class.`, String(actualResult), String(expectedClazz));
     }
-
 
     public async expectThatHasText(expectedText: string, assertOptions?: TextAssertOptions) {
         const {waitOptions, ignoreCase, charsToIgnore} = {...defaultTextAssertOptions, ...assertOptions};
@@ -466,10 +465,11 @@ export class WebElement extends AbstractWebElement {
         let actualResult: string[] | undefined;
         const result = await waitFor(async () => {
             actualResult = await this.locator.allTextContents();
-            if (actualResult.length) return actualResult.every(item => this.includes(item, expectedText, ignoreCase, charsToIgnore));
+            if (actualResult.length)
+                return this.filter(actualResult, expectedText, ignoreCase, charsToIgnore).length > 0;
             return false;
         }, waitOptions);
-        this.assertCheck(result, `Selector: ${this.selector} not every element has expected text.`, actualResult, expectedText);
+        this.assertCheck(result, `Selector: ${this.selector} none of elements has expected text.`, actualResult, expectedText);
     }
 
     public async expectThatAnyMatchText(expectedText: string, assertOptions?: TextAssertOptions) {
@@ -481,7 +481,7 @@ export class WebElement extends AbstractWebElement {
                 return this.filter(actualResult, expectedText, ignoreCase, charsToIgnore).length > 0;
             return false;
         }, waitOptions);
-        this.assertCheck(result, `Selector: ${this.selector} not every element has expected text.`, actualResult, expectedText);
+        this.assertCheck(result, `Selector: ${this.selector} none of elements match expected text.`, actualResult, expectedText);
     }
 
     public async expectThatNoneOfMatchText(expectedText: string, assertOptions?: TextAssertOptions) {
@@ -493,7 +493,7 @@ export class WebElement extends AbstractWebElement {
                 return this.filter(actualResult, expectedText, ignoreCase, charsToIgnore).length === 0;
             return false;
         }, waitOptions);
-        this.assertCheck(result, `Selector: ${this.selector} not every element has expected text.`, actualResult, expectedText);
+        this.assertCheck(result, `Selector: ${this.selector} some of elements match expected text.`, actualResult, expectedText);
     }
 
     public async expectThatCountIs(expectedCount: number, waitOptions?: WaitOptions) {
