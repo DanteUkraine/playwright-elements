@@ -19,6 +19,7 @@ jobs:
     name: ${{ matrix.platform }} - Node ${{ matrix.node }}
     runs-on: ${{ matrix.platform }}
     steps:
+      - timeout-minutes: 5
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:

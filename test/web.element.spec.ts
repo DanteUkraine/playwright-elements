@@ -73,7 +73,6 @@ describe('Web Element augmentation', () => {
 });
 
 describe('Web Element predicates', function (this: Mocha.Suite) {
-    this.timeout(10_000);
 
     before(async () => {
         await BrowserInstance.start(BrowserName.CHROMIUM);
@@ -152,8 +151,6 @@ describe('Web Element predicates', function (this: Mocha.Suite) {
 });
 
 describe('Web Element asserts', function (this: Mocha.Suite) {
-
-    this.timeout(10_000);
 
     before(async () => {
         await BrowserInstance.start(BrowserName.CHROMIUM);
