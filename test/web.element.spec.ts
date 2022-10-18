@@ -3,6 +3,9 @@ import {test} from "mocha";
 import {$, BrowserInstance, BrowserName} from '../src';
 import {AssertionError} from "assert";
 import chaiAsPromised from 'chai-as-promised'
+import * as path from 'path';
+
+const localFilePath = `file://${__dirname.replace(/\//g, path.sep)}/test.html`;
 
 chai.use(chaiAsPromised)
 
@@ -73,7 +76,6 @@ describe('Web Element predicates', function (this: Mocha.Suite) {
     this.timeout(10_000);
 
     before(async () => {
-        const localFilePath = `file://${__dirname}/test.html`;
         await BrowserInstance.start(BrowserName.CHROMIUM);
         await BrowserInstance.startNewPage();
         await BrowserInstance.currentPage.goto(localFilePath);
@@ -154,7 +156,6 @@ describe('Web Element asserts', function (this: Mocha.Suite) {
     this.timeout(10_000);
 
     before(async () => {
-        const localFilePath = `file://${__dirname}/test.html`;
         await BrowserInstance.start(BrowserName.CHROMIUM);
         await BrowserInstance.startNewPage();
         await BrowserInstance.currentPage.goto(localFilePath);

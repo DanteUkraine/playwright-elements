@@ -3,6 +3,10 @@ import chai, {expect} from "chai";
 import {afterEach, test} from "mocha";
 import {chromium} from "playwright-core";
 import chaiAsPromised from 'chai-as-promised'
+import * as path from 'path';
+
+const localFilePath = `file://${__dirname.replace(/\//g, path.sep)}/test.html`;
+
 
 chai.use(chaiAsPromised)
 
@@ -39,7 +43,6 @@ describe('Browser Instance', function (this: Mocha.Suite) {
     describe('method', function (this: Mocha.Suite) {
 
         test(`switch tab`, async () => {
-            const localFilePath = `file://${__dirname}/test.html`;
             await BrowserInstance.start(BrowserName.CHROMIUM);
             await BrowserInstance.startNewPage();
             await BrowserInstance.currentPage.goto(localFilePath);
