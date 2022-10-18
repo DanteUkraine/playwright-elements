@@ -49,7 +49,7 @@ describe('Browser Instance', function (this: Mocha.Suite) {
             await BrowserInstance.startNewPage();
             expect(BrowserInstance.currentPage.url()).to.be.equal('about:blank');
             await BrowserInstance.switchToPreviousTab();
-            expect(BrowserInstance.currentPage.url()).to.be.equal(localFilePath);
+            expect(BrowserInstance.currentPage.url()).to.contain('test.html');
         })
 
     })
