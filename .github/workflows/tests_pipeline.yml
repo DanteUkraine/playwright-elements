@@ -1,0 +1,75 @@
+name: TestsPipeline
+on:
+  push:
+    branches:
+      - 'experiment/**'
+  pull_request:
+    branches:
+      - main
+concurrency:
+  group: TestsPipeline
+  cancel-in-progress: true
+jobs:
+
+  ubuntu-test:
+    strategy:
+      matrix:
+        platform: [ ubuntu-latest ]
+        node: [ '14', '16', '18' ]
+    name: ${{ matrix.platform }} - Node ${{ matrix.node }}
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install playwrigh-elements
+        run: npm ci
+      - name: Install browsers
+        run: npm run install:browsers
+      - name: Run tests
+        run: npm test
+        timeout-minutes: 3
+      - run: echo "🍏 This job's status is ${{ job.status }}."
+
+  macosx-test:
+    strategy:
+      matrix:
+        platform: [ macos-latest ]
+        node: [ '14', '16', '18' ]
+    name: ${{ matrix.platform }} - Node ${{ matrix.node }}
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install playwrigh-elements
+        run: npm ci
+      - name: Install browsers
+        run: npm run install:browsers
+      - name: Run tests
+        run: npm test
+        timeout-minutes: 3
+      - run: echo "🍏 This job's status is ${{ job.status }}."
+
+  windows-test:
+    strategy:
+      matrix:
+        platform: [ windows-latest ]
+        node: [ '14', '16', '18' ]
+    name: ${{ matrix.platform }} - Node ${{ matrix.node }}
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install playwrigh-elements
+        run: npm ci
+      - name: Install browsers
+        run: npm run install:browsers
+      - name: Run tests
+        run: npm test
+        timeout-minutes: 3
+      - run: echo "🍏 This job's status is ${{ job.status }}."

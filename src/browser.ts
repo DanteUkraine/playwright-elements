@@ -59,14 +59,12 @@ export class BrowserInstance {
     }
 
     static set currentPage(page: Page) {
-        if (!this._currentContext) this._currentContext = new Context(page.context());
-        const currentBrowser = page.context().browser();
-        if (!this._browser) this._browser = currentBrowser ? currentBrowser : undefined;
         this._currentPage = page;
     }
 
     static withPage(page: Page) {
         this.currentPage = page;
+        this.withContext(page.context());
     }
 
     // context - getter, setter, builder method
@@ -77,8 +75,7 @@ export class BrowserInstance {
     }
 
     static get currentContext(): BrowserContext {
-        if (this._currentContext) return this._currentContext.get;
-        throw new Error(`Context was not started`);
+        return this.context.get;
     }
 
     static set currentContext(context: BrowserContext) {
@@ -86,7 +83,11 @@ export class BrowserInstance {
     }
 
     static withContext(context: BrowserContext) {
-        this._currentContext = new Context(context);
+        this.currentContext = context;
+        if(this._browser) return;
+        const currentBrowser = context.browser();
+        if (currentBrowser) this.browser = currentBrowser;
+        else throw new Error(`Browser is undefined and 'context.browser()' returns null.`);
     }
 
     // browser - getter, setter, builder method
@@ -101,7 +102,7 @@ export class BrowserInstance {
     }
 
     static withBrowser(browser: Browser) {
-        this._browser = browser;
+        this.browser = browser;
     }
 
     //
@@ -137,11 +138,11 @@ export class BrowserInstance {
     }
 
     public static async startNewPage(options?: BrowserContextOptions): Promise<Page> {
-        try {
-            this.currentPage = await this.currentContext.newPage();
-        } catch {
-            this.currentPage = await this.browser.newPage(options)
-        }
+        if (!this._currentContext)
+            await this.startNewContext(options);
+        if (this._currentPage)
+            this.context.previousPage = this.currentPage;
+        this.currentPage = await this.currentContext.newPage();
         return this.currentPage;
     }
 
@@ -150,11 +151,6 @@ export class BrowserInstance {
         this._currentPage = undefined;
         this._currentContext = undefined;
         this._browser = undefined;
-    }
-
-    // helpers
-    public static currentUrl(): string {
-        return this.currentPage.url();
     }
 
     // tab actions

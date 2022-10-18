@@ -1,0 +1,41 @@
+<html>
+<head>
+    <style>
+        .fieldsStyle {
+            background-color: greenyellow;
+            color: white;
+            border: 2px solid black;
+        }
+    </style>
+</head>
+<body>
+<h1>Hello Playwright elements</h1>
+<h2 hidden>Hidden title</h2>
+<fieldset>
+    <legend>Check boxes:</legend>
+    <div>
+        <input type="checkbox" id="checked" checked>
+        <label for="checked">Checked box</label>
+    </div>
+    <div>
+        <input type="checkbox" id="unchecked">
+        <label for="unchecked">Not checked box</label>
+    </div>
+    <legend>Fields:</legend>
+    <input type="text" id="disabled-field" disabled>
+    <input class="fieldsStyle" type="text" id="enabled-field">
+</fieldset>
+<p id="inner-text">This element has <span>inner text</span>.</p>
+<div>
+    <ul>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+        <li>text</li>
+    </ul>
+</div>
+</body>
+</html>
