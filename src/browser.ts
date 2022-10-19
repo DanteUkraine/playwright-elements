@@ -1,5 +1,13 @@
-import {firefox, chromium, webkit, LaunchOptions, BrowserContext} from "playwright-core";
-import {Page, Browser, BrowserContextOptions} from "playwright-core";
+import {
+    firefox,
+    chromium,
+    webkit,
+    LaunchOptions,
+    BrowserContext,
+    Page,
+    Browser,
+    BrowserContextOptions
+} from "playwright-core";
 
 ///////////////////////////////////
 export enum BrowserName {
@@ -84,7 +92,7 @@ export class BrowserInstance {
 
     static withContext(context: BrowserContext) {
         this.currentContext = context;
-        if(this._browser) return;
+        if (this._browser) return;
         const currentBrowser = context.browser();
         if (currentBrowser) this.browser = currentBrowser;
         else throw new Error(`Browser is undefined and 'context.browser()' returns null.`);

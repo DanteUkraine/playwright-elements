@@ -1,8 +1,7 @@
-import {Locator} from "playwright-core";
+import {Locator, Page} from "playwright-core";
 import {AssertionError} from "assert";
 import {isEqual} from "lodash";
 import {BrowserInstance} from "./browser";
-import {Page} from "playwright-core";
 
 
 function extractSelector(pointer: string | AbstractWebElement): string {
