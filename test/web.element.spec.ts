@@ -70,9 +70,11 @@ describe('Web Element augmentation', () => {
                 }
             })).to.throw('Can not add method with name \'visible\' because such method already exists.');
     });
+
 });
 
 describe('Web Element predicates', function (this: Mocha.Suite) {
+    this.timeout(15_000);
 
     before(async () => {
         await BrowserInstance.start(BrowserName.CHROMIUM);
@@ -151,6 +153,7 @@ describe('Web Element predicates', function (this: Mocha.Suite) {
 });
 
 describe('Web Element asserts', function (this: Mocha.Suite) {
+    this.timeout(15_000);
 
     before(async () => {
         await BrowserInstance.start(BrowserName.CHROMIUM);

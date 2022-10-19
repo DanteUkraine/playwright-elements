@@ -1,2 +1,2 @@
 export {BrowserInstance, Context, BrowserName} from "./browser";
-export {AbstractWebElement, WebElement, $, initElementOnPage} from "./web.element";
+export {AbstractWebElement, WebElement, $} from "./web.element";

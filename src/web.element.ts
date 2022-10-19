@@ -85,7 +85,6 @@ async function waitForStableInterval(predicate: () => Promise<boolean>, waitOpti
 
 export abstract class AbstractWebElement {
 
-    protected _page: Page | undefined;
     protected isFrame = false;
     protected isInFrame = false;
     protected frameSelector = 'iframe';
@@ -99,7 +98,7 @@ export abstract class AbstractWebElement {
     }
 
     public usePage<T extends AbstractWebElement>(this: T, page: Page): T {
-        this._page = page;
+        BrowserInstance.currentPage = page;
         return this;
     }
 
@@ -121,17 +120,16 @@ export abstract class AbstractWebElement {
     }
 
     public get locator(): Locator {
-        const page = this._page ? this._page : BrowserInstance.currentPage;
-        const subLocator: Locator | undefined = this._hasLocator ? page.locator(this._hasLocator) : undefined;
+        const subLocator: Locator | undefined = this._hasLocator ? BrowserInstance.currentPage.locator(this._hasLocator) : undefined;
         const locator = this.isInFrame ?
-            page.frameLocator(this.frameSelector).locator(this.selector, {has: subLocator}) :
-            page.locator(this.selector, {has: subLocator});
+            BrowserInstance.currentPage.frameLocator(this.frameSelector).locator(this.selector, {has: subLocator}) :
+            BrowserInstance.currentPage.locator(this.selector, {has: subLocator});
         if (this.isFirst) return locator.first();
         return locator;
     }
 
-    public get _(): Locator {
-        return this.locator;
+    public get _(): any {
+        return this.locator as any;
     }
 
     // augmentation
@@ -518,8 +516,4 @@ export class WebElement extends AbstractWebElement {
 
 export function $(selector: string): WebElement {
     return new WebElement(selector);
-}
-
-export function initElementOnPage(page: Page, rootSelector: string): WebElement {
-    return $(rootSelector).usePage(page);
 }
