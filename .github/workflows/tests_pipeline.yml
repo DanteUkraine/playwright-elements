@@ -29,7 +29,7 @@ jobs:
         run: npm run install:browsers
       - name: Run tests
         run: npm test
-        timeout-minutes: 3
+        timeout-minutes: 5
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
   macosx-test:
@@ -50,7 +50,7 @@ jobs:
         run: npm run install:browsers
       - name: Run tests
         run: npm test
-        timeout-minutes: 3
+        timeout-minutes: 5
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
   windows-test:
@@ -71,5 +71,5 @@ jobs:
         run: npm run install:browsers
       - name: Run tests
         run: npm test
-        timeout-minutes: 3
+        timeout-minutes: 5
       - run: echo "🍏 This job's status is ${{ job.status }}."

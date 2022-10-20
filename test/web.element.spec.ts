@@ -70,17 +70,19 @@ describe('Web Element augmentation', () => {
                 }
             })).to.throw('Can not add method with name \'visible\' because such method already exists.');
     });
+
 });
 
 describe('Web Element predicates', function (this: Mocha.Suite) {
+    this.timeout(10_000);
 
-    before(async () => {
+    beforeEach(async () => {
         await BrowserInstance.start(BrowserName.CHROMIUM);
         await BrowserInstance.startNewPage();
         await BrowserInstance.currentPage.goto(localFilePath);
     })
 
-    after(async () => {
+    afterEach(async () => {
         await BrowserInstance.close();
     })
 
@@ -151,14 +153,15 @@ describe('Web Element predicates', function (this: Mocha.Suite) {
 });
 
 describe('Web Element asserts', function (this: Mocha.Suite) {
+    this.timeout(10_000);
 
-    before(async () => {
+    beforeEach(async () => {
         await BrowserInstance.start(BrowserName.CHROMIUM);
         await BrowserInstance.startNewPage();
         await BrowserInstance.currentPage.goto(localFilePath);
     })
 
-    after(async () => {
+    afterEach(async () => {
         await BrowserInstance.close();
     })
 
