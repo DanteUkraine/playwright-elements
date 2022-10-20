@@ -74,15 +74,15 @@ describe('Web Element augmentation', () => {
 });
 
 describe('Web Element predicates', function (this: Mocha.Suite) {
-    this.timeout(15_000);
+    this.timeout(10_000);
 
-    before(async () => {
+    beforeEach(async () => {
         await BrowserInstance.start(BrowserName.CHROMIUM);
         await BrowserInstance.startNewPage();
         await BrowserInstance.currentPage.goto(localFilePath);
     })
 
-    after(async () => {
+    afterEach(async () => {
         await BrowserInstance.close();
     })
 
@@ -153,15 +153,15 @@ describe('Web Element predicates', function (this: Mocha.Suite) {
 });
 
 describe('Web Element asserts', function (this: Mocha.Suite) {
-    this.timeout(15_000);
+    this.timeout(10_000);
 
-    before(async () => {
+    beforeEach(async () => {
         await BrowserInstance.start(BrowserName.CHROMIUM);
         await BrowserInstance.startNewPage();
         await BrowserInstance.currentPage.goto(localFilePath);
     })
 
-    after(async () => {
+    afterEach(async () => {
         await BrowserInstance.close();
     })
 
