@@ -61,12 +61,12 @@ export class BrowserInstance {
 
     // page - getter, setter, builder method
 
-    static get currentPage() {
+    static get currentPage(): Page {
         if (this._currentPage) return this._currentPage;
         throw new Error(`Page was not started`);
     }
 
-    static set currentPage(page: Page) {
+    static set currentPage(page: Page | undefined) {
         this._currentPage = page;
     }
 
@@ -86,8 +86,9 @@ export class BrowserInstance {
         return this.context.get;
     }
 
-    static set currentContext(context: BrowserContext) {
-        this._currentContext = new Context(context);
+    static set currentContext(context: BrowserContext | undefined) {
+        if(context) this._currentContext = new Context(context);
+        else this._currentContext = context;
     }
 
     static withContext(context: BrowserContext) {
@@ -105,7 +106,7 @@ export class BrowserInstance {
         throw new Error(`Browser was not started`);
     }
 
-    static set browser(browser: Browser) {
+    static set browser(browser: Browser | undefined) {
         this._browser = browser;
     }
 
