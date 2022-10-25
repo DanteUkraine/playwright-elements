@@ -1,8 +1,8 @@
 import {Locator, Page} from "playwright-core";
+import {expect} from "@playwright/test";
 import {AssertionError} from "assert";
 import {isEqual} from "lodash";
 import {BrowserInstance} from "./browser";
-
 
 function extractSelector(pointer: string | AbstractWebElement): string {
     return pointer instanceof AbstractWebElement ? pointer.selector : pointer;
@@ -36,6 +36,8 @@ const defaultTextAssertOptions = {
 }
 
 type Result = { passed: boolean, internalErrorMessage?: string };
+
+type LocatorAssertions = ReturnType<typeof expect<Locator>>;
 
 async function waitFor(predicate: () => Promise<boolean>, waitOptions: WaitOptions): Promise<Result> {
     const wait = {...defaultAssertWait, ...waitOptions};
@@ -128,8 +130,16 @@ export abstract class AbstractWebElement {
         return locator;
     }
 
-    public get _(): any {
-        return this.locator as any;
+    public get _(): Locator {
+        return this.locator;
+    }
+
+    public expect(message?: string): LocatorAssertions {
+        return expect(this.locator, message);
+    }
+
+    public softExpect(message?: string): LocatorAssertions {
+        return expect.soft(this.locator, message);
     }
 
     // augmentation

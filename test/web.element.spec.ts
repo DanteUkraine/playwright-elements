@@ -327,3 +327,25 @@ describe('Web Element asserts', function (this: Mocha.Suite) {
     })
 
 });
+
+describe('Web Element expect', function (this: Mocha.Suite) {
+    this.timeout(10_000);
+
+    beforeEach(async () => {
+        await BrowserInstance.start(BrowserName.CHROMIUM);
+        await BrowserInstance.startNewPage();
+        await BrowserInstance.currentPage.goto(localFilePath);
+    })
+
+    afterEach(async () => {
+        await BrowserInstance.close();
+    })
+
+    test(`allow access to playwright test assets`, async () => {
+        await $(`h1`).expect().toBeVisible();
+    })
+
+    test(`allow access to playwright test soft assets`, async () => {
+        await $(`h1`).softExpect().toBeVisible();
+    })
+})
