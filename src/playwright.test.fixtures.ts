@@ -1,8 +1,13 @@
-import {test as base} from '@playwright/test';
+import {test as base, Page} from '@playwright/test';
 import {BrowserInstance} from './browser';
 
+type WrappedFixtures = {
+    baseURL: string | undefined,
+    page: Page
+}
+
 export const test = base.extend<{ initElements: BrowserInstance }>({
-    initElements: [async ({baseURL, page}, use) => {
+    initElements: [async ({baseURL, page}: WrappedFixtures, use: (browserInstance: BrowserInstance) => Promise<void>) => {
         BrowserInstance.withPage(page);
         if (baseURL) await BrowserInstance.currentPage.goto(baseURL);
         await use(BrowserInstance);
