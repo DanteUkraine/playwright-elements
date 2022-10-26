@@ -80,6 +80,7 @@ describe('Web Element predicates', function (this: Mocha.Suite) {
         await BrowserInstance.start(BrowserName.CHROMIUM);
         await BrowserInstance.startNewPage();
         await BrowserInstance.currentPage.goto(localFilePath);
+        await BrowserInstance.currentPage.waitForSelector('h1');
     })
 
     afterEach(async () => {
@@ -159,6 +160,7 @@ describe('Web Element asserts', function (this: Mocha.Suite) {
         await BrowserInstance.start(BrowserName.CHROMIUM);
         await BrowserInstance.startNewPage();
         await BrowserInstance.currentPage.goto(localFilePath);
+        await BrowserInstance.currentPage.waitForSelector('h1');
     })
 
     afterEach(async () => {

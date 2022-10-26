@@ -11,7 +11,7 @@ const localFilePath = `file://${__dirname.replace(/\//g, path.sep)}/test.html`;
 chai.use(chaiAsPromised)
 
 describe('Browser Instance', function (this: Mocha.Suite) {
-    this.timeout(10_000);
+    this.timeout(15_000);
 
     afterEach(async () => {
         await BrowserInstance.close();
