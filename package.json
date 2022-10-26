@@ -11,7 +11,8 @@
     "build": "tsc",
     "clean": "tsc --build --clean",
     "install:browsers": "npx playwright install --force chrome chromium msedge firefox webkit --with-deps",
-    "test": "mocha"
+    "test": "mocha",
+    "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts"
   },
   "repository": {
     "type": "git",

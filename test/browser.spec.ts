@@ -20,7 +20,7 @@ describe('Browser Instance', function (this: Mocha.Suite) {
     describe('start', () => {
 
         const browsers = Object.values(BrowserName);
-        for (const browser of browsers) {
+        browsers.forEach((browser) => {
             test(`${browser} should start`, async () => {
                 await BrowserInstance.start(browser);
                 await BrowserInstance.startNewContext();
@@ -29,7 +29,7 @@ describe('Browser Instance', function (this: Mocha.Suite) {
                 expect(() => BrowserInstance.currentContext).not.to.throw();
                 expect(() => BrowserInstance.currentPage).not.to.throw();
             })
-        }
+        })
 
         test(`new page should start context`, async () => {
             await BrowserInstance.start(BrowserName.CHROMIUM);

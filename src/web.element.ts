@@ -212,7 +212,7 @@ export abstract class AbstractWebElement {
 
     // chainable web element creation
 
-    private $<T extends AbstractWebElement>(this: T, selector: string): T {
+    protected $<T extends AbstractWebElement>(this: T, selector: string): T {
         return Object.create(this, {
             _selector:
                 {
@@ -276,7 +276,7 @@ export abstract class AbstractWebElement {
     }
 
 
-    protected async getTextContext(options?: { timeout?: number }) {
+    public async getTextContext(options?: { timeout?: number }) {
         return this.locator.textContent(options);
     }
 
@@ -354,9 +354,27 @@ export class WebElement extends AbstractWebElement {
         return (await waitFor(async () => !await this.locator.isChecked(), {...defaultAssertWait, ...waitOptions})).passed;
     }
 
+    public asserts(): WebElementAsserts {
+        return new WebElementAsserts(this);
+    }
+
+}
+
+class WebElementAsserts {
+
+    private element: WebElement;
+
+    constructor(element: WebElement) {
+        this.element = element;
+    }
+
+    private get locator(): Locator {
+        return this.element.locator;
+    }
+
     // PRIVATE HELPERS
 
-    private assertCheck(result: Result, message: string, actual?: unknown, expected?: unknown) {
+    private assertCheck(result: Result, message: string, actual?: unknown, expected?: unknown): WebElementAsserts {
         if (!result.passed) {
             throw new AssertionError({
                 message: `${message}
@@ -364,6 +382,7 @@ export class WebElement extends AbstractWebElement {
             ${expected ? '\nExpected: ' + expected : ''}`
             });
         }
+        return this;
     }
 
     private ignoreChars(str: string, additionalChars?: RegExp) {
@@ -390,31 +409,31 @@ export class WebElement extends AbstractWebElement {
 
     //////////////////////////////////////////////////////////
 
-    public async expectThatIsVisible(waitOptions?: WaitOptions) {
-        this.assertCheck(await waitFor(() => this.locator.isVisible(), {...defaultAssertWait, ...waitOptions}), `Selector: ${this.selector} is not visible.`);
+    public async expectThatIsVisible(waitOptions?: WaitOptions): Promise<WebElementAsserts> {
+        return this.assertCheck(await waitFor(() => this.locator.isVisible(), {...defaultAssertWait, ...waitOptions}), `Selector: ${this.element.selector} is not visible.`);
     }
 
-    public async expectThatIsNotVisible(waitOptions?: WaitOptions) {
-        this.assertCheck(await waitFor(() => this.locator.isHidden(), {...defaultAssertWait, ...waitOptions}), `Selector: ${this.selector} is visible.`);
+    public async expectThatIsNotVisible(waitOptions?: WaitOptions): Promise<WebElementAsserts> {
+        return this.assertCheck(await waitFor(() => this.locator.isHidden(), {...defaultAssertWait, ...waitOptions}), `Selector: ${this.element.selector} is visible.`);
     }
 
-    public async expectThatIsChecked(waitOptions?: WaitOptions) {
-        this.assertCheck(await waitFor(() => this.locator.isChecked(), {...defaultAssertWait, ...waitOptions}), `Selector: ${this.selector} is not checked.`);
+    public async expectThatIsChecked(waitOptions?: WaitOptions): Promise<WebElementAsserts> {
+        return this.assertCheck(await waitFor(() => this.locator.isChecked(), {...defaultAssertWait, ...waitOptions}), `Selector: ${this.element.selector} is not checked.`);
     }
 
-    public async expectThatIsUnchecked(waitOptions?: WaitOptions) {
-        this.assertCheck(await waitFor(async () => !await this.locator.isChecked(), {...defaultAssertWait, ...waitOptions}), `Selector: ${this.selector} is checked.`);
+    public async expectThatIsUnchecked(waitOptions?: WaitOptions): Promise<WebElementAsserts> {
+        return this.assertCheck(await waitFor(async () => !await this.locator.isChecked(), {...defaultAssertWait, ...waitOptions}), `Selector: ${this.element.selector} is checked.`);
     }
 
-    public async expectThatDoesNotExists(waitOptions?: WaitOptions) {
-        this.assertCheck(await waitFor(async () => (await this.locator.count()) === 0, {...defaultAssertWait, ...waitOptions}), `Selector: ${this.selector} exists.`);
+    public async expectThatDoesNotExists(waitOptions?: WaitOptions): Promise<WebElementAsserts> {
+        return this.assertCheck(await waitFor(async () => (await this.locator.count()) === 0, {...defaultAssertWait, ...waitOptions}), `Selector: ${this.element.selector} exists.`);
     }
 
-    public async expectThatIsDisabled(waitOptions?: WaitOptions) {
-        this.assertCheck(await waitFor(() => this.locator.isDisabled(), {...defaultAssertWait, ...waitOptions}), `Selector: ${this.selector} is not disabled.`);
+    public async expectThatIsDisabled(waitOptions?: WaitOptions): Promise<WebElementAsserts> {
+        return this.assertCheck(await waitFor(() => this.locator.isDisabled(), {...defaultAssertWait, ...waitOptions}), `Selector: ${this.element.selector} is not disabled.`);
     }
 
-    public async expectThatHasClass(expectedClazz: string, waitOptions?: WaitOptions) {
+    public async expectThatHasClass(expectedClazz: string, waitOptions?: WaitOptions): Promise<WebElementAsserts> {
         const wait = {...defaultAssertWait, ...waitOptions};
         let actualResult: string | null = null;
         const result = await waitFor(async () => {
@@ -422,52 +441,52 @@ export class WebElement extends AbstractWebElement {
             if (actualResult) return actualResult.split(" ").includes(expectedClazz);
             return false;
         }, wait);
-        this.assertCheck(result, `Selector: ${this.selector} does not contain class.`, String(actualResult), String(expectedClazz));
+        return this.assertCheck(result, `Selector: ${this.element.selector} does not contain class.`, String(actualResult), String(expectedClazz));
     }
 
-    public async expectThatHasText(expectedText: string, assertOptions?: TextAssertOptions) {
+    public async expectThatHasText(expectedText: string, assertOptions?: TextAssertOptions): Promise<WebElementAsserts> {
         const {waitOptions, ignoreCase, charsToIgnore} = {...defaultTextAssertOptions, ...assertOptions};
         let actualResult: string | null = null;
         const result = await waitFor(async () => {
-            actualResult = await this.getTextContext({timeout: waitOptions.timeout});
+            actualResult = await this.element.getTextContext({timeout: waitOptions.timeout});
             return this.includes(actualResult, expectedText, ignoreCase, charsToIgnore);
         }, waitOptions);
-        this.assertCheck(result, `Selector: ${this.selector} does not has text.`, actualResult, expectedText);
+        return this.assertCheck(result, `Selector: ${this.element.selector} does not has text.`, actualResult, expectedText);
     }
 
-    public async expectThatHasInnerText(expectedText: string, assertOptions?: TextAssertOptions) {
+    public async expectThatHasInnerText(expectedText: string, assertOptions?: TextAssertOptions): Promise<WebElementAsserts> {
         const {waitOptions, ignoreCase, charsToIgnore} = {...defaultTextAssertOptions, ...assertOptions};
         let actualResult: string | null = null;
         const result = await waitFor(async () => {
-            actualResult = await this.getTextContext({timeout: waitOptions.timeout});
+            actualResult = await this.element.getTextContext({timeout: waitOptions.timeout});
             return this.includes(actualResult, expectedText, ignoreCase, charsToIgnore);
         }, waitOptions);
-        this.assertCheck(result, `Selector: ${this.selector} does not has text.`, actualResult, expectedText);
+        return this.assertCheck(result, `Selector: ${this.element.selector} does not has text.`, actualResult, expectedText);
     }
 
-    public async expectThatHasValue(expectedValue: string, waitOptions?: WaitOptions) {
+    public async expectThatHasValue(expectedValue: string, waitOptions?: WaitOptions): Promise<WebElementAsserts> {
         const wait = {...defaultAssertWait, ...waitOptions}
         let actualResult: string | null = null;
         const result = await waitFor(async () => {
-            actualResult = await this.getProperty("value", {timeout: wait.timeout});
+            actualResult = await this.element.getProperty("value", {timeout: wait.timeout});
             if (actualResult) return actualResult === expectedValue;
             return false;
         }, wait);
-        this.assertCheck(result, `Selector: ${this.selector} does not has text.`, actualResult, expectedValue);
+        return this.assertCheck(result, `Selector: ${this.element.selector} does not has text.`, actualResult, expectedValue);
     }
 
-    public async expectThatAttributeHasValue(attribute: string, expectedValue: string, waitOptions?: WaitOptions) {
+    public async expectThatAttributeHasValue(attribute: string, expectedValue: string, waitOptions?: WaitOptions): Promise<WebElementAsserts> {
         const wait = {...defaultAssertWait, ...waitOptions}
         let actualResult: string | null = null;
         const result = await waitFor(async () => {
-            actualResult = await this.getAttribute(attribute, {timeout: wait.timeout});
+            actualResult = await this.element.getAttribute(attribute, {timeout: wait.timeout});
             if (actualResult) return actualResult === expectedValue;
             return false;
         }, wait);
-        this.assertCheck(result, `Selector: ${this.selector} does not has attribute ${attribute} with expected value.`, actualResult, expectedValue);
+        return this.assertCheck(result, `Selector: ${this.element.selector} does not has attribute ${attribute} with expected value.`, actualResult, expectedValue);
     }
 
-    public async expectThatAnyHasText(expectedText: string, assertOptions?: TextAssertOptions) {
+    public async expectThatAnyHasText(expectedText: string, assertOptions?: TextAssertOptions): Promise<WebElementAsserts> {
         const {waitOptions, ignoreCase, charsToIgnore} = {...defaultTextAssertOptions, ...assertOptions};
         let actualResult: string[] | undefined;
         const result = await waitFor(async () => {
@@ -476,10 +495,10 @@ export class WebElement extends AbstractWebElement {
                 return this.filter(actualResult, expectedText, ignoreCase, charsToIgnore).length > 0;
             return false;
         }, waitOptions);
-        this.assertCheck(result, `Selector: ${this.selector} none of elements has expected text.`, actualResult, expectedText);
+        return this.assertCheck(result, `Selector: ${this.element.selector} none of elements has expected text.`, actualResult, expectedText);
     }
 
-    public async expectThatAnyMatchText(expectedText: string, assertOptions?: TextAssertOptions) {
+    public async expectThatAnyMatchText(expectedText: string, assertOptions?: TextAssertOptions): Promise<WebElementAsserts> {
         const {waitOptions, ignoreCase, charsToIgnore} = {...defaultTextAssertOptions, ...assertOptions};
         let actualResult: string[] | undefined;
         const result = await waitFor(async () => {
@@ -488,10 +507,10 @@ export class WebElement extends AbstractWebElement {
                 return this.filter(actualResult, expectedText, ignoreCase, charsToIgnore).length > 0;
             return false;
         }, waitOptions);
-        this.assertCheck(result, `Selector: ${this.selector} none of elements match expected text.`, actualResult, expectedText);
+        return this.assertCheck(result, `Selector: ${this.element.selector} none of elements match expected text.`, actualResult, expectedText);
     }
 
-    public async expectThatNoneOfMatchText(expectedText: string, assertOptions?: TextAssertOptions) {
+    public async expectThatNoneOfMatchText(expectedText: string, assertOptions?: TextAssertOptions): Promise<WebElementAsserts> {
         const {waitOptions, ignoreCase, charsToIgnore} = {...defaultTextAssertOptions, ...assertOptions};
         let actualResult: string[] | undefined;
         const result = await waitFor(async () => {
@@ -500,27 +519,27 @@ export class WebElement extends AbstractWebElement {
                 return this.filter(actualResult, expectedText, ignoreCase, charsToIgnore).length === 0;
             return false;
         }, waitOptions);
-        this.assertCheck(result, `Selector: ${this.selector} some of elements match expected text.`, actualResult, expectedText);
+        return this.assertCheck(result, `Selector: ${this.element.selector} some of elements match expected text.`, actualResult, expectedText);
     }
 
-    public async expectThatCountIs(expectedCount: number, waitOptions?: WaitOptions) {
+    public async expectThatCountIs(expectedCount: number, waitOptions?: WaitOptions): Promise<WebElementAsserts> {
         let actualResult: number | null = null;
         const result = await waitFor(async () => {
-            actualResult = await this.count();
+            actualResult = await this.element.count();
             if (actualResult) return actualResult === expectedCount;
             return false;
         }, {...defaultAssertWait, ...waitOptions});
-        this.assertCheck(result, `Selector: ${this.selector} does not has expected count.`, actualResult, expectedCount);
+        return this.assertCheck(result, `Selector: ${this.element.selector} does not has expected count.`, actualResult, expectedCount);
     }
 
-    public async expectThatCountIsMoreThan(expectedCount: number, waitOptions?: WaitOptions) {
+    public async expectThatCountIsMoreThan(expectedCount: number, waitOptions?: WaitOptions): Promise<WebElementAsserts> {
         let actualResult: number | null = null;
         const result = await waitFor(async () => {
-            actualResult = await this.count();
+            actualResult = await this.element.count();
             if (actualResult) return actualResult > expectedCount;
             return false;
         }, {...defaultAssertWait, ...waitOptions});
-        this.assertCheck(result, `Selector: ${this.selector} does not bigger than expected count.`, actualResult, expectedCount);
+        return this.assertCheck(result, `Selector: ${this.element.selector} does not bigger than expected count.`, actualResult, expectedCount);
     }
 }
 
