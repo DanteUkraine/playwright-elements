@@ -1,6 +1,6 @@
 {
   "name": "playwright-elements",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "This is Playwright extension.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -11,7 +11,8 @@
     "build": "tsc",
     "clean": "tsc --build --clean",
     "install:browsers": "npx playwright install --force chrome chromium msedge firefox webkit --with-deps",
-    "test": "mocha"
+    "test": "mocha",
+    "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,7 @@
     "@types/lodash": "^4.14.186",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.7.23",
+    "@playwright/test": "^1.27.1",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
     "mocha": "^10.0.0",
@@ -43,6 +45,7 @@
     "lodash": "^4.17.21"
   },
   "peerDependencies": {
-    "playwright-core": ">= 1.26.1"
+    "playwright-core": ">= 1.26.x",
+    "@playwright/test": ">=1.27.x"
   }
 }
