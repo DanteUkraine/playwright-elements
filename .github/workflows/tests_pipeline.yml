@@ -11,58 +11,10 @@ concurrency:
   cancel-in-progress: true
 jobs:
 
-  ubuntu-test:
+  test:
     strategy:
       matrix:
-        platform: [ ubuntu-latest ]
-        node: [ '16', '18' ]
-    name: ${{ matrix.platform }} - Node ${{ matrix.node }}
-    runs-on: ${{ matrix.platform }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-      - name: Install playwrigh-elements
-        run: npm ci
-      - name: Install browsers
-        run: npm run install:browsers
-      - name: Run unit tests
-        run: npm test
-        timeout-minutes: 5
-      - name: Run integration tests
-        run: npm run integration:test
-        timeout-minutes: 5
-      - run: echo "🍏 This job's status is ${{ job.status }}."
-
-  macosx-test:
-    strategy:
-      matrix:
-        platform: [ macos-latest ]
-        node: [ '16', '18' ]
-    name: ${{ matrix.platform }} - Node ${{ matrix.node }}
-    runs-on: ${{ matrix.platform }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-      - name: Install playwrigh-elements
-        run: npm ci
-      - name: Install browsers
-        run: npm run install:browsers
-      - name: Run unit tests
-        run: npm test
-        timeout-minutes: 5
-      - name: Run integration tests
-        run: npm run integration:test
-        timeout-minutes: 5
-      - run: echo "🍏 This job's status is ${{ job.status }}."
-
-  windows-test:
-    strategy:
-      matrix:
-        platform: [ windows-latest ]
+        platform: [ ubuntu-latest, macos-latest, windows-latest ]
         node: [ '16', '18' ]
     name: ${{ matrix.platform }} - Node ${{ matrix.node }}
     runs-on: ${{ matrix.platform }}
