@@ -83,6 +83,12 @@ describe('Browser Instance', function (this: Mocha.Suite) {
 
 describe('Browser Instance getter', () => {
 
+    before(() => {
+        BrowserInstance.browser = undefined;
+        BrowserInstance.currentContext = undefined;
+        BrowserInstance.currentPage = undefined;
+    })
+
     test(`browser should throw error`, () => {
         expect(() => BrowserInstance.browser).to.throw(Error, `Browser was not started`);
     })
