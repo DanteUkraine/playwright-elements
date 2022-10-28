@@ -6,9 +6,7 @@ test.describe(`Playwright test integration`, () => {
     test(`expect positive`, async () => {
         const header = $(`.navbar`)
             .subElements({
-                logo: $(`.navbar__title`).subElements({
-                    subElement: $(``)
-                }),
+                logo: $(`.navbar__title`)
             });
         await header.logo.expect().toBeVisible();
         await header.logo.expect().toHaveText("Playwright");

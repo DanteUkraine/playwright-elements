@@ -52,6 +52,20 @@ describe('Web Element augmentation', () => {
         expect(element.narrowSelector).to.be.equal('.parent')
     });
 
+    test('should reuse sub elements', () => {
+        const commonChild = {
+            child: $(`.child`)
+                .subElements({
+                    innerChild: $(`.innerChild`)
+                })
+        };
+        const element1 = $(`.parent1`).subElements(commonChild);
+        const element2 = $(`.parent2`).subElements(commonChild);
+        expect(element1.child.selector).is.equal(`.parent1 >> .child`);
+        expect(element2.child.selector).is.equal(`.parent2 >> .child`);
+        expect(element1.child.innerChild.selector).is.equal(`.parent1 >> .child >> .innerChild`);
+        expect(element2.child.innerChild.selector).is.equal(`.parent2 >> .child >> .innerChild`);
+    });
 
     test('should have additional method', () => {
         expect($(`.selector`)

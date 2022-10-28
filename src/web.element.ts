@@ -1,7 +1,7 @@
 import {Locator, Page} from "playwright-core";
 import {expect} from "@playwright/test";
 import {AssertionError} from "assert";
-import {isEqual} from "lodash";
+import {isEqual, cloneDeep} from "lodash";
 import {BrowserInstance} from "./browser";
 
 function extractSelector(pointer: string | AbstractWebElement): string {
@@ -87,10 +87,10 @@ async function waitForStableInterval(predicate: () => Promise<boolean>, waitOpti
 
 export abstract class AbstractWebElement {
 
-    protected isFrame = false;
-    protected isInFrame = false;
-    protected frameSelector = 'iframe';
-    protected isFirst = false;
+    protected _isFrame = false;
+    protected _isInFrame = false;
+    protected _frameSelector = 'iframe';
+    protected _isFirst = false;
     private _parentSelector: string[] = [];
     private readonly _selector: string;
     private _hasLocator: string | undefined;
@@ -107,26 +107,26 @@ export abstract class AbstractWebElement {
     // page and frame pointers
 
     public asFrame() {
-        this.isFrame = true;
+        this._isFrame = true;
         return this;
     }
 
     public useFirst() {
-        this.isFirst = true;
+        this._isFirst = true;
         return this;
     }
 
     public useStrict() {
-        this.isFirst = false;
+        this._isFirst = false;
         return this;
     }
 
     public get locator(): Locator {
         const subLocator: Locator | undefined = this._hasLocator ? BrowserInstance.currentPage.locator(this._hasLocator) : undefined;
-        const locator = this.isInFrame ?
-            BrowserInstance.currentPage.frameLocator(this.frameSelector).locator(this.selector, {has: subLocator}) :
+        const locator = this._isInFrame ?
+            BrowserInstance.currentPage.frameLocator(this._frameSelector).locator(this.selector, {has: subLocator}) :
             BrowserInstance.currentPage.locator(this.selector, {has: subLocator});
-        if (this.isFirst) return locator.first();
+        if (this._isFirst) return locator.first();
         return locator;
     }
 
@@ -144,9 +144,10 @@ export abstract class AbstractWebElement {
 
     // augmentation
     private recursiveParentSelectorInjection<T extends AbstractWebElement, E>(this: T, element: E) {
-        const entries = Object.entries(element as unknown as { [key: string]: AbstractWebElement }).filter(([key, value]) => !key.startsWith("_") && value instanceof WebElement);
-        if (entries.length) {
-            entries.map(entry => entry[1]).forEach((value) => {
+        const values = Object.values(element as Record<string, any>)
+            .filter((value) => value instanceof AbstractWebElement);
+        if (values.length) {
+            values.forEach((value) => {
                 value.addParentSelector(this.selector);
                 this.recursiveParentSelectorInjection(value);
             })
@@ -154,27 +155,28 @@ export abstract class AbstractWebElement {
     }
 
     public subElements<T extends AbstractWebElement, A>(this: T, augment: A): T & A {
-        const elements = augment as { [key: string]: AbstractWebElement };
-        Object.keys(elements).forEach(key => {
-            if (this.isFrame) {
-                elements[key].isInFrame = true;
-                elements[key].frameSelector = this.selector;
-            } else if (this.isInFrame) {
-                elements[key].isInFrame = true;
-                elements[key].frameSelector = this.frameSelector;
-                (elements[key] as T).addParentSelector(this.selector);
-                this.recursiveParentSelectorInjection(elements[key]);
+        const elements = augment as Record<string, AbstractWebElement>;
+        Object.entries(elements).forEach(([key, value]) => {
+            let clone = cloneDeep(value);
+            if (this._isFrame) {
+                clone._isInFrame = true;
+                clone._frameSelector = this.selector;
+            } else if (this._isInFrame) {
+                clone._isInFrame = true;
+                clone._frameSelector = this._frameSelector;
+                clone.addParentSelector(this.selector);
+                this.recursiveParentSelectorInjection(clone);
             } else {
-                (elements[key] as T).addParentSelector(this.selector);
-                this.recursiveParentSelectorInjection(elements[key]);
+                clone.addParentSelector(this.selector);
+                this.recursiveParentSelectorInjection(clone);
             }
-            Object.defineProperty(this, key, {value: elements[key]});
+            (this as any)[key] = clone;
         });
-        return this as unknown as T & A;
+        return this as T & A;
     }
 
     public withMethods<T extends AbstractWebElement, A>(this: T, augment: A): T & A {
-        const methods = augment as unknown as { [key: string]: Function };
+        const methods = augment as Record<string, Function>;
         Object.keys(methods).forEach(key => {
             if (key in this) throw new Error(`Can not add method with name '${key}' because such method already exists.`);
             Object.defineProperty(this, key, {value: methods[key]})
