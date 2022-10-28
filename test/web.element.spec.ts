@@ -91,7 +91,7 @@ describe('Web Element predicates', function (this: Mocha.Suite) {
     this.timeout(10_000);
 
     beforeEach(async () => {
-        await BrowserInstance.start(BrowserName.WEBKIT);
+        await BrowserInstance.start(BrowserName.CHROME);
         await BrowserInstance.startNewPage();
         await BrowserInstance.currentPage.goto(localFilePath);
         await BrowserInstance.currentPage.waitForSelector('h1');
@@ -171,7 +171,7 @@ describe('Web Element asserts', function (this: Mocha.Suite) {
     this.timeout(10_000);
 
     beforeEach(async () => {
-        await BrowserInstance.start(BrowserName.WEBKIT);
+        await BrowserInstance.start(BrowserName.CHROME);
         await BrowserInstance.startNewPage();
         await BrowserInstance.currentPage.goto(localFilePath);
         await BrowserInstance.currentPage.waitForSelector('h1');
