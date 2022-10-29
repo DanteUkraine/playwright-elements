@@ -46,6 +46,10 @@ describe('Browser Instance', function (this: Mocha.Suite) {
 
     describe('method', function (this: Mocha.Suite) {
 
+        afterEach(async () => {
+            await BrowserInstance.close();
+        })
+
         test(`switch tab`, async () => {
             await BrowserInstance.start(BrowserName.CHROMIUM);
             await BrowserInstance.startNewPage();
@@ -59,6 +63,10 @@ describe('Browser Instance', function (this: Mocha.Suite) {
     })
 
     describe('setter', () => {
+
+        afterEach(async () => {
+            await BrowserInstance.close();
+        })
 
         test(`page`, async () => {
             const browser = await chromium.launch()
