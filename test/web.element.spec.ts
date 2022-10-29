@@ -52,6 +52,20 @@ describe('Web Element augmentation', () => {
         expect(element.narrowSelector).to.be.equal('.parent')
     });
 
+    test('should reuse sub elements', () => {
+        const commonChild = {
+            child: $(`.child`)
+                .subElements({
+                    innerChild: $(`.innerChild`)
+                })
+        };
+        const element1 = $(`.parent1`).subElements(commonChild);
+        const element2 = $(`.parent2`).subElements(commonChild);
+        expect(element1.child.selector).is.equal(`.parent1 >> .child`);
+        expect(element2.child.selector).is.equal(`.parent2 >> .child`);
+        expect(element1.child.innerChild.selector).is.equal(`.parent1 >> .child >> .innerChild`);
+        expect(element2.child.innerChild.selector).is.equal(`.parent2 >> .child >> .innerChild`);
+    });
 
     test('should have additional method', () => {
         expect($(`.selector`)
@@ -76,14 +90,14 @@ describe('Web Element augmentation', () => {
 describe('Web Element predicates', function (this: Mocha.Suite) {
     this.timeout(10_000);
 
-    beforeEach(async () => {
-        await BrowserInstance.start(BrowserName.CHROMIUM);
+    before(async () => {
+        await BrowserInstance.start(BrowserName.CHROME);
         await BrowserInstance.startNewPage();
         await BrowserInstance.currentPage.goto(localFilePath);
         await BrowserInstance.currentPage.waitForSelector('h1');
     })
 
-    afterEach(async () => {
+    after(async () => {
         await BrowserInstance.close();
     })
 
@@ -156,14 +170,14 @@ describe('Web Element predicates', function (this: Mocha.Suite) {
 describe('Web Element asserts', function (this: Mocha.Suite) {
     this.timeout(10_000);
 
-    beforeEach(async () => {
-        await BrowserInstance.start(BrowserName.CHROMIUM);
+    before(async () => {
+        await BrowserInstance.start(BrowserName.CHROME);
         await BrowserInstance.startNewPage();
         await BrowserInstance.currentPage.goto(localFilePath);
         await BrowserInstance.currentPage.waitForSelector('h1');
     })
 
-    afterEach(async () => {
+    after(async () => {
         await BrowserInstance.close();
     })
 
@@ -172,8 +186,8 @@ describe('Web Element asserts', function (this: Mocha.Suite) {
     })
 
     test(`expect that is visible negative`, (done) => {
-        expect($(`h2`).asserts().expectThatIsVisible()).to.be.rejectedWith(AssertionError,
-            `Selector: h2 is not visible.`).and.notify(done);
+        expect($(`h2`).asserts().expectThatIsVisible())
+            .to.be.rejectedWith(AssertionError, `Selector: h2 is not visible.`).and.notify(done);
     })
 
     test(`expect that is not visible positive`, (done) => {
