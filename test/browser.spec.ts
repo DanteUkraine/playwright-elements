@@ -1,6 +1,6 @@
 import {BrowserInstance, BrowserName} from "../src";
 import chai, {expect} from "chai";
-import {afterEach, test} from "mocha";
+import {test} from "mocha";
 import {chromium} from "playwright-core";
 import chaiAsPromised from 'chai-as-promised'
 import * as path from 'path';
@@ -11,23 +11,23 @@ const localFilePath = `file://${__dirname.replace(/\//g, path.sep)}/test.html`;
 chai.use(chaiAsPromised)
 
 describe('Browser Instance', function (this: Mocha.Suite) {
-    this.timeout(10_000);
-
-    afterEach(async () => {
-        await BrowserInstance.close();
-    })
+    this.timeout(15_000);
 
     describe('start', () => {
 
         const browsers = Object.values(BrowserName);
         browsers.forEach((browser) => {
-            test(`${browser} should start`, async () => {
+            test(`${browser} should start and close`, async () => {
                 await BrowserInstance.start(browser);
                 await BrowserInstance.startNewContext();
                 await BrowserInstance.startNewPage();
                 expect(() => BrowserInstance.browser).not.to.throw();
                 expect(() => BrowserInstance.currentContext).not.to.throw();
                 expect(() => BrowserInstance.currentPage).not.to.throw();
+                await BrowserInstance.close();
+                expect(() => BrowserInstance.browser).to.throw();
+                expect(() => BrowserInstance.currentContext).to.throw();
+                expect(() => BrowserInstance.currentPage).to.throw();
             })
         })
 
@@ -37,6 +37,10 @@ describe('Browser Instance', function (this: Mocha.Suite) {
             expect(() => BrowserInstance.browser).not.to.throw();
             expect(() => BrowserInstance.currentContext).not.to.throw();
             expect(() => BrowserInstance.currentPage).not.to.throw();
+            await BrowserInstance.close();
+            expect(() => BrowserInstance.browser).to.throw();
+            expect(() => BrowserInstance.currentContext).to.throw();
+            expect(() => BrowserInstance.currentPage).to.throw();
         })
     })
 
