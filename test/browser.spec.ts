@@ -1,7 +1,7 @@
 import {BrowserInstance, BrowserName} from "../src";
 import chai, {expect} from "chai";
-import {test} from "mocha";
-import {chromium} from "playwright-core";
+import {afterEach, test} from "mocha";
+import {webkit} from "playwright-core";
 import chaiAsPromised from 'chai-as-promised'
 import * as path from 'path';
 
@@ -11,7 +11,11 @@ const localFilePath = `file://${__dirname.replace(/\//g, path.sep)}/test.html`;
 chai.use(chaiAsPromised)
 
 describe('Browser Instance', function (this: Mocha.Suite) {
-    this.timeout(15_000);
+    this.timeout(10_000);
+
+    afterEach(async () => {
+        await BrowserInstance.close();
+    })
 
     describe('start', () => {
 
@@ -24,34 +28,22 @@ describe('Browser Instance', function (this: Mocha.Suite) {
                 expect(() => BrowserInstance.browser).not.to.throw();
                 expect(() => BrowserInstance.currentContext).not.to.throw();
                 expect(() => BrowserInstance.currentPage).not.to.throw();
-                await BrowserInstance.close();
-                expect(() => BrowserInstance.browser).to.throw();
-                expect(() => BrowserInstance.currentContext).to.throw();
-                expect(() => BrowserInstance.currentPage).to.throw();
             })
         })
 
         test(`new page should start context`, async () => {
-            await BrowserInstance.start(BrowserName.CHROMIUM);
+            await BrowserInstance.start(BrowserName.WEBKIT);
             await BrowserInstance.startNewPage();
             expect(() => BrowserInstance.browser).not.to.throw();
             expect(() => BrowserInstance.currentContext).not.to.throw();
             expect(() => BrowserInstance.currentPage).not.to.throw();
-            await BrowserInstance.close();
-            expect(() => BrowserInstance.browser).to.throw();
-            expect(() => BrowserInstance.currentContext).to.throw();
-            expect(() => BrowserInstance.currentPage).to.throw();
         })
     })
 
     describe('method', function (this: Mocha.Suite) {
 
-        afterEach(async () => {
-            await BrowserInstance.close();
-        })
-
         test(`switch tab`, async () => {
-            await BrowserInstance.start(BrowserName.CHROMIUM);
+            await BrowserInstance.start(BrowserName.WEBKIT);
             await BrowserInstance.startNewPage();
             await BrowserInstance.currentPage.goto(localFilePath);
             await BrowserInstance.startNewPage();
@@ -64,12 +56,8 @@ describe('Browser Instance', function (this: Mocha.Suite) {
 
     describe('setter', () => {
 
-        afterEach(async () => {
-            await BrowserInstance.close();
-        })
-
         test(`page`, async () => {
-            const browser = await chromium.launch()
+            const browser = await webkit.launch()
             const page = await browser.newPage();
             BrowserInstance.withPage(page);
             expect(() => BrowserInstance.browser).not.to.throw();
@@ -78,7 +66,7 @@ describe('Browser Instance', function (this: Mocha.Suite) {
         })
 
         test(`context`, async () => {
-            const browser = await chromium.launch()
+            const browser = await webkit.launch()
             const context = await browser.newContext();
             BrowserInstance.withContext(context);
             expect(() => BrowserInstance.browser).not.to.throw();
@@ -86,7 +74,7 @@ describe('Browser Instance', function (this: Mocha.Suite) {
         })
 
         test(`browser`, async () => {
-            const browser = await chromium.launch()
+            const browser = await webkit.launch()
             BrowserInstance.withBrowser(browser);
             expect(() => BrowserInstance.browser).not.to.throw();
         })
