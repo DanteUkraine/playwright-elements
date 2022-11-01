@@ -215,14 +215,12 @@ export abstract class AbstractWebElement {
     // chainable web element creation
 
     protected $<T extends AbstractWebElement>(this: T, selector: string): T {
-        return Object.create(this, {
-            _selector:
-                {
-                    value: selector,
-                    writable: false,
-                    configurable: false
-                }
-        });
+        return Object.defineProperty(cloneDeep(this), "_selector",
+            {
+                value: selector,
+                writable: false,
+                configurable: false
+            });
     }
 
     public child<T extends AbstractWebElement>(subSelector: string | T) {
