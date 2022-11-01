@@ -17,7 +17,7 @@ describe('Browser Instance', function (this: Mocha.Suite) {
         await BrowserInstance.close();
     })
 
-    describe('start', async () => {
+    describe('start', () => {
 
         const browsers = Object.values(BrowserName);
         for (const browser of browsers) {
