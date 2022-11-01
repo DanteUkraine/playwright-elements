@@ -67,6 +67,35 @@ describe('Web Element augmentation', () => {
         expect(element2.child.innerChild.selector).is.equal(`.parent2 >> .child >> .innerChild`);
     });
 
+    test('should reuse chainable sub elements', () => {
+        const commonChild = {
+            child: $(`.child`).withVisible()
+                .subElements({
+                    innerChild: $(`.innerChild`).withVisible()
+                })
+        };
+        const element1 = $(`.parent1`).subElements(commonChild);
+        const element2 = $(`.parent2`).subElements(commonChild);
+        expect(element1.child.selector).is.equal(`.parent1 >> .child >> visible=true`);
+        expect(element2.child.selector).is.equal(`.parent2 >> .child >> visible=true`);
+        expect(element1.child.innerChild.selector).is.equal(`.parent1 >> .child >> visible=true >> .innerChild >> visible=true`);
+        expect(element2.child.innerChild.selector).is.equal(`.parent2 >> .child >> visible=true >> .innerChild >> visible=true`);
+    });
+
+    test('chainable sub elements should not mutate original element', () => {
+        const commonChild = {
+            child: $(`.child`)
+                .subElements({
+                    innerChild: $(`.innerChild`)
+                })
+        };
+        const element1 = $(`.parent1`).subElements(commonChild);
+        expect(element1.child.withVisible().selector).is.equal(`.parent1 >> .child >> visible=true`);
+        expect(element1.child.selector).is.equal(`.parent1 >> .child`);
+        expect(element1.child.innerChild.withVisible().selector).is.equal(`.parent1 >> .child >> .innerChild >> visible=true`);
+        expect(element1.child.innerChild.selector).is.equal(`.parent1 >> .child >> .innerChild`);
+    });
+
     test('should have additional method', () => {
         expect($(`.selector`)
             .withMethods({
