@@ -17,11 +17,11 @@ describe('Browser Instance', function (this: Mocha.Suite) {
         await BrowserInstance.close();
     })
 
-    describe('start', () => {
+    describe('start', async () => {
 
         const browsers = Object.values(BrowserName);
-        browsers.forEach((browser) => {
-            test(`${browser} should start and close`, async () => {
+        for (const browser of browsers) {
+            test(`${browser} should start`, async () => {
                 await BrowserInstance.start(browser);
                 await BrowserInstance.startNewContext();
                 await BrowserInstance.startNewPage();
@@ -29,7 +29,7 @@ describe('Browser Instance', function (this: Mocha.Suite) {
                 expect(() => BrowserInstance.currentContext).not.to.throw();
                 expect(() => BrowserInstance.currentPage).not.to.throw();
             })
-        })
+        }
 
         test(`new page should start context`, async () => {
             await BrowserInstance.start(BrowserName.WEBKIT);
