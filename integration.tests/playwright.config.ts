@@ -16,7 +16,7 @@ const config: PlaywrightTestConfig = {
         // },
     ],
     use: {
-        headless: true,
+        headless: false,
         baseURL: 'https://playwright.dev',
         ignoreHTTPSErrors: true,
     },

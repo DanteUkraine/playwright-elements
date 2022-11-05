@@ -17,10 +17,15 @@ test.describe(`Playwright test integration`, () => {
             .subElements({
                 logo: $(`.navbar__title`),
             });
-        await header.logo.softExpect().not.toBeVisible();
-        await header.logo.softExpect().not.toHaveText("Playwright");
+        await header.logo.softExpect().not.toBeVisible({ timeout: 500 });
+        await header.logo.softExpect().not.toHaveText("Playwright", { timeout: 500 });
         expect(test.info().errors).toHaveLength(2);
         test.fail()
+    })
+
+    test(`goto fixture should navigate to endpoint`, async ({ goto }) => {
+        const res = await goto('/docs/test-typescript');
+        expect(res?.ok()).toBeTruthy();
     })
 
 })

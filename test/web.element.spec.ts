@@ -11,30 +11,65 @@ chai.use(chaiAsPromised)
 
 describe('Web Element chainable selectors', () => {
 
-    test('should have a child', () => {
-        expect($(`.class`).child(".child_class").selector).is.equal(`.class >> .child_class`);
-    });
-
     test('should have a visible', () => {
-        expect($(`.class`).withVisible().selector).is.equal(`.class >> visible=true`);
+        const element = $(`.class`)
+            .subElements({
+                child: $(`.child`)
+                    .subElements({
+                        innerChild: $(`.innerChild`)
+                    })
+            })
+        expect(element.withVisible().child.selector).is.equal(`.class >> visible=true >> .child`);
+        expect(element.child.withVisible().innerChild.selector).is.equal(`.class >> .child >> visible=true >> .innerChild`);
     });
 
     test('should point on first element', () => {
-        expect($(`.class`).first().selector).is.equal(`.class >> nth=0`);
+        const element = $(`.class`)
+            .subElements({
+                child: $(`.child`)
+                    .subElements({
+                        innerChild: $(`.innerChild`)
+                    })
+            })
+        expect(element.first().child.selector).is.equal(`.class >> nth=0 >> .child`);
+        expect(element.child.first().innerChild.selector).is.equal(`.class >> .child >> nth=0 >> .innerChild`);
     });
 
     test('should point on last element', () => {
-        expect($(`.class`).last().selector).is.equal(`.class >> nth=-1`);
+        const element = $(`.class`)
+            .subElements({
+                child: $(`.child`)
+                    .subElements({
+                        innerChild: $(`.innerChild`)
+                    })
+            })
+        expect(element.last().child.selector).is.equal(`.class >> nth=-1 >> .child`);
+        expect(element.child.last().innerChild.selector).is.equal(`.class >> .child >> nth=-1 >> .innerChild`);
     });
 
     test('should point on element with text', () => {
-        expect($(`.class`).withText("text").selector).is.equal(`.class >> text=text`);
+        const element = $(`.class`)
+            .subElements({
+                child: $(`.child`)
+                    .subElements({
+                        innerChild: $(`.innerChild`)
+                    })
+            })
+        expect(element.withText("text").child.selector).is.equal(`.class >> text=text >> .child`);
+        expect(element.child.withText("text").innerChild.selector).is.equal(`.class >> .child >> text=text >> .innerChild`);
     });
 
     test('should point on element where is text', () => {
-        expect($(`.class`).whereTextIs("text").selector).is.equal(`.class >> text="text"`);
+        const element = $(`.class`)
+            .subElements({
+                child: $(`.child`)
+                    .subElements({
+                        innerChild: $(`.innerChild`)
+                    })
+            })
+        expect(element.whereTextIs("text").child.innerChild.selector).is.equal(`.class >> text="text" >> .child >> .innerChild`);
+        expect(element.child.innerChild.selector).is.equal(`.class >> .child >> .innerChild`);
     });
-
 });
 
 describe('Web Element augmentation', () => {
@@ -102,8 +137,62 @@ describe('Web Element augmentation', () => {
                 additionalMethod() {
 
                 }
-            })).to.have.property('additionalMethod');
+            })).has.property('additionalMethod');
     });
+
+    test('additional method should be added to original instance of element', () => {
+        const element = $(`.selector`);
+        element
+            .withMethods({
+                additionalMethod() {
+
+                }
+            })
+        expect(element).has.property('additionalMethod');
+    });
+
+    test('additional methods should be tied to instance', () => {
+        const commonChild = {
+            child: $(`.child`)
+                .withMethods({
+                    additionalMethod() {
+
+                    }
+                })
+                .subElements({
+                    innerChild: $(`.innerChild`)
+                        .withMethods({
+                            additionalMethod() {
+
+                            }
+                        })
+                })
+        };
+        const element1 = $(`.parent1`).subElements(commonChild);
+        commonChild.child.withMethods({
+            secondAdditionalMethod(){
+
+            }
+        })
+        commonChild.child.innerChild.withMethods({
+            secondAdditionalMethod(){
+
+            }
+        })
+        const element2 = $(`.parent2`).subElements(commonChild);
+        expect(element1.child).has.property('additionalMethod');
+        expect(element1.child.innerChild).has.property('additionalMethod');
+        expect(element1.child).has.not.property('secondAdditionalMethod');
+        expect(element1.child.innerChild).has.not.property('secondAdditionalMethod');
+
+        expect(element2.child).has.property('additionalMethod');
+        expect(element2.child.innerChild).has.property('additionalMethod');
+        expect(element2.child).has.property('secondAdditionalMethod');
+        expect(element2.child.innerChild).has.property('secondAdditionalMethod');
+
+
+
+    })
 
     test('should throw on duplicated additional method', () => {
         expect(() => $(`.selector`)
