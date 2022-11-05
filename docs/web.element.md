@@ -4,10 +4,9 @@
 page object and creation of complex web components which support more than two levels deep sub elements
 with ability to add custom methods.*
 ___
-- [subElements()](###subElements())
-- [expect()](###expect())
-- [additionalMethods()](###additionalMethods())
-- [getters: locator and _](###locatorAndUnderscore)
+- [subElements()](#sub-elements)
+- [expect()](#expect)
+- [additionalMethods() and getters: locator and _](#additional-methods-locator-and-underscore)
 
 ___
 First you need to allow lazy initialization, 
@@ -15,7 +14,7 @@ if you use `@playwright/test` see: [Playwright Test fixtures](playwright.test.fi
 In case you use any another test runner see: [Browser Instance](browser.instance.md)
 ___
 
-###subElements()
+### Sub elements
 
 Complex component creation:
 
@@ -50,8 +49,7 @@ test(`header should contain user info`, async () => {
 })
 ```
 ---
-###additionalMethods()
-###locatorAndUnderscore
+### Additional methods, Locator and underscore
 
 ```ts
 import { $, WebElement } from "playwright-elements"; 
