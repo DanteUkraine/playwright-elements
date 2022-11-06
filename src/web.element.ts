@@ -293,12 +293,12 @@ export abstract class AbstractWebElement {
 
     public async filter<T extends AbstractWebElement>(this: T, predicate: (element: T) => boolean | Promise<boolean>): Promise<T[]> {
         const list: T[] = await this.getAll();
-        const matchedItems: T[] = [];
+        const matchedElements: T[] = [];
         for (const ele of list) {
             if(await predicate(ele))
-                matchedItems.push(ele);
+                matchedElements.push(ele);
         }
-        return await Promise.all(matchedItems);
+        return matchedElements;
     }
 
     public async getTextContext(options?: { timeout?: number }) {
