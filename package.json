@@ -19,7 +19,9 @@
     "url": "git+https://github.com/DanteUkraine/playwright-elements.git"
   },
   "keywords": [
-    "Playwright"
+    "Playwright",
+    "playwright-elements",
+    "playwright/test"
   ],
   "author": "Oleksandr Solomin",
   "license": "ISC",
