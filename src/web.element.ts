@@ -264,13 +264,11 @@ export abstract class AbstractWebElement {
         return elements;
     }
 
-    public async forEach<T extends AbstractWebElement, R>(this: T, action: (element: T) => R): Promise<void> {
+    public async forEach<T extends AbstractWebElement>(this: T, action: (element: T) => unknown | Promise<unknown>): Promise<void> {
         const list: T[] = await this.getAll();
-        const promises: Promise<R>[] = [];
         for (const ele of list) {
-            promises.push(Promise.resolve(action(ele)));
+            await action(ele);
         }
-        await Promise.all(promises);
     }
 
     public async getFromEach<T extends AbstractWebElement, R>(this: T, action: (element: T) => R): Promise<R[]> {
