@@ -264,13 +264,41 @@ export abstract class AbstractWebElement {
         return elements;
     }
 
-    public async forEach<T extends AbstractWebElement>(this: T, action: (element: T) => Promise<void>): Promise<void> {
+    public async forEach<T extends AbstractWebElement, R>(this: T, action: (element: T) => R): Promise<void> {
         const list: T[] = await this.getAll();
-        const promises: Promise<void>[] = [];
+        const promises: Promise<R>[] = [];
         for (const ele of list) {
-            promises.push(action(ele));
+            promises.push(Promise.resolve(action(ele)));
         }
         await Promise.all(promises);
+    }
+
+    public async getFromEach<T extends AbstractWebElement, R>(this: T, action: (element: T) => R): Promise<R[]> {
+        const list: T[] = await this.getAll();
+        const promisesOrFunctions: Promise<R>[] = [];
+        for (const ele of list) {
+            promisesOrFunctions.push(Promise.resolve(action(ele)));
+        }
+        return await Promise.all(promisesOrFunctions);
+    }
+
+    public async map<T extends AbstractWebElement, R>(this: T, item: (element: T) => R | Promise<R>): Promise<R[]> {
+        const list: T[] = await this.getAll();
+        const futureItems: Promise<R>[] = [];
+        for (const ele of list) {
+            futureItems.push(Promise.resolve(item(ele)));
+        }
+        return await Promise.all(futureItems);
+    }
+
+    public async filter<T extends AbstractWebElement>(this: T, predicate: (element: T) => boolean | Promise<boolean>): Promise<T[]> {
+        const list: T[] = await this.getAll();
+        const matchedItems: T[] = [];
+        for (const ele of list) {
+            if(await predicate(ele))
+                matchedItems.push(ele);
+        }
+        return await Promise.all(matchedItems);
     }
 
     public async getTextContext(options?: { timeout?: number }) {

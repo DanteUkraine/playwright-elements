@@ -7,6 +7,7 @@ ___
 - [subElements()](#sub-elements)
 - [expect()](#expect)
 - [additionalMethods() and getters: locator and _](#additional-methods-locator-and-underscore)
+- [predicates]
 
 ___
 First you need to allow lazy initialization, 
@@ -72,8 +73,9 @@ class MainPage {
 }
 ```
 
-Web element has getters `locator` and `_` both return instance of [Locator](https://playwright.dev/docs/api/class-locator)
-
+Web element has getters `locator` and `_` both return instance of [Locator](https://playwright.dev/docs/api/class-locator).
+Also `hoverAndClick` method now can be used on item element. Please pay attention that to access web element
+default methods inside additional method declaration is used fake `this: WebElement` pointer. 
 ```ts
 test(`user can open documentaation`, async () => {
     const mainPage = new MainPage();
@@ -81,3 +83,4 @@ test(`user can open documentaation`, async () => {
     await mainPage.header.menu.item.withText(`Documentation`).hoverAndClick();
 })
 ```
+
