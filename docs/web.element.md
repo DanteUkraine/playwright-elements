@@ -7,7 +7,7 @@ ___
 - [subElements()](#sub-elements)
 - [expect()](#expect)
 - [additionalMethods() and getters: locator and _](#additional-methods-locator-and-underscore)
-- [predicates]
+- []
 
 ___
 First you need to allow lazy initialization, 

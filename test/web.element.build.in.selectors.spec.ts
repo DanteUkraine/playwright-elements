@@ -71,4 +71,10 @@ describe(`Web element build in selectors`, function () {
         expect(elementId).to.be.equal("4");
     })
 
+    test(`has should point on element witch has specific child`, async () => {
+        const visibleElement = $(`#visible-target div`).has(`#right-target`);
+        const elementId = await visibleElement._.getAttribute("id");
+        expect(elementId).to.be.equal("inner-visible-target2");
+    })
+
 });
