@@ -91,7 +91,7 @@ export abstract class AbstractWebElement {
     protected _isInFrame = false;
     protected _frameSelector = 'iframe';
     protected _isFirst = false;
-    private _parentSelector: string[] = [];
+    private _parentSelector: AbstractWebElement[] = [];
     private readonly _selector: string;
     private _hasLocator: string | undefined;
 
@@ -147,8 +147,8 @@ export abstract class AbstractWebElement {
         const values = Object.values(element as Record<string, any>)
             .filter((value) => value instanceof AbstractWebElement);
         if (values.length) {
-            values.forEach((value) => {
-                value.addParentSelector(this.selector);
+            values.forEach((value: AbstractWebElement) => {
+                value.addParentSelector(this);
                 this.recursiveParentSelectorInjection(value);
             })
         }
@@ -164,10 +164,10 @@ export abstract class AbstractWebElement {
             } else if (this._isInFrame) {
                 clone._isInFrame = true;
                 clone._frameSelector = this._frameSelector;
-                clone.addParentSelector(this.selector);
+                clone.addParentSelector(this as AbstractWebElement);
                 this.recursiveParentSelectorInjection(clone);
             } else {
-                clone.addParentSelector(this.selector);
+                clone.addParentSelector(this as AbstractWebElement);
                 this.recursiveParentSelectorInjection(clone);
             }
             (this as any)[key] = clone;
@@ -179,9 +179,9 @@ export abstract class AbstractWebElement {
         const methods = augment as Record<string, Function>;
         Object.keys(methods).forEach(key => {
             if (key in this) throw new Error(`Can not add method with name '${key}' because such method already exists.`);
-            Object.defineProperty(this, key, {value: methods[key]})
+            (this as any)[key] = methods[key]
         });
-        return this as unknown as T & A;
+        return this as T & A;
     }
 
     // getters setters
@@ -197,15 +197,15 @@ export abstract class AbstractWebElement {
     }
 
     get parentSelector() {
-        return this.parentSelectors.join(" >> ");
+        return this.parentSelectors.map(element => element.narrowSelector).join(" >> ");
     }
 
     private get parentSelectors() {
         return this._parentSelector;
     }
 
-    private addParentSelector(parentSelector: string) {
-        this._parentSelector.unshift(parentSelector);
+    private addParentSelector(parent: AbstractWebElement) {
+        this._parentSelector.unshift(parent);
     }
 
     private set hasLocator(selector: string) {
@@ -221,10 +221,6 @@ export abstract class AbstractWebElement {
                 writable: false,
                 configurable: false
             });
-    }
-
-    public child<T extends AbstractWebElement>(subSelector: string | T) {
-        return this.$(`${this._selector} >> ${extractSelector(subSelector)}`);
     }
 
     public has<T extends AbstractWebElement>(selector: string | T) {
@@ -268,13 +264,40 @@ export abstract class AbstractWebElement {
         return elements;
     }
 
-    public async forEach<T extends AbstractWebElement>(this: T, action: (element: T) => Promise<void>): Promise<void> {
-        const list: T[] = await this.getAll()
-        for await (const ele of list) {
+    public async forEach<T extends AbstractWebElement>(this: T, action: (element: T) => unknown | Promise<unknown>): Promise<void> {
+        const list: T[] = await this.getAll();
+        for (const ele of list) {
             await action(ele);
         }
     }
 
+    public async getFromEach<T extends AbstractWebElement, R>(this: T, action: (element: T) => R): Promise<R[]> {
+        const list: T[] = await this.getAll();
+        const promisesOrFunctions: Promise<R>[] = [];
+        for (const ele of list) {
+            promisesOrFunctions.push(Promise.resolve(action(ele)));
+        }
+        return await Promise.all(promisesOrFunctions);
+    }
+
+    public async map<T extends AbstractWebElement, R>(this: T, item: (element: T) => R | Promise<R>): Promise<R[]> {
+        const list: T[] = await this.getAll();
+        const futureItems: Promise<R>[] = [];
+        for (const ele of list) {
+            futureItems.push(Promise.resolve(item(ele)));
+        }
+        return await Promise.all(futureItems);
+    }
+
+    public async filter<T extends AbstractWebElement>(this: T, predicate: (element: T) => boolean | Promise<boolean>): Promise<T[]> {
+        const list: T[] = await this.getAll();
+        const matchedElements: T[] = [];
+        for (const ele of list) {
+            if(await predicate(ele))
+                matchedElements.push(ele);
+        }
+        return matchedElements;
+    }
 
     public async getTextContext(options?: { timeout?: number }) {
         return this.locator.textContent(options);

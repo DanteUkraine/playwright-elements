@@ -1,6 +1,6 @@
 {
   "name": "playwright-elements",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "This is Playwright extension.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -19,7 +19,9 @@
     "url": "git+https://github.com/DanteUkraine/playwright-elements.git"
   },
   "keywords": [
-    "Playwright"
+    "Playwright",
+    "playwright-elements",
+    "playwright/test"
   ],
   "author": "Oleksandr Solomin",
   "license": "ISC",
@@ -46,6 +48,6 @@
   },
   "peerDependencies": {
     "playwright-core": ">= 1.26.x",
-    "@playwright/test": ">=1.27.x"
+    "@playwright/test": ">=1.26.x"
   }
 }

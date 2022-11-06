@@ -1,14 +1,17 @@
-#Playwright-elements
+# Playwright-elements
 ___
 Playwright elements helps you to create reusable components and allows lazy initialization.
 
 ***Installation:*** `npm install -D playwright-elements`
 
-***IMPORTANT:*** playwright elements is not standalone framework it requires 
-`playwright-core` or `@playwright/test` to added to project.
-`WebElement, $ and BrowserInstance` api require `playwright-core` as dependency. 
-custom `test` fixture and `WebElement.expect()` api require `@playwright/test` as dependency
+***IMPORTANT:*** playwright elements is not standalone framework, it requires:
+- `playwright-core >= 1.26.x` or `@playwright/test >=1.26.x` to added to project.
+- `WebElement, $ and BrowserInstance` api require `playwright-core` as dependency. 
+- `test` import and fixtures `goto`, `currentPageInstance`. Asserts `WebElement.expect()` api require `@playwright/test` as dependency
 
+___
+###Detailed documentation
+#### [Web Element](/docs/web.element.md) | [Browser Instance](/docs/browser.instance.md) | [Playwright Test fixtures](/docs/playwright.test.fixtures.md)
 ___
 ## WebElement 
 

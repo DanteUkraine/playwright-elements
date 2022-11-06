@@ -41,11 +41,13 @@ describe('Browser Instance', function (this: Mocha.Suite) {
     })
 
     describe('method', function (this: Mocha.Suite) {
-
-        test(`switch tab`, async () => {
+        beforeEach(async () => {
             await BrowserInstance.start(BrowserName.WEBKIT);
             await BrowserInstance.startNewPage();
             await BrowserInstance.currentPage.goto(localFilePath);
+        })
+
+        test(`switch tab`, async () => {
             await BrowserInstance.startNewPage();
             expect(BrowserInstance.currentPage.url()).to.be.equal('about:blank');
             await BrowserInstance.switchToPreviousTab();

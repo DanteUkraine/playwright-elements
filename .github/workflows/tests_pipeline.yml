@@ -27,9 +27,9 @@ jobs:
         run: npm ci
       - name: Install browsers
         run: npm run install:browsers
-      - name: Run unit tests
+      - name: Run tests
         run: npm test
-        timeout-minutes: 5
+        timeout-minutes: 10
       - name: Run integration tests
         run: npm run integration:test
         timeout-minutes: 5
