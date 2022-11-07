@@ -15,6 +15,7 @@ describe(`Web element build in selectors`, function () {
     before(async () => {
         await BrowserInstance.start(BrowserName.CHROME);
         await BrowserInstance.startNewPage();
+        await BrowserInstance.currentPage.setDefaultTimeout(2_500);
         await BrowserInstance.currentPage.goto(localFilePath);
         await BrowserInstance.currentPage.waitForSelector('h1');
     })
@@ -42,13 +43,13 @@ describe(`Web element build in selectors`, function () {
     })
 
     test(`whereTextIs should point on original element`, async () => {
-        const visibleElement = $(`*css=#visible-target`).whereTextIs("This is second visible target");
+        const visibleElement = $(`*css=#visible-target`).whereTextIs("Second visible target");
         const elementId = await visibleElement._.getAttribute("id");
         expect(elementId).to.be.equal("visible-target");
     })
 
     test(`whereTextIs should point on sub element`, async () => {
-        const visibleElement = $(`#visible-target`).whereTextIs("This is second visible target");
+        const visibleElement = $(`#visible-target`).whereTextIs("Second visible target");
         const elementId = await visibleElement._.getAttribute("id");
         expect(elementId).to.be.equal("second-target");
     })
@@ -71,8 +72,14 @@ describe(`Web element build in selectors`, function () {
         expect(elementId).to.be.equal("4");
     })
 
-    test(`has should point on element witch has specific child`, async () => {
+    test(`has with string argument should point on element witch has specific child`, async () => {
         const visibleElement = $(`#visible-target div`).has(`#right-target`);
+        const elementId = await visibleElement._.getAttribute("id");
+        expect(elementId).to.be.equal("inner-visible-target2");
+    })
+
+    test(`has with WebElement argument should point on element witch has specific child`, async () => {
+        const visibleElement = $(`#visible-target div`).has($(`#right-target`));
         const elementId = await visibleElement._.getAttribute("id");
         expect(elementId).to.be.equal("inner-visible-target2");
     })
