@@ -10,7 +10,7 @@ Playwright elements helps you to create reusable components and allows lazy init
 - `test` import and fixtures `goto`, `currentPageInstance`. Asserts `WebElement.expect()` api require `@playwright/test` as dependency
 
 ___
-###Detailed documentation
+### Detailed documentation
 #### [Web Element](/docs/web.element.md) | [Browser Instance](/docs/browser.instance.md) | [Playwright Test fixtures](/docs/playwright.test.fixtures.md)
 ___
 ## WebElement 
@@ -50,7 +50,7 @@ class MainPage {
 ```
 
 ___
-##Usage with playwright-test
+## Usage with playwright-test
 
 Playwright elements provides you with extended **test** annotation 
 and access to playwright expect methods via **expect()** function
