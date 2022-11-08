@@ -91,7 +91,7 @@ export abstract class AbstractWebElement {
     protected _isInFrame = false;
     protected _frameSelector = 'iframe';
     protected _isFirst = false;
-    private _parentSelector: AbstractWebElement[] = [];
+    private _parents: AbstractWebElement[] = [];
     private readonly _selector: string;
     private _hasLocator: string | undefined;
 
@@ -189,23 +189,23 @@ export abstract class AbstractWebElement {
         return this._selector;
     }
 
-    get selector() {
-        if (this.parentSelectors.length)
-            return `${this.parentSelector} >> ${this._selector}`;
+    get selector(): string {
+        if (this.parentElements.length)
+            return `${this.parents} >> ${this._selector}`;
         else
             return this._selector;
     }
 
-    get parentSelector() {
-        return this.parentSelectors.map(element => element.narrowSelector).join(" >> ");
+    get parents(): string {
+        return this.parentElements.map(element => element.narrowSelector).join(" >> ");
     }
 
-    private get parentSelectors() {
-        return this._parentSelector;
+    private get parentElements(): AbstractWebElement[] {
+        return this._parents;
     }
 
-    private addParentSelector(parent: AbstractWebElement) {
-        this._parentSelector.unshift(parent);
+    private addParentSelector(parent: AbstractWebElement): void {
+        this._parents.unshift(parent);
     }
 
     private set hasLocator(selector: string) {
@@ -223,7 +223,7 @@ export abstract class AbstractWebElement {
             });
     }
 
-    public has<T extends AbstractWebElement>(selector: string | T) {
+    public has<T extends AbstractWebElement, R extends AbstractWebElement>(this: R, selector: string | T): R {
         const element = this.$(this._selector)
         element.hasLocator = extractSelector(selector);
         return element;

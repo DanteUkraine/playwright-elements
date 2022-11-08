@@ -5,6 +5,11 @@
 *This lib extends default `test` annotation with tree custom fixtures: `navigate`, `goto`, `browserInstance`.
 Two of them `navigate`, `browserInstance`, are auto fixtures, so you do not need to call them explicitly to use.*
 ___
+- [navigate](#navigate)
+- [goto](#goto)
+- [Browser Instance](#browser-instance)
+
+___
 ### navigate
 
 `navigate` automatically opens `baseURL` if it is specified in playwright config. 
