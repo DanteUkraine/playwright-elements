@@ -11,7 +11,7 @@ const localFilePath = `file://${__dirname.replace(/\//g, path.sep)}/test.html`;
 chai.use(chaiAsPromised)
 
 describe('Browser Instance', function (this: Mocha.Suite) {
-    this.timeout(20_000);
+    this.timeout(60_000);
 
     afterEach(async () => {
         await BrowserInstance.close();
@@ -59,7 +59,7 @@ describe('Browser Instance', function (this: Mocha.Suite) {
     describe('setter', () => {
 
         test(`page`, async () => {
-            const browser = await webkit.launch()
+            const browser = await webkit.launch();
             const page = await browser.newPage();
             BrowserInstance.withPage(page);
             expect(() => BrowserInstance.browser).not.to.throw();
@@ -68,7 +68,7 @@ describe('Browser Instance', function (this: Mocha.Suite) {
         })
 
         test(`context`, async () => {
-            const browser = await webkit.launch()
+            const browser = await webkit.launch();
             const context = await browser.newContext();
             BrowserInstance.withContext(context);
             expect(() => BrowserInstance.browser).not.to.throw();
@@ -76,7 +76,7 @@ describe('Browser Instance', function (this: Mocha.Suite) {
         })
 
         test(`browser`, async () => {
-            const browser = await webkit.launch()
+            const browser = await webkit.launch();
             BrowserInstance.withBrowser(browser);
             expect(() => BrowserInstance.browser).not.to.throw();
         })

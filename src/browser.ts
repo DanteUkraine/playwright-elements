@@ -13,9 +13,12 @@ import {
 export enum BrowserName {
     CHROMIUM = 'chromium',
     CHROME = 'chrome',
+    CHROME_BETA = 'chrome-beta',
     FIREFOX = 'firefox',
     WEBKIT = 'webkit',
-    MSEDGE = 'msedge'
+    MSEDGE = 'msedge',
+    MSEDGE_BETA = 'msedge-beta',
+    MSEDGE_DEV = 'msedge-dev'
 }
 
 export class Context {
@@ -70,7 +73,7 @@ export class BrowserInstance {
         this._currentPage = page;
     }
 
-    static withPage(page: Page) {
+    static withPage(page: Page): void {
         this.currentPage = page;
         this.withContext(page.context());
     }
@@ -91,7 +94,7 @@ export class BrowserInstance {
         else this._currentContext = context;
     }
 
-    static withContext(context: BrowserContext) {
+    static withContext(context: BrowserContext): void {
         this.currentContext = context;
         if (this._browser) return;
         const currentBrowser = context.browser();
@@ -110,7 +113,7 @@ export class BrowserInstance {
         this._browser = browser;
     }
 
-    static withBrowser(browser: Browser) {
+    static withBrowser(browser: Browser): void {
         this.browser = browser;
     }
 
@@ -155,7 +158,7 @@ export class BrowserInstance {
         return this.currentPage;
     }
 
-    public static async close() {
+    public static async close(): Promise<void> {
         await this.browser.close();
         this._currentPage = undefined;
         this._currentContext = undefined;
@@ -163,7 +166,7 @@ export class BrowserInstance {
     }
 
     // tab actions
-    public static async switchToPreviousTab() {
+    public static async switchToPreviousTab(): Promise<void> {
         this.currentPage = this.context.previousPage;
         await this.currentPage.bringToFront();
     }
