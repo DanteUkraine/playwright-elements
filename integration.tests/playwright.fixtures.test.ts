@@ -32,7 +32,7 @@ test.describe(`Playwright test integration`, () => {
             .subElements({
                 logo: $(`.navbar__title`),
             });
-        await header.logo.expect();
+        await header.logo.expect().toBeVisible();
     })
 
 })
