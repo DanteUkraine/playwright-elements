@@ -1,7 +1,6 @@
-import {test as base, Page, Response} from '@playwright/test';
-import {BrowserInstance} from './browser';
-
-export {expect} from "@playwright/test";
+import { test as base, Page, Response } from '@playwright/test';
+import { BrowserInstance } from './browser'
+export { expect } from "@playwright/test";
 
 type WrappedFixtures = {
     baseURL: string | undefined,

@@ -4,9 +4,10 @@
 page object and creation of complex web components which support more than two levels deep sub elements
 with ability to add custom methods.*
 ___
-- [subElements()](#sub-elements)
-- [expect()](#expect)
-- [additionalMethods() and getters: locator and _](#additional-methods-locator-and-underscore)
+- [Sub elements](#sub-elements)
+- [Expect](#expect)
+- [Additional methods and getters: locator and _](#additional-methods-locator-and-underscore)
+- []
 
 ___
 First you need to allow lazy initialization, 
@@ -34,7 +35,7 @@ class MainPage {
 }
 ```
 ___
-###expect()
+### Expect
 Web element has methods `expect()` and `softExpect()` which allows access to 
 [playwright assert library](https://playwright.dev/docs/test-assertions). 
 Please pay attention that Locator passed to native expect method under the hood 
@@ -43,8 +44,8 @@ that's why you can access only locators based assert methods.
 ```ts
 test(`header should contain user info`, async () => {
     const mainPage = new MainPage();
-    await mainPage.header.userInfoSection.firstName.expect().toHaveText(`Bob`);
-    await mainPage.header.userInfoSection.lastName.expect().toHaveText(`Automation`);
+    await mainPage.header.userInfoSection.firstName.softExpect().toHaveText(`Bob`);
+    await mainPage.header.userInfoSection.lastName.softExpect().toHaveText(`Automation`);
     await mainPage.header.userInfoSection.avatar.expect().toBeVisible();
 })
 ```

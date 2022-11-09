@@ -1,5 +1,4 @@
-import {test, $} from "../src";
-import {expect} from "@playwright/test";
+import {test, expect, $} from "../src";
 
 test.describe(`Playwright test integration`, () => {
 
@@ -26,6 +25,14 @@ test.describe(`Playwright test integration`, () => {
     test(`goto fixture should navigate to endpoint`, async ({ goto }) => {
         const res = await goto('/docs/test-typescript');
         expect(res?.ok()).toBeTruthy();
+    })
+
+    test(`custom expect matcher`, async ({ }) => {
+        const header =$(`.navbar`)
+            .subElements({
+                logo: $(`.navbar__title`),
+            });
+        await header.logo.expect();
     })
 
 })

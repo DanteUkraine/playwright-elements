@@ -31,7 +31,7 @@ export enum BrowserName {
 ___
 ### Start
 `start(browserName?: BrowserName, options?: LaunchOptions): Promise<Browser>` method starts new browser 
-and remembers it, see []. 
+and remembers it, see [Getters and setters](#getters-and-setters). 
 
 Args:
 - [BrowserName](#browser-name) enum with possible browser names.
