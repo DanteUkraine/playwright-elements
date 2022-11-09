@@ -10,12 +10,12 @@ chai.use(chaiAsPromised);
 
 describe(`Web element build in selectors`, function () {
 
-    this.timeout(10_000);
+    this.timeout(20_000);
 
     before(async () => {
         await BrowserInstance.start(BrowserName.CHROME);
         await BrowserInstance.startNewPage();
-        await BrowserInstance.currentPage.setDefaultTimeout(2_500);
+        await BrowserInstance.currentPage.setDefaultTimeout(10_000);
         await BrowserInstance.currentPage.goto(localFilePath);
         await BrowserInstance.currentPage.waitForSelector('h1');
     })
