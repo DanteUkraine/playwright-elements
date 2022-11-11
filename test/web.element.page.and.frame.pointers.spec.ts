@@ -8,7 +8,7 @@ const localFilePath = `file://${__dirname.replace(/\//g, path.sep)}/test.html`;
 
 chai.use(chaiAsPromised);
 
-describe(`Web element page and frame pointers`, function () {
+describe(`Web element frame pointer`, function () {
 
     this.timeout(10_000);
 
@@ -24,29 +24,10 @@ describe(`Web element page and frame pointers`, function () {
         await BrowserInstance.close();
     })
 
-    test(`useFirst should point on first element from list`, (done) => {
-        const firstElement = $(`li`).useFirst();
-        expect(firstElement._.textContent()).to.become("1").and.notify(done);
-    })
-
-    test(`without useFirst should throw error`, (done) => {
-        const elements = $(`li`);
-        expect(elements._.textContent()).to.be
-            .rejectedWith("strict mode violation: \"li\" resolved to 7 elements").and.notify(done);
-    })
-
-    test(`useStrict should decline useFirst effect`,  (done) => {
-        const firstElement = $(`li`).useFirst();
-        expect(firstElement._.textContent()).to.become("1");
-        firstElement.useStrict();
-        expect(firstElement._.textContent()).to.be
-            .rejectedWith("strict mode violation: \"li\" resolved to 7 elements").and.notify(done);
-    })
-
     test(`asFrame make WebElement to be used as frameLocator`,  (done) => {
         const iframe = $(`iframe`).asFrame()
             .subElements({
-                title: $(`.navbar__title`).useFirst()
+                title: $(`.navbar__title`).first()
             });
         expect(iframe.title._.textContent()).to.become("Playwright").and.notify(done);
     })

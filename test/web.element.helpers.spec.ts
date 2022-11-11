@@ -23,29 +23,32 @@ describe(`Web element build in helpers`, function () {
         await BrowserInstance.close();
     })
 
-    test(`forEach should work with async callback`, async () => {
+    test(`syncForEach should work with async callback`, async () => {
+        const elements = $(`.field`);
+        await elements.syncForEach( async (el) => await el.locator.type("1234567890"));
+        const elementsTexts: (string | null)[] = [];
+        await elements.syncForEach(async (e) => elementsTexts.push(await e.locator.inputValue()));
+        expect(elementsTexts).has.members(["1234567890", "1234567890", "1234567890", "1234567890", "1234567890", "1234567890"]);
+    })
+
+    test(`syncForEach should work with sync callback`, async () => {
         const elements = $(`li`);
         const elementsTexts: (string | null)[] = [];
-        await elements.forEach( async (el) => elementsTexts.push(await el.locator.textContent()));
+        await elements.syncForEach((el) => el.locator.textContent().then(value => elementsTexts.push(value)));
         expect(elementsTexts).has.members(["1", "2", "3", "4", "5", "6", "text"]);
     })
 
-    test(`forEach should work with sync callback`, async () => {
+    test(`asyncForEach should work with async callback`, async () => {
         const elements = $(`li`);
         const elementsTexts: (string | null)[] = [];
-        await elements.forEach( (el) => el.locator.textContent().then(value => elementsTexts.push(value)));
+        await elements.asyncForEach(async (e) => elementsTexts.push(await e.locator.textContent()));
         expect(elementsTexts).has.members(["1", "2", "3", "4", "5", "6", "text"]);
     })
 
-    test(`getFromEach should work with async callback`, async () => {
+    test(`asyncForEach should work with sync callback`, async () => {
         const elements = $(`li`);
-        const elementsTexts = await elements.getFromEach( async (el) => await el.locator.textContent());
-        expect(elementsTexts).has.members(["1", "2", "3", "4", "5", "6", "text"]);
-    })
-
-    test(`getFromEach should work with sync callback`, async () => {
-        const elements = $(`li`);
-        const elementsTexts = await elements.getFromEach( (el) => el.locator.textContent());
+        const elementsTexts: (string | null)[] = [];
+        await elements.asyncForEach((el) => el.locator.textContent().then(value => elementsTexts.push(value)));
         expect(elementsTexts).has.members(["1", "2", "3", "4", "5", "6", "text"]);
     })
 

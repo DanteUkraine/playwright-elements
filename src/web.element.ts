@@ -15,7 +15,6 @@ export class WebElement {
     protected _isFrame = false;
     protected _isInFrame = false;
     protected _frameSelector = 'iframe';
-    protected _isFirst = false;
     private _parents: WebElement[] = [];
     private readonly _selector: string;
     private _hasLocator: string | undefined;
@@ -36,23 +35,11 @@ export class WebElement {
         return this;
     }
 
-    public useFirst() {
-        this._isFirst = true;
-        return this;
-    }
-
-    public useStrict() {
-        this._isFirst = false;
-        return this;
-    }
-
     public get locator(): Locator {
         const subLocator: Locator | undefined = this._hasLocator ? BrowserInstance.currentPage.locator(this._hasLocator) : undefined;
-        const locator = this._isInFrame ?
+        return this._isInFrame ?
             BrowserInstance.currentPage.frameLocator(this._frameSelector).locator(this.selector, {has: subLocator}) :
             BrowserInstance.currentPage.locator(this.selector, {has: subLocator});
-        if (this._isFirst) return locator.first();
-        return locator;
     }
 
     public get _(): Locator {
@@ -182,7 +169,7 @@ export class WebElement {
 
     // arrays of elements
 
-    private async getAll<T extends WebElement>(this: T) {
+    private async getAll<T extends WebElement>(this: T): Promise<T[]> {
         const elements: T[] = [];
         const amount = await this.locator.count();
         for (let i = 0; i < amount; i++) {
@@ -191,23 +178,23 @@ export class WebElement {
         return elements;
     }
 
-    public async forEach<T extends WebElement>(this: T, action: (element: T) => unknown | Promise<unknown>): Promise<void> {
+    public async asyncForEach<T extends WebElement>(this: T, action: (element: T) => unknown | Promise<unknown>): Promise<void> {
+        const list: T[] = await this.getAll();
+        const promises: (unknown | Promise<unknown>)[] = []
+        for (const ele of list) {
+            promises.push(action(ele));
+        }
+        await Promise.all(promises);
+    }
+
+    public async syncForEach<T extends WebElement>(this: T, action: (element: T) => unknown | Promise<unknown>): Promise<void> {
         const list: T[] = await this.getAll();
         for (const ele of list) {
             await action(ele);
         }
     }
 
-    public async getFromEach<T extends WebElement, R>(this: T, action: (element: T) => R): Promise<R[]> {
-        const list: T[] = await this.getAll();
-        const promisesOrFunctions: Promise<R>[] = [];
-        for (const ele of list) {
-            promisesOrFunctions.push(Promise.resolve(action(ele)));
-        }
-        return await Promise.all(promisesOrFunctions);
-    }
-
-    public async map<T extends WebElement, R>(this: T, item: (element: T) => R | Promise<R>): Promise<R[]> {
+    public async map<T extends WebElement, R>(this: T, item: (element: T) => R): Promise<R[]> {
         const list: T[] = await this.getAll();
         const futureItems: Promise<R>[] = [];
         for (const ele of list) {
