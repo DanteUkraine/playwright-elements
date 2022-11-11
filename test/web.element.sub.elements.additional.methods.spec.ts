@@ -187,9 +187,9 @@ describe('Web Element augmentation', () => {
     test('should throw on duplicated additional method', () => {
         expect(() => $(`.selector`)
             .withMethods({
-                useFirst() {
+                withVisible() {
 
                 }
-            })).to.throw('Can not add method with name \'useFirst\' because such method already exists.');
+            })).to.throw('Can not add method with name \'withVisible\' because such method already exists.');
     });
 });

@@ -101,7 +101,7 @@ async function useStartNewPage() {
 ```
 ___
 ### Close
-`async close(): Promise<void>` method closes browser and removes pointers on `Browser`, `BrowserContext` and `Page`.
+`close(): Promise<void>` method closes browser and removes pointers on `Browser`, `BrowserContext` and `Page`.
 
 Example:
 ```ts
