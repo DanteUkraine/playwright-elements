@@ -238,7 +238,7 @@ test(`syncForEach example`, async () => {
 ```
 ___
 ### Map
-Method `map<T extends WebElement, R>(this: T, item: (element: T) => R): Promise<R[]>`
+Method `map<T extends WebElement, R>(this: T, item: (element: T) => R | Promise<R>): Promise<Awaited<R[]>>`
 works with sync and async functions in callbacks and returns list of extracted values.
 
 ```ts
