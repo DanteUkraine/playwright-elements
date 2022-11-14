@@ -194,13 +194,13 @@ export class WebElement {
         }
     }
 
-    public async map<T extends WebElement, R>(this: T, item: (element: T) => R): Promise<R[]> {
+    public async map<T extends WebElement, R>(this: T, item: (element: T) => R | Promise<R>): Promise<Awaited<R[]>> {
         const list: T[] = await this.getAll();
-        const futureItems: Promise<R>[] = [];
+        const futureItems: Promise<R>[]  = [];
         for (const ele of list) {
             futureItems.push(Promise.resolve(item(ele)));
         }
-        return await Promise.all(futureItems);
+        return Promise.all(futureItems);
     }
 
     public async filter<T extends WebElement>(this: T, predicate: (element: T) => boolean | Promise<boolean>): Promise<T[]> {

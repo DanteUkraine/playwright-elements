@@ -19,6 +19,7 @@ ___
   - [Sync for each](#sync-for-each)
   - [Map](#map)
   - [Filter](#filter)
+- [How to extend WebElement](#how-to-extend-web-element)
   
 ___
 First you need to allow lazy initialization, 
@@ -237,7 +238,7 @@ test(`syncForEach example`, async () => {
 ```
 ___
 ### Map
-Method `map<T extends WebElement, R>(this: T, item: (element: T) => R): Promise<R[]>`
+Method `map<T extends WebElement, R>(this: T, item: (element: T) => R | Promise<R>): Promise<Awaited<R[]>>`
 works with sync and async functions in callbacks and returns list of extracted values.
 
 ```ts
@@ -256,4 +257,65 @@ test(`filter example`, async () => {
     const elements = $(`input`);
     const enabledInputs = await elements.filter(async (e) => await e.locator.isEnabled());
 })
+```
+___
+## How to extend Web Element
+
+In case you want to create custom web element.
+
+*Extend base class, create init function:*
+```ts
+import { WebElement } from "playwright-elements";
+
+class Field extends WebElement {
+	async set(this: WebElement, value: string) {
+        await this.fill("");
+        await this.type(value, { delay: 50 });
+	}
+}
+
+export function $field(selector: string): Input {
+	return new Field(selector);
+}
+```
+*or static factory function:*
+```ts
+import { WebElement } from "playwright-elements";
+
+export class Field extends WebElement {
+	async set(this: WebElement, value: string) {
+        await this.fill("");
+        await this.type(value, { delay: 50 });
+	}
+    
+    static $(selector: string): Input {
+    return new Field(selector);
+  }
+}
+```
+*And use in your elements:*
+```ts
+import { $ } from "playwright-elements";
+import { Input } from "./field.element";
+
+export class MissingControlOverviewPage {
+
+  readonly form = $(`.form`)
+          .subElements({
+            nameField: Input.$(`.name-field`),
+          });
+}
+```
+*or:*
+```ts
+import { $ } from "playwright-elements";
+import { $field } from "./field.element";
+
+export class MissingControlOverviewPage {
+
+  readonly form = $(`.form`)
+          .subElements({
+            nameField: $field(`.name-field`),
+          });
+}
 ```

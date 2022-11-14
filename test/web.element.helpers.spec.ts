@@ -3,6 +3,7 @@ import { test } from "mocha";
 import chai, { expect } from "chai";
 import path from "path";
 import chaiAsPromised from 'chai-as-promised'
+import {isArray} from "lodash";
 
 const localFilePath = `file://${__dirname.replace(/\//g, path.sep)}/test.html`;
 
@@ -55,12 +56,14 @@ describe(`Web element build in helpers`, function () {
     test(`map should work with async callback`, async () => {
         const elements = $(`li`);
         const elementsText = await elements.map( async (el) => await el.locator.textContent());
+        expect(isArray(elementsText)).to.be.true
         expect(elementsText).has.all.members(["1", "2", "3", "4", "5", "6", "text"]);
     })
 
     test(`map should work with sync callback`, async () => {
         const elements = $(`li`);
         const selectors = await elements.map( (el) => el.selector);
+        expect(isArray(selectors)).to.be.true
         expect(selectors).has.all.members(["li >> nth=0", "li >> nth=1", "li >> nth=2", "li >> nth=3", "li >> nth=4", "li >> nth=5", "li >> nth=6"]);
     })
 
