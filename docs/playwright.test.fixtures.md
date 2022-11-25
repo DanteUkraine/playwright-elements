@@ -42,18 +42,5 @@ ___
 
 ## Browser Instance
 
-`browserInstance` is second automatic fixture, but it returns object BrowserInstance which is important
-for lazy initialization. More information here: [Browser Instance](/docs/browser.instance.md).
-It provides access to `Browser`, `BrowserContext` and `Page` types from `playwright-core`
-so you do not need to call those fixtures explicitly anymore.
-
-```ts
-import {test} from "playwright-elements";
-import {Browser, BrowserContext, Page} from "playwright-core";
-
-test(`goto playwright docs`, async ({browserInstance}) => {
-    const browser: Browser = BrowserInstance.browser;
-    const context: BrowserContext = BrowserInstance.currentContext;
-    const page: Page = BrowserInstance.currentPage;
-})
-```
+`browserInstance` is auto fixture which returns void, and it's main purpose is to set currentPage, 
+currentContext and browser pointers.

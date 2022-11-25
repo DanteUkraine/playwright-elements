@@ -147,7 +147,7 @@ export class WebElement {
         return this.$(`${this._selector} >> visible=true`);
     }
 
-    public withText(text: string) {
+    public withText(text: string | RegExp) {
         return this.$(`${this._selector} >> text=${text}`);
     }
 
@@ -216,4 +216,8 @@ export class WebElement {
 
 export function $(selector: string): WebElement {
     return new WebElement(selector);
+}
+
+export function initDesktopOrMobile<T>(desktop: T, mobile: T): T {
+    return BrowserInstance.isContextMobile ? mobile : desktop;
 }

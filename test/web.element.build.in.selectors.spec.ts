@@ -30,14 +30,26 @@ describe(`Web element build in selectors`, function () {
         expect(elementId).to.be.equal("visible-target");
     })
 
-    test(`withText should point on origin element`, async () => {
+    test(`withText for string should point on origin element`, async () => {
         const visibleElement = $(`*css=#visible-target`).withText("visible target");
         const elementId = await visibleElement._.getAttribute("id");
         expect(elementId).to.be.equal("visible-target");
     })
 
-    test(`withText should point on sub element`, async () => {
+    test(`withText for string should point on sub element`, async () => {
         const visibleElement = $(`#visible-target`).withText("is visible target");
+        const elementId = await visibleElement._.getAttribute("id");
+        expect(elementId).to.be.equal("target");
+    })
+
+    test(`withText for regex should point on origin element`, async () => {
+        const visibleElement = $(`*css=#visible-target`).withText(/visible\starget/);
+        const elementId = await visibleElement._.getAttribute("id");
+        expect(elementId).to.be.equal("visible-target");
+    })
+
+    test(`withText regex should point on sub element`, async () => {
+        const visibleElement = $(`#visible-target`).withText(/is\svisible\starget/);
         const elementId = await visibleElement._.getAttribute("id");
         expect(elementId).to.be.equal("target");
     })

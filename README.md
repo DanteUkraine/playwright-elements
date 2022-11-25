@@ -99,3 +99,21 @@ test.describe(`Playwright test integration`, () => {
 })
 ```
 ___
+Init desktop or mobile version of web element
+
+```ts
+import {test, $, initDesktopOrMobile} from "playwright-elements";
+import {devices} from "@playwright/test";
+
+test.describe(`Playwright test integration`, () => {
+
+    test.use({...devices['iPhone 13']})
+    test(`expect positive`, async () => {
+        const mobileHeader = $(`.mobileNavBar`);
+        const desktopHeader = $(`.navBar`);
+        // initDesktopOrMobile will check isMobile flag and return proper element
+        // Also it will check if bouth objects belongs to the same type or interface  
+        const element = initDesktopOrMobile(desktopHeader, mobileHeader);
+    })
+})
+```
