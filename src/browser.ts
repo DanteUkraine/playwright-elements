@@ -26,6 +26,7 @@ export class Context {
     private readonly context: BrowserContext
     private _pages: Page[];
     private _previousPage: Page | undefined;
+    private _isMobile: boolean = false;
 
     constructor(context: BrowserContext) {
         this.context = context;
@@ -50,6 +51,14 @@ export class Context {
         this._previousPage = page;
     }
 
+    get isMobile(): boolean {
+        return this._isMobile;
+    }
+
+    set isMobile(isMobile: boolean) {
+        this._isMobile = isMobile;
+    }
+
 }
 
 export class BrowserInstance {
@@ -63,6 +72,14 @@ export class BrowserInstance {
     }
 
     // page - getter, setter, builder method
+
+    static get isContextMobile(): boolean {
+        return this.context.isMobile;
+    }
+
+    static set isContextMobile(isMobile: boolean) {
+        this.context.isMobile = isMobile;
+    }
 
     static get currentPage(): Page {
         if (this._currentPage) return this._currentPage;

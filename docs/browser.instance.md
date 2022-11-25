@@ -115,7 +115,7 @@ async function useClose() {
 }
 ```
 ___
-### getters and setters
+### Getters and setters
 
 `get currentPage(): Pag` returns instance of [Page](https://playwright.dev/docs/api/class-page)
 
@@ -158,6 +158,31 @@ async function useSetters() {
     BrowserInstance.currentPage = page;
 }
 ```
+___
+### Is mobile context
+`get isContextMobile(): boolean` to check if current context was set to mobile config
+`set isContextMobile(isMobile: boolean)` allow you to override default logic. By default, this setter is used
+in initBrowserInstance auto fixture and just store `isMobile` fixture state from playwright test.
+
+```ts
+import {test, BrowserInstance} from "playwright-elements";
+import {devices} from "@playwright/test";
+
+test.describe(`Mobile tests`, () => {
+    test.use({...devices['iPhone 13']})
+    test(`expect positive`, () => {
+        BrowserInstance.isContextMobile // returns true
+    })
+})
+
+test.describe(`Desktop tests`, () => {
+    test.use({...devices['Desktop Chrome']})
+    test(`expect positive`, () => {
+        BrowserInstance.isContextMobile // returns false
+    })
+})
+```
+
 ___
 ### Builder like methods
 
