@@ -96,4 +96,13 @@ describe(`Web element build in selectors`, function () {
         expect(elementId).to.be.equal("inner-visible-target2");
     })
 
+    test(`has with sub elements argument should point on element witch has specific parent`, async () => {
+        const visibleElement = $(`#visible-target div`)
+            .subElements({
+                paragraph: $(`p[hidden]`)
+            });
+        const text = await visibleElement.has($('#right-target')).paragraph._.textContent();
+        expect(text).to.be.equal("This is hidden wrong target");
+    })
+
 });
