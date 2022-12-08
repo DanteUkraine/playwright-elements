@@ -101,8 +101,10 @@ describe(`Web element build in selectors`, function () {
             .subElements({
                 paragraph: $(`p[hidden]`)
             });
+        const selector = visibleElement.has($('#right-target')).first().selector;
         const text = await visibleElement.has($('#right-target')).paragraph._.textContent();
-        expect(text).to.be.equal("This is hidden wrong target");
+        expect(selector).to.be.equal("#visible-target div:has(#right-target) >> nth=0");
+        expect(text).to.be.equal("This is hidden wrong target 2");
     })
 
 });
