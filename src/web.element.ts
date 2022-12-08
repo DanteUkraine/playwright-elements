@@ -111,7 +111,9 @@ export class WebElement {
     }
 
     get parentsSelector(): string {
-        return this.parentElements.map(element => element.narrowSelector).join(" >> ");
+        return this.parentElements.map(element =>
+            element._hasLocator ?
+                `${element.narrowSelector}:has(${element._hasLocator})` : element.narrowSelector).join(" >> ");
     }
 
     private get parentElements(): WebElement[] {
