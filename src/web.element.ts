@@ -100,20 +100,18 @@ export class WebElement {
 
     // getters setters
     get narrowSelector() {
-        return this._selector;
+        return this._hasLocator ? `${this._selector}:has(${this._hasLocator})` : this._selector;
     }
 
     get selector(): string {
         if (this.parentElements.length)
-            return `${this.parentsSelector} >> ${this._selector}`;
+            return `${this.parentsSelector} >> ${this.narrowSelector}`;
         else
-            return this._selector;
+            return this.narrowSelector;
     }
 
     get parentsSelector(): string {
-        return this.parentElements.map(element =>
-            element._hasLocator ?
-                `${element.narrowSelector}:has(${element._hasLocator})` : element.narrowSelector).join(" >> ");
+        return this.parentElements.map(element => element.narrowSelector).join(" >> ");
     }
 
     private get parentElements(): WebElement[] {
@@ -131,11 +129,23 @@ export class WebElement {
     // chainable web element creation
 
     protected $<T extends WebElement>(this: T, selector: string): T {
-        return Object.defineProperty(cloneDeep(this), "_selector",
-            {
-                value: selector,
-                writable: false,
-                configurable: false
+        // return Object.defineProperty(cloneDeep(this), "_selector",
+        //     {
+        //         value: selector,
+        //         writable: false,
+        //         configurable: false
+        //     });
+        return Object.defineProperties(cloneDeep(this), {
+                _selector: {
+                    value: selector,
+                    writable: false,
+                    configurable: false
+                },
+                _hasLocator: {
+                    value: undefined,
+                    writable: true,
+                    configurable: true
+                }
             });
     }
 
@@ -146,19 +156,19 @@ export class WebElement {
     }
 
     public withVisible() {
-        return this.$(`${this._selector} >> visible=true`);
+        return this.$(`${this.narrowSelector} >> visible=true`);
     }
 
     public withText(text: string | RegExp) {
-        return this.$(`${this._selector} >> text=${text}`);
+        return this.$(`${this.narrowSelector} >> text=${text}`);
     }
 
     public whereTextIs(text: string) {
-        return this.$(`${this._selector} >> text="${text}"`);
+        return this.$(`${this.narrowSelector} >> text="${text}"`);
     }
 
     public nth(index: number) {
-        return this.$(`${this._selector} >> nth=${index}`);
+        return this.$(`${this.narrowSelector} >> nth=${index}`);
     }
 
     public first() {
