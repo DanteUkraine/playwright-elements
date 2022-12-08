@@ -35,11 +35,24 @@ export class WebElement {
         return this;
     }
 
+    private buildParentLocatorsChain(): Locator | Page {
+        let locatorsChain: Locator | Page = BrowserInstance.currentPage;
+        if(this.parentElements.length > 0) {
+            for (const el of this.parentElements){
+                const subLocator: Locator | undefined = el._hasLocator ? BrowserInstance.currentPage.locator(el._hasLocator) : undefined;
+                locatorsChain = el._isInFrame ?
+                    locatorsChain.frameLocator(el._frameSelector).locator(el.narrowSelector, {has: subLocator}) :
+                    locatorsChain.locator(el.narrowSelector, {has: subLocator});
+            }
+        }
+        return locatorsChain;
+    }
+
     public get locator(): Locator {
         const subLocator: Locator | undefined = this._hasLocator ? BrowserInstance.currentPage.locator(this._hasLocator) : undefined;
         return this._isInFrame ?
-            BrowserInstance.currentPage.frameLocator(this._frameSelector).locator(this.selector, {has: subLocator}) :
-            BrowserInstance.currentPage.locator(this.selector, {has: subLocator});
+            this.buildParentLocatorsChain().frameLocator(this._frameSelector).locator(this.narrowSelector, {has: subLocator}) :
+            this.buildParentLocatorsChain().locator(this.narrowSelector, {has: subLocator});
     }
 
     public get _(): Locator {
@@ -99,21 +112,24 @@ export class WebElement {
     }
 
     // getters setters
-    get narrowSelector() {
-        return this._hasLocator ? `${this._selector}:has(${this._hasLocator})` : this._selector;
+    get narrowSelector(): string {
+        return this._selector;
+    }
+
+    private buildNarrowSelectorWithInternalLocator(target: WebElement = this): string {
+        return target._hasLocator ?
+            `${target.narrowSelector} >> internal:has="${target._hasLocator}"` : target.narrowSelector;
     }
 
     get selector(): string {
         if (this.parentElements.length)
-            return `${this.parentsSelector} >> ${this.narrowSelector}`;
+            return `${this.parentsSelector} >> ${this.buildNarrowSelectorWithInternalLocator()}`;
         else
-            return this.narrowSelector;
+            return this.buildNarrowSelectorWithInternalLocator();
     }
 
     get parentsSelector(): string {
-        return this.parentElements.map(element =>
-            element._hasLocator ?
-                `${element.narrowSelector}:has(${element._hasLocator})` : element.narrowSelector).join(" >> ");
+        return this.parentElements.map(element => this.buildNarrowSelectorWithInternalLocator(element)).join(" >> ");
     }
 
     private get parentElements(): WebElement[] {
@@ -124,19 +140,9 @@ export class WebElement {
         this._parents.unshift(parent);
     }
 
-    private set hasLocator(selector: string) {
-        this._hasLocator = selector;
-    }
-
     // chainable web element creation
 
-    protected $<T extends WebElement>(this: T, selector: string): T {
-        // return Object.defineProperty(cloneDeep(this), "_selector",
-        //     {
-        //         value: selector,
-        //         writable: false,
-        //         configurable: false
-        //     });
+    protected $<T extends WebElement>(this: T, selector: string, internalLocator?: string): T {
         return Object.defineProperties(cloneDeep(this), {
                 _selector: {
                     value: selector,
@@ -144,33 +150,31 @@ export class WebElement {
                     configurable: false
                 },
                 _hasLocator: {
-                    value: undefined,
+                    value: internalLocator,
                     writable: true,
-                    configurable: true
+                    configurable: false
                 }
             });
     }
 
     public has<T extends WebElement, R extends WebElement>(this: R, selector: string | T): R {
-        const element = this.$(this._selector);
-        element.hasLocator = extractSelector(selector);
-        return element;
+        return this.$(this.narrowSelector, extractSelector(selector));
     }
 
     public withVisible() {
-        return this.$(`${this.narrowSelector} >> visible=true`);
+        return this.$(`${this.buildNarrowSelectorWithInternalLocator()} >> visible=true`);
     }
 
     public withText(text: string | RegExp) {
-        return this.$(`${this.narrowSelector} >> text=${text}`);
+        return this.$(`${this.buildNarrowSelectorWithInternalLocator()} >> text=${text}`);
     }
 
     public whereTextIs(text: string) {
-        return this.$(`${this.narrowSelector} >> text="${text}"`);
+        return this.$(`${this.buildNarrowSelectorWithInternalLocator()} >> text="${text}"`);
     }
 
     public nth(index: number) {
-        return this.$(`${this.narrowSelector} >> nth=${index}`);
+        return this.$(`${this.buildNarrowSelectorWithInternalLocator()} >> nth=${index}`);
     }
 
     public first() {
