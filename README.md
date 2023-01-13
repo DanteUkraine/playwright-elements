@@ -17,18 +17,18 @@ ___
 
 No need to pass instance of page into your page object. 
 ```ts
-import {$} from "playwright-elements";
+import { $ } from 'playwright-elements';
 
 class MainPage {
-    readonly header = $(`.navbar`);
+    readonly header = $('.navbar');
 }
 ```
 Each element which was created by **$** function returns instance of WebElement so code may look next:
 ```ts
-import {$, WebElement} from "playwright-elements";
+import { $, WebElement } from 'playwright-elements';
 
 class MainPage {
-    readonly header: WebElement = $(`.navbar`);
+    readonly header: WebElement = $('.navbar');
 }
 ```
 **$** function is just a shortcut for **new WebElement('.navbar');**
@@ -37,14 +37,14 @@ class MainPage {
 Each WebElement can have sub elements. 
 **subElements({logo: $('.navbar__title')})** returns type intersection.
 ```ts
-import {$, WebElement} from "playwright-elements";
+import { $, WebElement } from 'playwright-elements';
 
 type Header = WebElement & { logo: WebElement }
 
 class MainPage {
-    readonly header: Header = $(`.navbar`)
+    readonly header: Header = $('.navbar')
         .subElements({
-            logo: $(`.navbar__title`)
+            logo: $('.navbar__title')
         });
 }
 ```
@@ -55,15 +55,15 @@ ___
 Playwright elements provides you with extended **test** annotation 
 and access to playwright expect methods via **expect()** function
 ```ts
-import {test} from "playwright-elements";
-import {MainPage} from "main.page"
+import { test } from 'playwright-elements';
+import { MainPage } from 'main.page'
 
-test.describe(`Playwright test integration`, () => {
+test.describe('Playwright test integration', () => {
 
-    test(`expect positive`, async () => {
+    test('expect positive', async () => {
         const mainPage = new MainPage();
         await mainPage.header.logo.expect().toBeVisible();
-        await mainPage.header.logo.expect().toHaveText("Playwright");
+        await mainPage.header.logo.expect().toHaveText('Playwright');
     })
 
 })
@@ -85,12 +85,12 @@ and if yes will perform *goto* method from *page*.
 WebElement provide access to Locator api via getter `locator` or shortcut `_`:
 
 ```ts
-import {test} from "playwright-elements";
-import {MainPage} from "main.page"
+import { test } from 'playwright-elements';
+import { MainPage } from 'main.page';
 
-test.describe(`Playwright test integration`, () => {
+test.describe('Playwright test integration', () => {
 
-    test(`expect positive`, async () => {
+    test('expect positive', async () => {
         const mainPage = new MainPage();
         // Both lines do the same.
         await mainPage.header.logo.locator.click(); 
@@ -102,15 +102,15 @@ ___
 Init desktop or mobile version of web element
 
 ```ts
-import {test, $, initDesktopOrMobile} from "playwright-elements";
-import {devices} from "@playwright/test";
+import { test, $, initDesktopOrMobile } from 'playwright-elements';
+import { devices } from '@playwright/test';
 
-test.describe(`Playwright test integration`, () => {
+test.describe('Playwright test integration', () => {
 
     test.use({...devices['iPhone 13']})
-    test(`expect positive`, async () => {
-        const mobileHeader = $(`.mobileNavBar`);
-        const desktopHeader = $(`.navBar`);
+    test('expect positive', async () => {
+        const mobileHeader = $('.mobileNavBar');
+        const desktopHeader = $('.navbar');
         // initDesktopOrMobile will check isMobile flag and return proper element
         // Also it will check if bouth objects belongs to the same type or interface  
         const element = initDesktopOrMobile(desktopHeader, mobileHeader);
