@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { test } from "mocha";
-import { $ } from '../src';
+import { $, WebElement } from '../src';
 
 describe('Web Element chainable selectors', () => {
 
@@ -192,4 +192,18 @@ describe('Web Element augmentation', () => {
                 }
             })).to.throw('Can not add method with name \'withVisible\' because such method already exists.');
     });
+
+    test('direct child', () => {
+        const element = $('parent').subElements({
+            child: $('child')
+            })
+            .withMethods({
+                subChild(this: WebElement & {child: WebElement}){
+                    return this.child.$('subChild');
+                }
+            });
+        expect(element.subChild().selector).to.equal('parent >> child >> subChild');
+        expect(element.subChild().$('oneMore').selector).to.equal('parent >> child >> subChild >> oneMore');
+        expect(element.subChild().selector).to.equal('parent >> child >> subChild');
+    })
 });

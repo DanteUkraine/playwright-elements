@@ -1,21 +1,39 @@
 # Playwright-elements
 ___
-Playwright elements helps you to create reusable components and allows lazy initialization.
+*Playwright elements helps you to create reusable components and allows lazy initialization of elements
+in page object of another abstraction. Also, it includes helper methods for implementing 
+desktop and mobile tests.*
 
 ***Installation:*** `npm install -D playwright-elements`
 
 ***IMPORTANT:*** playwright elements is not standalone framework, it requires:
-- `playwright-core >= 1.26.x` or `@playwright/test >=1.26.x` to added to project.
-- `WebElement, $ and BrowserInstance` api require `playwright-core` as dependency. 
-- `test` import and fixtures `goto`, `currentPageInstance`. Asserts `WebElement.expect()` api require `@playwright/test` as dependency
-
+-  `@playwright/test >= 1.27.x` to added to project.
 ___
-### Detailed documentation
-#### [Web Element](/docs/web.element.md) | [Browser Instance](/docs/browser.instance.md) | [Playwright Test fixtures](/docs/playwright.test.fixtures.md)
+- [Get started](#get-started)
+- [Web element](#web-element)
+  - [Get by methods](#get-by-methods)
+  - [Sub elements](#sub-elements)
+  - [Expect](#expect)
+  - [With methods and getters: locator and _](#with-methods-locator-and-underscore)
+  - [Build in selector helpers](#build-in-selector-helpers)
+  - [Has](#has)
+  - [With visible](#with-visible)
+  - [With text and where text is](#with-text-and-where-text-is)
+  - [Get element by index](#get-element-by-index)
+  - [Strict mode](#strict-mode)
+  - [As frame](#as-frame)
+  - [Lists of WebElements](#lists-of-webelements)
+    - [Async for each](#async-for-each)
+    - [Sync for each](#sync-for-each)
+    - [Map](#map)
+    - [Filter](#filter)
+  - [How to extend WebElement](#how-to-extend-web-element)
+- [Playwright elements fixtures](#playwright-elements-fixtures)
+- [Browser instance](#browser-instance)
 ___
-## WebElement 
+## Get started
 
-No need to pass instance of page into your page object. 
+No need to pass instance of page into your page object.
 ```ts
 import { $ } from 'playwright-elements';
 
@@ -34,7 +52,7 @@ class MainPage {
 **$** function is just a shortcut for **new WebElement('.navbar');**
 
 
-Each WebElement can have sub elements. 
+Each WebElement can have sub elements.
 **subElements({logo: $('.navbar__title')})** returns type intersection.
 ```ts
 import { $, WebElement } from 'playwright-elements';
@@ -52,7 +70,7 @@ class MainPage {
 ___
 ## Usage with playwright-test
 
-Playwright elements provides you with extended **test** annotation 
+Playwright elements provides you with extended **test** annotation
 and access to playwright expect methods via **expect()** function
 ```ts
 import { test } from 'playwright-elements';
@@ -79,7 +97,7 @@ const config: PlaywrightTestConfig = {
 };
 export default config;
 ```
-Custom ***test*** annotation will check if **baseURL** is set in playwright config 
+Custom ***test*** annotation will check if **baseURL** is set in playwright config
 and if yes will perform *goto* method from *page*.
 
 WebElement provide access to Locator api via getter `locator` or shortcut `_`:
@@ -116,4 +134,651 @@ test.describe('Playwright test integration', () => {
         const element = initDesktopOrMobile(desktopHeader, mobileHeader);
     })
 })
+```
+
+___
+## Web element
+
+*WebElement class is a wrapper on playwright Locator. Tt was created to allow lazy initialization in
+page object and creation of complex web components which support more than two levels deep sub elements
+with ability to add custom methods.*
+
+___
+First you need to allow lazy initialization,
+if you use `@playwright/test` see: [Playwright elements fixtures](#playwright-elements-fixtures).
+In case you use any another test runner see: [Browser Instance](#browser-instance).
+___
+### Get by methods
+
+Next methods allow easy way to create locators in complex components.
+
+- [$getByAltText](https://playwright.dev/docs/api/class-page#page-get-by-alt-text)
+- [$getByLabel](https://playwright.dev/docs/api/class-page#page-get-by-label)
+- [$getByPlaceholder](https://playwright.dev/docs/api/class-page#page-get-by-placeholder)
+- [$getByRole](https://playwright.dev/docs/api/class-page#page-get-by-role)
+- [$getByTestId](https://playwright.dev/docs/api/class-page#page-get-by-test-id)
+- [$getByText](https://playwright.dev/docs/api/class-page#page-get-by-text)
+- [$getByTitle](https://playwright.dev/docs/api/class-page#page-get-by-title)
+
+Example:
+```ts
+import { $getByTestId, $getByPlaceholder, $getByTitle, WebElement } from "playwright-elements"; 
+
+class MainPage {
+    readonly form = $getByTestId(`login-form`)
+        .subElements({
+            loginField: $getByPlaceholder('Email or phonenumber'),
+            passwordField: $getByPlaceholder('Password'),
+            submitButton: $getByTitle('Login')
+        })
+}
+```
+
+___
+### Sub elements
+
+*Simple child element creation*
+
+```ts
+import { $, $getByTestId } from "playwright-elements"; 
+
+class MainPage {
+    readonly header = $(`.header`);
+    readonly avatar = header.$getByTestId('user-img')
+}
+```
+
+*Complex component creation:*
+
+```ts
+import { $ } from "playwright-elements"; 
+
+class MainPage {
+    readonly header = $(`.header`)
+        .subElements({
+            userInfoSection: $(`.userInfo`)
+                .subElements({
+                    firstName: $(`.first-name`),
+                    lastName: $(`.last-name`),
+                    avatar: $(`.userImage`)
+                })
+        })
+}
+```
+___
+### Expect
+Web element has methods `expect()` and `softExpect()` which allows access to
+[playwright assert library](https://playwright.dev/docs/test-assertions).
+Please pay attention that Locator passed to native expect method under the hood
+that's why you can access only locators based assert methods.
+
+```ts
+test(`header should contain user info`, async () => {
+    const mainPage = new MainPage();
+    await mainPage.header.userInfoSection.firstName.softExpect().toHaveText(`Bob`);
+    await mainPage.header.userInfoSection.lastName.softExpect().toHaveText(`Automation`);
+    await mainPage.header.userInfoSection.avatar.expect().toBeVisible();
+})
+```
+---
+### With methods, Locator and underscore
+
+```ts
+import { $, WebElement } from "playwright-elements"; 
+
+class MainPage {
+    readonly header = $(`.header`)
+        .subElements({
+            humburgerButton: $(`.hButton`),
+            menu: $(`.menu`)
+                .subElements({
+                    item: $(`.menu-item`)
+                        .withMethods({
+                            async hoverAndClick(this: WebElement) {
+                                await this.locator.hover();
+                                await this._.click();
+                            }
+                        })
+                })
+        })
+}
+```
+
+Web element has getters `locator` and `_` both return instance of [Locator](https://playwright.dev/docs/api/class-locator).
+Also `hoverAndClick` method now can be used on item element. Please pay attention that to access web element
+default methods inside additional method declaration is used fake `this: WebElement` pointer.
+```ts
+test(`user can open documentaation`, async () => {
+    const mainPage = new MainPage();
+    await mainPage.header.humburgerButton._.click();
+    await mainPage.header.menu.item.withText(`Documentation`).hoverAndClick();
+})
+```
+___
+## Build in selector helpers
+
+### Has
+Method `has(selector: string | WebElement)` helps to find elements with specific child.
+
+*Based on selector:*
+```ts
+import { $ } from "playwright-elements";
+
+class MainPage {
+    readonly fieldRows = $(`.field-row`).has(`input.enabled`);
+}
+```
+*Based on WebElement:*
+```ts
+import { $ } from "playwright-elements";
+
+class MainPage {
+    private readonly enabledEnputs = $(`input.enabled`);
+    readonly fieldRows = $(`.field-row`).has(enabledEnputs);
+}
+```
+___
+
+### With visible
+Method `withVisible()` adds to element selector `>> visible=true`,
+playwright docs about [selecting visible elements](https://playwright.dev/docs/selectors#selecting-visible-elements).
+
+```ts
+import { $ } from "playwright-elements";
+
+class MainPage {
+    readonly errors = $(`.error-message`).withVisible();
+}
+```
+___
+### With text and where text is
+Method `withText("text")` adds to selector `>> text=text`
+and method `whereTextIs("text")` adds to selector `>> text="text"`,
+playwright docs about [text selectors](https://playwright.dev/docs/selectors#text-selector).
+
+```ts
+import {$} from "playwright-elements";
+
+class MainPage {
+  readonly errors = $(`.error-message`);
+}
+
+test(`find error by text`, async () => {
+  const mainPage = new MainPage();
+  await mainPage.errors.withText(`Incorect`).expect().toBeVisible();
+  await mainPage.errors.whereTextIs(`Incorect password`).expect().toBeVisible();
+})
+```
+___
+### Get element by index
+Method `nth(index: number)` adds to selector `>> nth=${index}`
+and methods `first()` adds `>> nth=0`, `last()`  adds `>>nth=-1`
+playwright docs about [nth element selector](https://playwright.dev/docs/selectors#n-th-element-selector)
+
+___
+## Strict mode
+By default, Locator is in strict mode, [docs](https://playwright.dev/docs/locators#strictness).
+
+*So in case you want to ignore it this rule you can `first()`, `last()` or `nth(index: number)`
+methods to point in particular element by index:*
+
+```ts
+import {$} from "playwright-elements";
+
+class MainPage {
+  readonly errors = $(`.error-message`);
+}
+
+test(`find error by text`, async () => {
+  const mainPage = new MainPage();
+  await mainPage.errors.first().expect().toHaveText("Incorrect First name");
+  await mainPage.errors.last().expect().toHaveText("Incorrect paasword");
+})
+```
+___
+
+## As Frame
+When you need to use [FrameLocator](https://playwright.dev/docs/api/class-framelocator)
+as `WebElement` method `asFraame()` let to know that selector
+should be used in `page.frameLocator('#my-frame')`.
+
+*Behind the scene playwright-elements will build next expression:
+`page.frameLocator('#my-frame').locator('.header')`*
+```ts
+import {$} from "playwright-elements";
+
+class MainPage {
+  readonly iframe = $(`#my-frame`).asFrame()
+          .subElements({
+            header: $(`.header`)
+          });
+}
+
+test(`find error by text`, async () => {
+  const mainPage = new MainPage();
+  await mainPage.iframe.header.expec().toBeVisible();
+})
+```
+___
+## Lists of WebElements
+
+Suite of methods to work with arrays of elements.
+
+### Async for each
+Method `asyncForEach(action: (element: T) => unknown | Promise<unknown>)): Promise<void>`
+works with sync and async functions in callbacks and returns promise, so you can await on execution.
+
+*Inside asyncForEach all callbacks are collected in to array and wrapped in
+Promise.all([action(element), action(element)...]). This approach is suitable when you need
+to collect for example text from elements or perform soft assert. But such actions like click, hover, fill,
+actually any interactions with web elements will not work stable inside this loop. For actions is better to use
+`syncForEach`.*
+
+```ts
+test(`asyncForEach example`, async () => {
+    const elements = $(`li`);
+    const elementsTexts: (string | null)[] = [];
+    await elements.asyncForEach(async (e) => elementsTexts.push(await e.locator.textContent()));
+})
+```
+___
+### Sync for each
+Method `syncForEach<T extends WebElement>(this: T, action: (element: T) => unknown | Promise<unknown>): Promise<void>`
+works with sync and async functions in callbacks and returns promise, so you can await on execution.
+
+*Inside syncForEach each action awaited `for (const ele of list) { await action(ele); }`.
+This approach is suitable when you need to perform the same action for each element one by one.*
+
+```ts
+test(`syncForEach example`, async () => {
+    const elements = $(`input`);
+    await elements.syncForEach(async (e) => await e.locator.type(`abc`));
+})
+```
+___
+### Map
+Method `map<T extends WebElement, R>(this: T, item: (element: T) => R | Promise<R>): Promise<Awaited<R[]>>`
+works with sync and async functions in callbacks and returns list of extracted values.
+
+```ts
+test(`map example`, async () => {
+    const elements = $(`li`);
+    const texts: (string | null)[] = await elements.map(async (e) => await e.locator.textContent());
+})
+```
+___
+### Filter
+Method `filter<T extends WebElement>(this: T, predicate: (element: T) => boolean | Promise<boolean>): Promise<T[]>`
+works with sync and async functions in callbacks and returns sub list of elements for with predicate returned true.
+
+```ts
+test(`filter example`, async () => {
+    const elements = $(`input`);
+    const enabledInputs = await elements.filter(async (e) => await e.locator.isEnabled());
+})
+```
+___
+## How to extend Web Element
+
+In case you want to create custom web element.
+
+*Extend base class, create init function:*
+```ts
+import { WebElement } from "playwright-elements";
+
+class Field extends WebElement {
+	async set(this: WebElement, value: string) {
+        await this.fill("");
+        await this.type(value, { delay: 50 });
+	}
+}
+
+export function $field(selector: string): Input {
+	return new Field(selector);
+}
+```
+*or static factory function:*
+```ts
+import { WebElement } from "playwright-elements";
+
+export class Field extends WebElement {
+	async set(this: WebElement, value: string) {
+        await this.fill("");
+        await this.type(value, { delay: 50 });
+	}
+    
+    static $(selector: string): Input {
+    return new Field(selector);
+  }
+}
+```
+*And use in your elements:*
+```ts
+import { $ } from "playwright-elements";
+import { Input } from "./field.element";
+
+export class MissingControlOverviewPage {
+
+  readonly form = $(`.form`)
+          .subElements({
+            nameField: Input.$(`.name-field`),
+          });
+}
+```
+*or:*
+```ts
+import { $ } from "playwright-elements";
+import { $field } from "./field.element";
+
+export class MissingControlOverviewPage {
+
+  readonly form = $(`.form`)
+          .subElements({
+            nameField: $field(`.name-field`),
+          });
+}
+```
+___
+## Playwright elements fixtures
+
+*This documentation explains how to use `playwright-elements` with `@playwright/test`.*
+
+*This lib extends default `test` annotation with tree custom fixtures: `implicitNavigation`, `goto`, `initBrowserInstance`.
+Two of them `implicitNavigation`, `initBrowserInstance`, are auto fixtures, so you do not need to call them explicitly to use.*
+___
+- [implicitNavigation](#implicit-navigation)
+- [goto](#goto)
+- [Init browser instance](#init-browser-instance)
+
+___
+### Implicit navigation
+
+`implicitNavigation` automatically opens `baseURL` if it is specified in playwright config 
+and [goto](#goto) fixture is not used in test function.
+Also it is void, so does not make sense to use it explicitly in tests.
+___
+### goto
+
+`goto` returns [function from pure playwright](https://playwright.dev/docs/api/class-page#page-goto).
+
+Config:
+```ts
+import { devices, PlaywrightTestConfig } from '@playwright/test';
+
+const config: PlaywrightTestConfig = {
+    use: {
+        baseURL: 'https://playwright.dev',
+    }
+};
+export default config;
+```
+Test:
+```ts
+import { test } from "playwright-elements";
+
+test(`goto playwright docs`, async ({ goto }) => {
+    await goto('/docs/test-typescript'); // navigate you directly to https://playwright.dev/docs/test-typescript
+})
+```
+___
+
+### Init browser instance
+
+`initBrowserInstance` is auto fixture which returns void, and it's main purpose is to set currentPage,
+currentContext and browser pointers.
+
+___
+## Browser Instance
+*This object represents single-tone for `Browser`, `BrowserContext` and `Page`.
+It allows avoiding pass `page` in your page object.*
+___
+- [Browser name](#browser-name)
+- [Start](#start)
+- [Start new context](#start-new-context)
+- [Start new page](#start-new-page)
+- [Close browser](#close)
+- [Getters and setters](#getters-and-setters)
+- [Builder like methods](#builder-like-methods)
+- [Switch to previous tab](#switch-to-previous-tab)
+___
+
+### Browser name
+`BrowserName`  is a simple enum with browser names you can install with `npx playwright install` command.
+See more in [install browsers docs](https://playwright.dev/docs/cli#install-browsers).
+
+```ts
+export enum BrowserName {
+    CHROMIUM = 'chromium',
+    CHROME = 'chrome',
+    CHROME_BETA = 'chrome-beta',
+    FIREFOX = 'firefox',
+    WEBKIT = 'webkit',
+    MSEDGE = 'msedge',
+    MSEDGE_BETA = 'msedge-beta',
+    MSEDGE_DEV = 'msedge-dev'
+}
+```
+___
+### Start
+`start(browserName?: BrowserName, options?: LaunchOptions): Promise<Browser>` method starts new browser
+and remembers it, see [Getters and setters](#getters-and-setters).
+
+Args:
+- [BrowserName](#browser-name) enum with possible browser names.
+- [LunchOptions](https://playwright.dev/docs/api/class-browsertype#browser-type-launch) is a playwright type.
+
+Returns: [Browser](https://playwright.dev/docs/api/class-browser)
+
+Example:
+```ts
+import { BrowserName, BrowserInstance } from "playwright-elements";
+
+async function useStart() {
+    await BrowserInstance.start(BrowserName.CHROME, {headless: fasle});
+}
+```
+___
+### Start new context
+`startNewContext(options?: BrowserContextOptions): Promise<BrowserContext>` method starts browser context
+and remembers it.
+
+Args:
+- [BrowserContextOptions](https://playwright.dev/docs/api/class-browser#browser-new-context)
+
+Returns: [BrowserContext](https://playwright.dev/docs/api/class-browsercontext)
+
+Example:
+```ts
+import { BrowserName, BrowserInstance } from "playwright-elements";
+import { devices } from 'playwright-core';
+
+async function useStartNewContext() {
+    await BrowserInstance.start(BrowserName.CHROME, { headless: fasle });
+    await BrowserInstance.startNewContext({ ...devices['iPhone 13'] }); 
+}
+```
+___
+### Start new page
+`startNewPage(options?: BrowserContextOptions): Promise<Page>` method starts new page or context and page
+and remembers them.
+
+Args:
+- [BrowserContextOptions](https://playwright.dev/docs/api/class-browser#browser-new-context) methods has
+  argument BrowserContextOptions but will use it only if you call this method when context is not started.
+
+Returns: [Page](https://playwright.dev/docs/api/class-page)
+
+Example:
+```ts
+import { BrowserName, BrowserInstance } from "playwright-elements";
+import { devices } from 'playwright-core';
+
+async function useStartNewPage() {
+    await BrowserInstance.start(BrowserName.CHROME, { headless: fasle });
+    await BrowserInstance.startNewContext({ ...devices['iPhone 13'] });
+    await BrowserInstance.startNewPage();
+}
+```
+Or to achieve the same result:
+```ts
+import { BrowserName, BrowserInstance } from "playwright-elements";
+import { devices } from 'playwright-core';
+
+async function useStartNewPage() {
+    await BrowserInstance.start(BrowserName.CHROME, { headless: fasle });
+    await BrowserInstance.startNewPage({ ...devices['iPhone 13'] });
+}
+```
+___
+### Close
+`close(): Promise<void>` method closes browser and removes pointers on `Browser`, `BrowserContext` and `Page`.
+
+Example:
+```ts
+import { BrowserName, BrowserInstance } from "playwright-elements";
+import { devices } from 'playwright-core';
+
+async function useClose() {
+    await BrowserInstance.start(BrowserName.CHROME, { headless: fasle });
+    await BrowserInstance.startNewPage({ ...devices['iPhone 13'] });
+    await BrowserInstance.close();
+}
+```
+___
+### Getters and setters
+
+`get currentPage(): Pag` returns instance of [Page](https://playwright.dev/docs/api/class-page)
+
+`set currentPage(page: Page | undefined)` sets instance of page or undefined if you need to remove pointer.
+
+`get currentContext(): BrowserContext` returns instance of [BrowserContext](https://playwright.dev/docs/api/class-browsercontext)
+
+`set currentContext(context: BrowserContext | undefined)` sets instance of browser context or undefined if you need to remove pointer.
+
+`get browser(): Browser` returns instance of [Browser](https://playwright.dev/docs/api/class-browser)
+
+`set browser(browser: Browser | undefined)` sets instance of browser or undefined if you need to remove pointer.
+
+Examples:
+
+*Getters:*
+```ts
+import { BrowserName, BrowserInstance } from "playwright-elements";
+import { devices, Browser, BrowserContext, Page, BrowserContext } from 'playwright-core';
+
+async function useGetters() {
+    await BrowserInstance.start(BrowserName.CHROME, {headless: fasle});
+    await BrowserInstance.startNewPage({...devices['iPhone 13']});
+    const browser: Browser = BrowserInstance.browser;
+    const context: BrowserContext = BrowserInstance.currentContext;
+    const page: Page = BrowserInstance.currentPage;
+}
+```
+*Setters:*
+```ts
+import { BrowserInstance } from "playwright-elements";
+import { webkit } from 'playwright-core';
+
+async function useSetters() {
+    const browser = await webkit.launch();
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    BrowserInstance.browser = browser;
+    BrowserInstance.currentContext = context;
+    BrowserInstance.currentPage = page;
+}
+```
+___
+### Is mobile context
+`get isContextMobile(): boolean` to check if current context was set to mobile config
+`set isContextMobile(isMobile: boolean)` allow you to override default logic. By default, this setter is used
+in initBrowserInstance auto fixture and just store `isMobile` fixture state from playwright test.
+
+```ts
+import {test, BrowserInstance} from "playwright-elements";
+import {devices} from "@playwright/test";
+
+test.describe(`Mobile tests`, () => {
+    test.use({...devices['iPhone 13']})
+    test(`expect positive`, () => {
+        BrowserInstance.isContextMobile // returns true
+    })
+})
+
+test.describe(`Desktop tests`, () => {
+    test.use({...devices['Desktop Chrome']})
+    test(`expect positive`, () => {
+        BrowserInstance.isContextMobile // returns false
+    })
+})
+```
+
+___
+### Builder like methods
+
+`withBrowser(browser: Browser): void` sets instance of browser.
+
+`withContext(context: BrowserContext): void` sets instances of browser context and browser.
+
+`withPage(page: Page): void` sets instances of page, browser context and browser.
+
+Examples:
+
+*withBrowser sets only browser instance:*
+```ts
+import { BrowserInstance } from "playwright-elements";
+import { webkit } from 'playwright-core';
+
+async function useWithBrowser() {
+    BrowserInstance.withBrowser(await webkit.launch());
+    const browser = BrowserInstance.browser;
+}
+```
+*withContext sets context and browser instances:*
+```ts
+import { BrowserInstance } from "playwright-elements";
+import { webkit } from 'playwright-core';
+
+async function useWithBrowser() {
+    const browser = await webkit.launch();
+    const context = await browser.newContext();
+    BrowserInstance.withContext(browser);
+    const storedContext = BrowserInstance.currentContext;
+    const storedBrowser = BrowserInstance.browser;
+}
+```
+*withPage sets page, context and browser instances:*
+```ts
+import { BrowserInstance } from "playwright-elements";
+import { webkit } from 'playwright-core';
+
+async function useWithBrowser() {
+    const browser = await webkit.launch();
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    BrowserInstance.withPage(page);
+    const storedPage = BrowserInstance.currentPage;
+    const storedContext = BrowserInstance.currentContext;
+    const storedBrowser = BrowserInstance.browser;
+}
+```
+___
+### Switch to previous tab
+
+`switchToPreviousTab(): Promise<void>` when new page is opened `BrowserInstance` stores pointer on previous one,
+this method with set previous page as currentPage and call [bring to front](https://playwright.dev/docs/api/class-page#page-bring-to-front) function.
+
+Example:
+```ts
+import { BrowserName, BrowserInstance, expect } from "playwright-elements";
+
+async function useSwitchToPreviousTab() {
+    await BrowserInstance.start(BrowserName.WEBKIT);
+    await BrowserInstance.startNewPage();
+    await BrowserInstance.currentPage.goto(`https://playwright.dev`);
+    await BrowserInstance.startNewPage();
+    expect(BrowserInstance.currentPage.url()).toEqual('about:blank');
+    await BrowserInstance.switchToPreviousTab();
+    expect(BrowserInstance.currentPage.url()).toEqual('https://playwright.dev');
+}
 ```

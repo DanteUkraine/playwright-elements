@@ -22,7 +22,8 @@ test.describe(`Playwright test integration`, () => {
         test.fail()
     })
 
-    test(`goto fixture should navigate to endpoint`, async ({goto}) => {
+    test(`goto fixture should navigate to endpoint`, async ({ goto }) => {
+        await expect(BrowserInstance.currentPage).toHaveURL('about:blank')
         const res = await goto('/docs/test-typescript');
         expect(res?.ok()).toBeTruthy();
     })
