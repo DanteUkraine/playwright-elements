@@ -1,6 +1,6 @@
-import { test as base, Page, Response } from '@playwright/test';
+import { test as base, Page, Response, TestInfo } from '@playwright/test';
 import { BrowserInstance } from './browser'
-import {isBoolean} from "lodash";
+import { isBoolean } from "lodash";
 export { expect } from "@playwright/test";
 
 type WrappedFixtures = {
@@ -15,25 +15,29 @@ type GoToOptions = {
     waitUntil?: "load" | "domcontentloaded" | "networkidle" | "commit" | undefined
 }
 
+function isTestUseGoto(testInfo: TestInfo): boolean {
+    return /\(\{(.*,)?goto(,.*)?\}\)/g.test(testInfo.fn.toString().replaceAll(/\n|\r|\s/g, ''));
+}
+
 export const test = base.extend<{
-    navigation: void,
+    implicitNavigation: void,
     goto: (endpoint: string, options?: GoToOptions) => Promise<null | Response>,
     initBrowserInstance: void
 }>({
-    navigation: [
-        async ({baseURL, page}: WrappedFixtures, use: () => Promise<void>) => {
-            if (baseURL) await page.goto(baseURL);
+    implicitNavigation: [
+        async ({baseURL, page}: WrappedFixtures, use: () => Promise<void>, testInfo: TestInfo) => {
+            if (!isTestUseGoto(testInfo) && baseURL) await page.goto(baseURL);
             await use();
         },
-        {scope: "test", auto: true}],
+        { scope: 'test', auto: true }],
     goto: [
-        async ({page}: { page: Page }, use: (func: (endpoint: string) => Promise<null | Response>) => Promise<void>) => {
+        async ({ page }: { page: Page }, use: (func: (endpoint: string) => Promise<null | Response>) => Promise<void>) => {
             await use((endpoint: string, options?: GoToOptions) => page.goto(endpoint, options));
         },
-        {scope: "test"},
+        { scope: 'test' },
     ],
     initBrowserInstance: [
-        async ({isMobile, page}: WrappedFixtures, use: () => Promise<void>) => {
+        async ({ isMobile, page }: WrappedFixtures, use: () => Promise<void>) => {
             BrowserInstance.withPage(page);
             BrowserInstance.isContextMobile = isBoolean(isMobile)? isMobile : false;
             await use();
@@ -41,6 +45,6 @@ export const test = base.extend<{
             BrowserInstance.currentContext = undefined;
             BrowserInstance.browser = undefined;
         },
-        {scope: "test", auto: true}
+        { scope: 'test', auto: true }
     ],
 });

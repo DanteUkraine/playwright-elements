@@ -1,8 +1,19 @@
-import { $, BrowserInstance, BrowserName } from "../src";
+import {
+    $,
+    $getByAltText,
+    $getByLabel,
+    $getByPlaceholder,
+    $getByRole,
+    $getByTestId,
+    $getByText,
+    $getByTitle,
+    BrowserInstance,
+    BrowserName
+} from "../src";
 import { test } from "mocha";
 import chai, { expect } from "chai";
 import path from "path";
-import chaiAsPromised from 'chai-as-promised'
+import chaiAsPromised from 'chai-as-promised';
 
 const localFilePath = `file://${__dirname.replace(/\//g, path.sep)}/test.html`;
 
@@ -106,4 +117,57 @@ describe(`Web element build in selectors`, function () {
         await visibleElement.has($('#right-target')).paragraph.expect().toHaveText("This is hidden right target");
     })
 
+    test(`get by alt text selector method`, async () => {
+        expect(await $getByAltText('alt text').locator.getAttribute('alt')).to.equal('This is the alt text');
+        expect(await $('body').$getByAltText('alt text').locator.getAttribute('alt')).to.equal('This is the alt text');
+    })
+
+    test(`get by label selector method`, async () => {
+        expect(await $getByLabel('Checked box', {exact: true}).locator.getAttribute('id')).to.equal('checked');
+        expect(await Promise.all((await $getByLabel('Checked box').locator.all()).map(el => el.getAttribute('id')))).to.have.members(['checked', 'unchecked']);
+        expect(await $('body').$getByLabel('Checked box', {exact: true}).locator.getAttribute('id')).to.equal('checked');
+        expect(await Promise.all((await $('body').$getByLabel('Checked box').locator.all()).map(el => el.getAttribute('id')))).to.have.members(['checked', 'unchecked']);
+    })
+
+    test(`get by placeholder selector method`, async () => {
+        const element = $('fieldset').subElements({ input: $getByPlaceholder('enabled') });
+        expect(await element.input.locator.getAttribute('id')).to.equal('enabled-field');
+    })
+
+    test(`get by role selector method`, async () => {
+        const elements = $getByRole('list');
+        expect(await elements.locator.count()).to.equal(2);
+    })
+
+    test(`get by test id selector method`, async () => {
+        const element = $getByTestId('main-title');
+        expect(await element.locator.textContent()).to.equal('Hello Playwright elements');
+    })
+
+    test(`get by text selector method`, async () => {
+        const element = $getByText('Hello Playwright');
+        expect(await element.locator.textContent()).to.equal('Hello Playwright elements');
+    })
+
+    test(`get by title selector method`, async () => {
+        const element = $getByTitle('Submit button');
+        expect(await element.locator.textContent()).to.equal('Button');
+    })
+
+    test(`get by selector methods should not be used with has method`, async () => {
+        expect(() => $getByAltText('list').has('#child'))
+            .to.throw('has option can not be used with getByAltText, it can be used only with $ or new WebElement(\'#id\') syntax.');
+        expect(() => $getByLabel('list').has('#child'))
+            .to.throw('has option can not be used with getByLabel, it can be used only with $ or new WebElement(\'#id\') syntax.');
+        expect(() => $getByPlaceholder('list').has('#child'))
+            .to.throw('has option can not be used with getByPlaceholder, it can be used only with $ or new WebElement(\'#id\') syntax.');
+        expect(() => $getByRole('list').has('#child'))
+            .to.throw('has option can not be used with getByRole, it can be used only with $ or new WebElement(\'#id\') syntax.');
+        expect(() => $getByTestId('title').has('#child'))
+            .to.throw('has option can not be used with getByTestId, it can be used only with $ or new WebElement(\'#id\') syntax.');
+        expect(() => $getByText('title').has('#child'))
+            .to.throw('has option can not be used with getByText, it can be used only with $ or new WebElement(\'#id\') syntax.');
+        expect(() => $getByTitle('title').has('#child'))
+            .to.throw('has option can not be used with getByTitle, it can be used only with $ or new WebElement(\'#id\') syntax.');
+    })
 });

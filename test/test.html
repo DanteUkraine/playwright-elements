@@ -9,7 +9,7 @@
     </style>
 </head>
 <body>
-<h1>Hello Playwright elements</h1>
+<h1 data-testid="main-title" >Hello Playwright elements</h1>
 <h2 hidden>Hidden title</h2>
 <fieldset>
     <legend>Check boxes:</legend>
@@ -22,9 +22,10 @@
         <label for="unchecked">Not checked box</label>
     </div>
     <legend>Fields:</legend>
-    <input type="text" id="disabled-field" disabled>
-    <input class="fieldsStyle" type="text" id="enabled-field">
+    <input type="text" id="disabled-field" disabled placeholder="disabled">
+    <input class="fieldsStyle" type="text" id="enabled-field" placeholder="enabled">
 </fieldset>
+<button title="Submit button">Button</button>
 <p id="inner-text">This element has <span>inner text</span>.</p>
 <div>
     <ul>
@@ -70,6 +71,7 @@
         </div>
     </div>
 </div>
+<img src="./sleeping-cat.jpg" alt="This is the alt text" width="640" height="320"/>
 <iframe src="https://playwright.dev" width="640" height="320"/>
 </body>
 </html>

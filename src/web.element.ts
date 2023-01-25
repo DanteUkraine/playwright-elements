@@ -1,4 +1,4 @@
-import { Locator, Page } from "playwright-core";
+import {FrameLocator, Locator, Page} from "playwright-core";
 import { cloneDeep } from "lodash";
 import { BrowserInstance } from "./browser";
 import { expect } from "@playwright/test";
@@ -8,7 +8,7 @@ function extractSelector(pointer: string | WebElement): string {
 }
 
 export type LocatorAssertions = ReturnType<typeof expect<Locator>>;
-
+type InternalElements = {[key: string]: WebElement};
 
 export class WebElement {
 
@@ -17,15 +17,14 @@ export class WebElement {
     protected _frameSelector = 'iframe';
     private _parents: WebElement[] = [];
     private readonly _selector: string;
+    private readonly _by: By | undefined;
+    private _byOptions: ByOptions | ByRoleOptions | undefined;
     private _hasLocator: string | undefined;
 
-    constructor(selector: string) {
+    constructor(selector: string, by?: By, options?: ByOptions | ByRoleOptions) {
         this._selector = selector;
-    }
-
-    public usePage<T extends WebElement>(this: T, page: Page): T {
-        BrowserInstance.currentPage = page;
-        return this;
+        this._by = by;
+        this._byOptions = options;
     }
 
     // page and frame pointers
@@ -35,24 +34,56 @@ export class WebElement {
         return this;
     }
 
-    private buildParentLocatorsChain(): Locator | Page {
+    private buildFrameLocatorIfInFrame(locatorsChain: Locator | Page, element: WebElement): Locator | FrameLocator | Page {
+        if(element._isInFrame) return locatorsChain.frameLocator(element._frameSelector);
+        return locatorsChain;
+    }
+
+    private buildLocator(locatorsChain: Locator | Page, element: WebElement): Locator {
+        const locatorsChainWithIframeType = this.buildFrameLocatorIfInFrame(locatorsChain, element);
+        switch (element._by) {
+            case By.getByAltText:
+                locatorsChain = locatorsChainWithIframeType[By.getByAltText](element.narrowSelector, this._byOptions);
+                break;
+            case By.getByLabel:
+                locatorsChain = locatorsChainWithIframeType[By.getByLabel](element.narrowSelector, this._byOptions);
+                break;
+            case By.getByPlaceholder:
+                locatorsChain = locatorsChainWithIframeType[By.getByPlaceholder](element.narrowSelector, this._byOptions);
+                break;
+            case By.getByRole:
+                locatorsChain = locatorsChainWithIframeType[By.getByRole](element.narrowSelector as Role, this._byOptions);
+                break;
+            case By.getByTestId:
+                locatorsChain = locatorsChainWithIframeType[By.getByTestId](element.narrowSelector);
+                break;
+            case By.getByText:
+                locatorsChain = locatorsChainWithIframeType[By.getByText](element.narrowSelector, this._byOptions);
+                break;
+            case By.getByTitle:
+                locatorsChain = locatorsChainWithIframeType[By.getByTitle](element.narrowSelector, this._byOptions);
+                break;
+            default:
+                const subLocator: Locator | undefined = element._hasLocator ?
+                    BrowserInstance.currentPage.locator(element._hasLocator) : undefined;
+                locatorsChain = locatorsChainWithIframeType.locator(element.narrowSelector, {has: subLocator});
+                break;
+        }
+        return locatorsChain as Locator;
+    }
+
+    private buildParentLocatorsChain(): Locator | Page{
         let locatorsChain: Locator | Page = BrowserInstance.currentPage;
         if(this.parentElements.length > 0) {
-            for (const el of this.parentElements){
-                const subLocator: Locator | undefined = el._hasLocator ? BrowserInstance.currentPage.locator(el._hasLocator) : undefined;
-                locatorsChain = el._isInFrame ?
-                    locatorsChain.frameLocator(el._frameSelector).locator(el.narrowSelector, {has: subLocator}) :
-                    locatorsChain.locator(el.narrowSelector, {has: subLocator});
+            for (const element of this.parentElements){
+                locatorsChain = this.buildLocator(locatorsChain, element);
             }
         }
         return locatorsChain;
     }
 
     public get locator(): Locator {
-        const subLocator: Locator | undefined = this._hasLocator ? BrowserInstance.currentPage.locator(this._hasLocator) : undefined;
-        return this._isInFrame ?
-            this.buildParentLocatorsChain().frameLocator(this._frameSelector).locator(this.narrowSelector, {has: subLocator}) :
-            this.buildParentLocatorsChain().locator(this.narrowSelector, {has: subLocator});
+        return this.buildLocator(this.buildParentLocatorsChain(), this);
     }
 
     public get _(): Locator {
@@ -81,7 +112,7 @@ export class WebElement {
         }
     }
 
-    public subElements<T extends WebElement, A>(this: T, augment: A): T & A {
+    public subElements<T extends WebElement, A extends InternalElements>(this: T, augment: A): T & A {
         const elements = augment as Record<string, WebElement>;
         Object.entries(elements).forEach(([key, value]) => {
             let clone = cloneDeep(value);
@@ -142,7 +173,7 @@ export class WebElement {
 
     // chainable web element creation
 
-    protected $<T extends WebElement>(this: T, selector: string, internalLocator?: string): T {
+    protected deepClone<T extends WebElement>(this: T, selector: string, internalLocator?: string): T {
         return Object.defineProperties(cloneDeep(this), {
                 _selector: {
                     value: selector,
@@ -158,23 +189,65 @@ export class WebElement {
     }
 
     public has<T extends WebElement, R extends WebElement>(this: R, selector: string | T): R {
-        return this.$(this.narrowSelector, extractSelector(selector));
+        if(this._by) throw Error(`has option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
+        return this.deepClone(this.narrowSelector, extractSelector(selector));
+    }
+
+    private addParentsToWebElement(element: WebElement): WebElement {
+        element.addParentSelector(this);
+        const parents = this.parentElements.reverse();
+        for(const parent of parents) {
+            element.addParentSelector(parent);
+        }
+        return element;
+    }
+
+    public $(selector: string): WebElement {
+        return this.addParentsToWebElement(new WebElement(selector));
+    }
+
+    public $getByAltText(altText: string, options?: ByOptions): WebElement {
+        return this.addParentsToWebElement(new WebElement(altText, By.getByAltText, options));
+    }
+
+    public $getByLabel(label: string, options?: ByOptions): WebElement {
+        return this.addParentsToWebElement(new WebElement(label, By.getByLabel, options));
+    }
+
+    public $getByPlaceholder(placeholder: string, options?: ByOptions): WebElement {
+        return this.addParentsToWebElement(new WebElement(placeholder, By.getByPlaceholder, options));
+    }
+
+    public $getByRole(role: Role, options?: ByRoleOptions): WebElement {
+        return this.addParentsToWebElement(new WebElement(role, By.getByRole, options));
+    }
+
+    public $getByTestId(testId: string): WebElement {
+        return this.addParentsToWebElement(new WebElement(testId, By.getByTestId));
+    }
+
+    public $getByText(text: string, options?: ByOptions): WebElement {
+        return this.addParentsToWebElement(new WebElement(text, By.getByText, options));
+    }
+
+    public $getByTitle(title: string, options?: ByOptions): WebElement {
+        return this.addParentsToWebElement(new WebElement(title, By.getByTitle, options));
     }
 
     public withVisible() {
-        return this.$(`${this.buildNarrowSelectorWithInternalLocator()} >> visible=true`);
+        return this.deepClone(`${this.buildNarrowSelectorWithInternalLocator()} >> visible=true`);
     }
 
     public withText(text: string | RegExp) {
-        return this.$(`${this.buildNarrowSelectorWithInternalLocator()} >> text=${text}`);
+        return this.deepClone(`${this.buildNarrowSelectorWithInternalLocator()} >> text=${text}`);
     }
 
     public whereTextIs(text: string) {
-        return this.$(`${this.buildNarrowSelectorWithInternalLocator()} >> text="${text}"`);
+        return this.deepClone(`${this.buildNarrowSelectorWithInternalLocator()} >> text="${text}"`);
     }
 
     public nth(index: number) {
-        return this.$(`${this.buildNarrowSelectorWithInternalLocator()} >> nth=${index}`);
+        return this.deepClone(`${this.buildNarrowSelectorWithInternalLocator()} >> nth=${index}`);
     }
 
     public first() {
@@ -232,8 +305,72 @@ export class WebElement {
     }
 }
 
+enum By {
+    getByAltText = 'getByAltText',
+    getByLabel = 'getByLabel',
+    getByPlaceholder = 'getByPlaceholder',
+    getByRole = 'getByRole',
+    getByTestId = 'getByTestId',
+    getByText = 'getByText',
+    getByTitle = 'getByTitle'
+}
+
+type ByOptions = {
+    exact?: boolean
+}
+
+type Role = 'alert' | 'alertdialog'| 'application' | 'article' | 'banner' | 'blockquote' | 'button' | 'caption' |
+    'cell' | 'checkbox' | 'code' | 'columnheader' | 'combobox' | 'complementary' | 'contentinfo' | 'definition' |
+    'deletion' | 'dialog' | 'directory' | 'document' | 'emphasis' | 'feed' | 'figure' | 'form' | 'generic' | 'grid' |
+    'gridcell' | 'group' | 'heading' | 'img' | 'insertion' | 'link' | 'list' | 'listbox' | 'listitem' | 'log' | 'main' |
+    'marquee' | 'math' | 'meter' | 'menu' | 'menubar' | 'menuitem' | 'menuitemcheckbox' | 'menuitemradio' |
+    'navigation' | 'none' | 'note' | 'option' | 'paragraph' | 'presentation' | 'progressbar' | 'radio' | 'radiogroup' |
+    'region' | 'row' | 'rowgroup' | 'rowheader' | 'scrollbar' | 'search' | 'searchbox' | 'separator' | 'slider' |
+    'spinbutton' | 'status' | 'strong' | 'subscript' | 'superscript' | 'switch' | 'tab' | 'table' | 'tablist' |
+    'tabpanel'| 'term' | 'textbox' | 'time' | 'timer' | 'toolbar' | 'tooltip' | 'tree' | 'treegrid' | 'treeitem';
+
+type ByRoleOptions = {
+    checked?: boolean,
+    disabled?: boolean,
+    exact?: boolean,
+    expanded?: boolean,
+    includeHidden?: boolean,
+    level?: number,
+    name?: string | RegExp,
+    pressed?: boolean,
+    selected?: boolean
+}
+
 export function $(selector: string): WebElement {
     return new WebElement(selector);
+}
+
+export function $getByAltText(altText: string, options?: ByOptions): WebElement {
+    return new WebElement(altText, By.getByAltText, options);
+}
+
+export function $getByLabel(label: string, options?: ByOptions): WebElement {
+    return new WebElement(label, By.getByLabel, options);
+}
+
+export function $getByPlaceholder(placeholder: string, options?: ByOptions): WebElement {
+    return new WebElement(placeholder, By.getByPlaceholder, options);
+}
+
+export function $getByRole(role: Role, options?: ByRoleOptions): WebElement {
+    return new WebElement(role, By.getByRole, options);
+}
+
+export function $getByTestId(testId: string): WebElement {
+    return new WebElement(testId, By.getByTestId);
+}
+
+export function $getByText(text: string, options?: ByOptions): WebElement {
+    return new WebElement(text, By.getByText, options);
+}
+
+export function $getByTitle(title: string, options?: ByOptions): WebElement {
+    return new WebElement(title, By.getByTitle, options);
 }
 
 export function initDesktopOrMobile<T>(desktop: T, mobile: T): T {
