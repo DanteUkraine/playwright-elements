@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "tsc --build --clean",
-    "install:dependencies": "npm i --registry=https://registry.npmjs.org",
+    "install:dependencies": "npm install --registry=https://registry.npmjs.org",
     "install:browsers": "npx playwright install --force chrome chromium msedge firefox webkit --with-deps",
     "test": "mocha",
     "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts"
