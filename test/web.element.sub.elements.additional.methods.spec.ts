@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { test } from "mocha";
-import { $, WebElement } from '../src';
+import { $getByTestId, $, WebElement } from '../src';
 
 describe('Web Element chainable selectors', () => {
 
@@ -205,5 +205,13 @@ describe('Web Element augmentation', () => {
         expect(element.subChild().selector).to.equal('parent >> child >> subChild');
         expect(element.subChild().$('oneMore').selector).to.equal('parent >> child >> subChild >> oneMore');
         expect(element.subChild().selector).to.equal('parent >> child >> subChild');
+    })
+
+    test('get by method with direct child', () => {
+        const element = $getByTestId('parentTestId').$('child')
+            .subElements({
+                subChild: $getByTestId('subChild').$('subChild2'),
+            });
+        expect(element.subChild.$getByPlaceholder('placeholder').selector).to.equal('parentTestId >> child >> subChild >> subChild2 >> placeholder');
     })
 });

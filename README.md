@@ -13,6 +13,7 @@ ___
 - [Web element](#web-element)
   - [Get by methods](#get-by-methods)
   - [Sub elements](#sub-elements)
+  - [Direct child](#direct-child)
   - [Expect](#expect)
   - [With methods and getters: locator and _](#with-methods-locator-and-underscore)
   - [Build in selector helpers](#build-in-selector-helpers)
@@ -80,19 +81,21 @@ class MainPage {
 ___
 ## Usage with playwright-test
 
-Playwright elements provides you with extended **test** annotation
-and access to playwright expect methods via **expect()** function
+Playwright elements provides you with extended **test** annotation 
+which includes [goto](#goto) fixture and access to playwright expect 
+methods via **expect()** function
 ```ts
 import { test } from 'playwright-elements';
 import { MainPage } from 'main.page'
 
 test.describe('Playwright test integration', () => {
 
-    test('expect positive', async () => {
-        const mainPage = new MainPage();
-        await mainPage.header.logo.expect().toBeVisible();
-        await mainPage.header.logo.expect().toHaveText('Playwright');
-    })
+  test('expect positive', async ({ goto }) => {
+    await goto();
+    const mainPage = new MainPage();
+    await mainPage.header.logo.expect().toBeVisible();
+    await mainPage.header.logo.expect().toHaveText('Playwright');
+  })
 
 })
 ```
@@ -107,8 +110,6 @@ const config: PlaywrightTestConfig = {
 };
 export default config;
 ```
-Custom ***test*** annotation will check if **baseURL** is set in playwright config
-and if yes will perform *goto* method from *page*.
 
 WebElement provide access to Locator api via getter `locator` or shortcut `_`:
 
@@ -213,6 +214,19 @@ class MainPage {
                     avatar: $(`.userImage`)
                 })
         })
+}
+```
+___
+### Direct child
+Allows chain selectors:
+```ts
+import { $ } from "playwright-elements"; 
+
+class MainPage {
+    readonly element = $getByTestId('parentTestId').$('.child')
+            .subElements({
+              subChild: $getByTestId('subChildId').$('.subChild2'),
+            });
 }
 ```
 ___
@@ -790,3 +804,6 @@ async function useSwitchToPreviousTab() {
     expect(BrowserInstance.currentPage.url()).toEqual('https://playwright.dev');
 }
 ```
+
+___
+*[Release notes.](https://github.com/DanteUkraine/playwright-elements/releases)*
