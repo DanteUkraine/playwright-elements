@@ -2,7 +2,8 @@ import {test, expect, $, BrowserInstance, initDesktopOrMobile} from "../src";
 
 test.describe(`Playwright test integration`, () => {
 
-    test(`expect positive`, async () => {
+    test(`expect positive`, async ({ goto }) => {
+        await goto();
         const header = $(`.navbar`)
             .subElements({
                 logo: $(`.navbar__title`)
@@ -11,7 +12,8 @@ test.describe(`Playwright test integration`, () => {
         await header.logo.expect().toHaveText("Playwright");
     })
 
-    test(`soft expect negative`, async () => {
+    test(`soft expect negative`, async ({ goto }) => {
+        await goto();
         const header = $(`.navbar`)
             .subElements({
                 logo: $(`.navbar__title`),
@@ -28,7 +30,8 @@ test.describe(`Playwright test integration`, () => {
         expect(res?.ok()).toBeTruthy();
     })
 
-    test.skip(`custom expect matcher`, async () => {
+    test.skip(`custom expect matcher`, async ({ goto }) => {
+        await goto('/', { waitUntil: 'domcontentloaded' });
         const header = $(`.navbar`)
             .subElements({
                 logo: $(`.navbar__title`),
