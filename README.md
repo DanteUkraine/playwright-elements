@@ -29,7 +29,17 @@ ___
     - [Filter](#filter)
   - [How to extend WebElement](#how-to-extend-web-element)
 - [Playwright elements fixtures](#playwright-elements-fixtures)
+  - [goto](#goto)
+  - [Init browser instance](#init-browser-instance)
 - [Browser instance](#browser-instance)
+  - [Browser name](#browser-name)
+  - [Start](#start)
+  - [Start new context](#start-new-context)
+  - [Start new page](#start-new-page)
+  - [Close browser](#close)
+  - [Getters and setters](#getters-and-setters)
+  - [Builder like methods](#builder-like-methods)
+  - [Switch to previous tab](#switch-to-previous-tab)
 ___
 ## Get started
 
@@ -483,20 +493,10 @@ ___
 
 *This documentation explains how to use `playwright-elements` with `@playwright/test`.*
 
-*This lib extends default `test` annotation with tree custom fixtures: `implicitNavigation`, `goto`, `initBrowserInstance`.
-Two of them `implicitNavigation`, `initBrowserInstance`, are auto fixtures, so you do not need to call them explicitly to use.*
+*This lib extends default `test` annotation with tree custom fixtures: `goto`, `initBrowserInstance`.
+One of them `initBrowserInstance`, are auto fixture, so you do not need to call it explicitly to use.*
 ___
-- [implicitNavigation](#implicit-navigation)
-- [goto](#goto)
-- [Init browser instance](#init-browser-instance)
 
-___
-### Implicit navigation
-
-`implicitNavigation` automatically opens `baseURL` if it is specified in playwright config 
-and [goto](#goto) fixture is not used in test function.
-Also it is void, so does not make sense to use it explicitly in tests.
-___
 ### goto
 
 `goto` returns [function from pure playwright](https://playwright.dev/docs/api/class-page#page-goto).
@@ -520,6 +520,23 @@ test(`goto playwright docs`, async ({ goto }) => {
     await goto('/docs/test-typescript'); // navigate you directly to https://playwright.dev/docs/test-typescript
 })
 ```
+or
+```ts
+import { test } from "playwright-elements";
+
+test(`goto playwright docs`, async ({ goto }) => {
+    await goto(); // navigates to base url
+})
+```
+also, you are able to pass options:
+```ts
+import { test } from "playwright-elements";
+
+test(`goto playwright docs`, async ({ goto }) => {
+  await goto('/', { waitUntil: 'domcontentloaded' }); // navigates to base url
+})
+
+```
 ___
 
 ### Init browser instance
@@ -531,15 +548,6 @@ ___
 ## Browser Instance
 *This object represents single-tone for `Browser`, `BrowserContext` and `Page`.
 It allows avoiding pass `page` in your page object.*
-___
-- [Browser name](#browser-name)
-- [Start](#start)
-- [Start new context](#start-new-context)
-- [Start new page](#start-new-page)
-- [Close browser](#close)
-- [Getters and setters](#getters-and-setters)
-- [Builder like methods](#builder-like-methods)
-- [Switch to previous tab](#switch-to-previous-tab)
 ___
 
 ### Browser name
