@@ -1,6 +1,6 @@
 {
   "name": "playwright-elements",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "This is Playwright extension.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",

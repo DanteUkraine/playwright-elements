@@ -154,6 +154,14 @@ describe(`Web element build in selectors`, function () {
         expect(await element.locator.textContent()).to.equal('Button');
     })
 
+    test(`get by with direct child plus has`, async () => {
+        const element = $getByTestId('test-div').$('div')
+            .subElements({
+                p: $('p')
+            })
+        expect(await element.has('#inner-visible-target').p.withText('Second visible target').locator.isVisible()).to.be.true;
+    })
+
     test(`get by selector methods should not be used with has method`, async () => {
         expect(() => $getByAltText('list').has('#child'))
             .to.throw('has option can not be used with getByAltText, it can be used only with $ or new WebElement(\'#id\') syntax.');

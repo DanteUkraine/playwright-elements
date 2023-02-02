@@ -1,4 +1,4 @@
-import {FrameLocator, Locator, Page} from "playwright-core";
+import { FrameLocator, Locator, Page } from "playwright-core";
 import { cloneDeep } from "lodash";
 import { BrowserInstance } from "./browser";
 import { expect } from "@playwright/test";
@@ -107,6 +107,10 @@ export class WebElement {
         if (values.length) {
             values.forEach((value: WebElement) => {
                 value.addParentSelector(this);
+                const parents = this.parentElements;
+                for(const parent of parents) {
+                    value.addParentSelector(parent);
+                }
                 this.recursiveParentSelectorInjection(value);
             })
         }
@@ -123,9 +127,17 @@ export class WebElement {
                 clone._isInFrame = true;
                 clone._frameSelector = this._frameSelector;
                 clone.addParentSelector(this as WebElement);
+                const parents = this.parentElements;
+                for(const parent of parents) {
+                    clone.addParentSelector(parent);
+                }
                 this.recursiveParentSelectorInjection(clone);
             } else {
                 clone.addParentSelector(this as WebElement);
+                const parents = this.parentElements;
+                for(const parent of parents) {
+                    clone.addParentSelector(parent);
+                }
                 this.recursiveParentSelectorInjection(clone);
             }
             (this as any)[key] = clone;
