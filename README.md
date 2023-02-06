@@ -111,10 +111,6 @@ const config: PlaywrightTestConfig = {
 };
 export default config;
 ```
-<<<<<<< HEAD
-=======
-
->>>>>>> 559b5cf139704d52c25b674ed828eec2e965fe78
 WebElement provide access to Locator api via getter `locator` or shortcut `_`:
 
 ```ts
@@ -218,11 +214,7 @@ class MainPage {
         })
 }
 ```
-<<<<<<< HEAD
-=======
-___
->>>>>>> 559b5cf139704d52c25b674ed828eec2e965fe78
-### Direct child
+
 Allows chain selectors:
 ```ts
 import { $ } from "playwright-elements"; 
@@ -234,10 +226,6 @@ class MainPage {
             });
 }
 ```
-<<<<<<< HEAD
-=======
-___
->>>>>>> 559b5cf139704d52c25b674ed828eec2e965fe78
 ### Expect
 Web element has methods `expect()` and `softExpect()` which allows access to
 [playwright assert library](https://playwright.dev/docs/test-assertions).
