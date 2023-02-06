@@ -20,6 +20,7 @@ export class WebElement {
     private readonly _by: By | undefined;
     private _byOptions: ByOptions | ByRoleOptions | undefined;
     private _hasLocator: string | undefined;
+    private _hasText: string | RegExp | undefined;
 
     constructor(selector: string, by?: By, options?: ByOptions | ByRoleOptions) {
         this._selector = selector;
@@ -66,7 +67,7 @@ export class WebElement {
             default:
                 const subLocator: Locator | undefined = element._hasLocator ?
                     BrowserInstance.currentPage.locator(element._hasLocator) : undefined;
-                locatorsChain = locatorsChainWithIframeType.locator(element.narrowSelector, {has: subLocator});
+                locatorsChain = locatorsChainWithIframeType.locator(element.narrowSelector, { hasText: element._hasText, has: subLocator });
                 break;
         }
         return locatorsChain as Locator;
@@ -185,7 +186,7 @@ export class WebElement {
 
     // chainable web element creation
 
-    protected deepClone<T extends WebElement>(this: T, selector: string, internalLocator?: string): T {
+    protected deepClone<T extends WebElement>(this: T, selector: string, internalLocator?: string, internalText?: string | RegExp): T {
         return Object.defineProperties(cloneDeep(this), {
                 _selector: {
                     value: selector,
@@ -196,6 +197,11 @@ export class WebElement {
                     value: internalLocator,
                     writable: true,
                     configurable: false
+                },
+                _hasText: {
+                    value: internalText,
+                    writable: true,
+                    configurable: false
                 }
             });
     }
@@ -203,6 +209,11 @@ export class WebElement {
     public has<T extends WebElement, R extends WebElement>(this: R, selector: string | T): R {
         if(this._by) throw Error(`has option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
         return this.deepClone(this.narrowSelector, extractSelector(selector));
+    }
+
+    public hasText<R extends WebElement>(this: R, text: string | RegExp): R {
+        if(this._by) throw Error(`has option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
+        return this.deepClone(this.narrowSelector, undefined, text);
     }
 
     private addParentsToWebElement(element: WebElement): WebElement {
