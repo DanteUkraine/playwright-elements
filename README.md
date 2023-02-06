@@ -18,6 +18,7 @@ ___
   - [With methods and getters: locator and _](#with-methods-locator-and-underscore)
   - [Build in selector helpers](#build-in-selector-helpers)
   - [Has](#has)
+  - [Has text](#has-text)
   - [With visible](#with-visible)
   - [With text and where text is](#with-text-and-where-text-is)
   - [Get element by index](#get-element-by-index)
@@ -110,7 +111,6 @@ const config: PlaywrightTestConfig = {
 };
 export default config;
 ```
-
 WebElement provide access to Locator api via getter `locator` or shortcut `_`:
 
 ```ts
@@ -127,7 +127,6 @@ test.describe('Playwright test integration', () => {
     })
 })
 ```
-___
 Init desktop or mobile version of web element
 
 ```ts
@@ -185,7 +184,6 @@ class MainPage {
 }
 ```
 
-___
 ### Sub elements
 
 *Simple child element creation*
@@ -216,8 +214,7 @@ class MainPage {
         })
 }
 ```
-___
-### Direct child
+
 Allows chain selectors:
 ```ts
 import { $ } from "playwright-elements"; 
@@ -229,7 +226,6 @@ class MainPage {
             });
 }
 ```
-___
 ### Expect
 Web element has methods `expect()` and `softExpect()` which allows access to
 [playwright assert library](https://playwright.dev/docs/test-assertions).
@@ -244,7 +240,6 @@ test(`header should contain user info`, async () => {
     await mainPage.header.userInfoSection.avatar.expect().toBeVisible();
 })
 ```
----
 ### With methods, Locator and underscore
 
 ```ts
@@ -278,7 +273,6 @@ test(`user can open documentaation`, async () => {
     await mainPage.header.menu.item.withText(`Documentation`).hoverAndClick();
 })
 ```
-___
 ## Build in selector helpers
 
 ### Has
@@ -301,7 +295,26 @@ class MainPage {
     readonly fieldRows = $(`.field-row`).has(enabledEnputs);
 }
 ```
-___
+# Has text
+Method `hasText(text: string | RegExp)` helps to find elements with specific text or child with text.
+*Based on text:*
+```ts
+import { $ } from "playwright-elements";
+
+class MainPage {
+    readonly paragraph = $(`p`).hasText(`Some text:`);
+}
+```
+*Based on RegExp:*
+```ts
+import { $ } from "playwright-elements";
+
+class MainPage {
+    readonly paragraph = $(`.field-row`).hasText(/Some text:/);
+}
+```
+
+*Methods **has** and **hasText** can be combined in chain.*
 
 ### With visible
 Method `withVisible()` adds to element selector `>> visible=true`,
@@ -314,7 +327,6 @@ class MainPage {
     readonly errors = $(`.error-message`).withVisible();
 }
 ```
-___
 ### With text and where text is
 Method `withText("text")` adds to selector `>> text=text`
 and method `whereTextIs("text")` adds to selector `>> text="text"`,
@@ -333,13 +345,11 @@ test(`find error by text`, async () => {
   await mainPage.errors.whereTextIs(`Incorect password`).expect().toBeVisible();
 })
 ```
-___
 ### Get element by index
 Method `nth(index: number)` adds to selector `>> nth=${index}`
 and methods `first()` adds `>> nth=0`, `last()`  adds `>>nth=-1`
 playwright docs about [nth element selector](https://playwright.dev/docs/selectors#n-th-element-selector)
 
-___
 ## Strict mode
 By default, Locator is in strict mode, [docs](https://playwright.dev/docs/locators#strictness).
 
@@ -359,7 +369,6 @@ test(`find error by text`, async () => {
   await mainPage.errors.last().expect().toHaveText("Incorrect paasword");
 })
 ```
-___
 
 ## As Frame
 When you need to use [FrameLocator](https://playwright.dev/docs/api/class-framelocator)
@@ -383,7 +392,6 @@ test(`find error by text`, async () => {
   await mainPage.iframe.header.expec().toBeVisible();
 })
 ```
-___
 ## Lists of WebElements
 
 Suite of methods to work with arrays of elements.
@@ -405,7 +413,6 @@ test(`asyncForEach example`, async () => {
     await elements.asyncForEach(async (e) => elementsTexts.push(await e.locator.textContent()));
 })
 ```
-___
 ### Sync for each
 Method `syncForEach<T extends WebElement>(this: T, action: (element: T) => unknown | Promise<unknown>): Promise<void>`
 works with sync and async functions in callbacks and returns promise, so you can await on execution.
@@ -419,7 +426,6 @@ test(`syncForEach example`, async () => {
     await elements.syncForEach(async (e) => await e.locator.type(`abc`));
 })
 ```
-___
 ### Map
 Method `map<T extends WebElement, R>(this: T, item: (element: T) => R | Promise<R>): Promise<Awaited<R[]>>`
 works with sync and async functions in callbacks and returns list of extracted values.
@@ -430,7 +436,6 @@ test(`map example`, async () => {
     const texts: (string | null)[] = await elements.map(async (e) => await e.locator.textContent());
 })
 ```
-___
 ### Filter
 Method `filter<T extends WebElement>(this: T, predicate: (element: T) => boolean | Promise<boolean>): Promise<T[]>`
 works with sync and async functions in callbacks and returns sub list of elements for with predicate returned true.
@@ -441,7 +446,6 @@ test(`filter example`, async () => {
     const enabledInputs = await elements.filter(async (e) => await e.locator.isEnabled());
 })
 ```
-___
 ## How to extend Web Element
 
 In case you want to create custom web element.
@@ -551,7 +555,6 @@ test(`goto playwright docs`, async ({ goto }) => {
 })
 
 ```
-___
 
 ### Init browser instance
 
@@ -580,7 +583,6 @@ export enum BrowserName {
     MSEDGE_DEV = 'msedge-dev'
 }
 ```
-___
 ### Start
 `start(browserName?: BrowserName, options?: LaunchOptions): Promise<Browser>` method starts new browser
 and remembers it, see [Getters and setters](#getters-and-setters).
@@ -599,7 +601,6 @@ async function useStart() {
     await BrowserInstance.start(BrowserName.CHROME, {headless: fasle});
 }
 ```
-___
 ### Start new context
 `startNewContext(options?: BrowserContextOptions): Promise<BrowserContext>` method starts browser context
 and remembers it.
@@ -619,7 +620,6 @@ async function useStartNewContext() {
     await BrowserInstance.startNewContext({ ...devices['iPhone 13'] }); 
 }
 ```
-___
 ### Start new page
 `startNewPage(options?: BrowserContextOptions): Promise<Page>` method starts new page or context and page
 and remembers them.
@@ -651,7 +651,6 @@ async function useStartNewPage() {
     await BrowserInstance.startNewPage({ ...devices['iPhone 13'] });
 }
 ```
-___
 ### Close
 `close(): Promise<void>` method closes browser and removes pointers on `Browser`, `BrowserContext` and `Page`.
 
@@ -666,7 +665,6 @@ async function useClose() {
     await BrowserInstance.close();
 }
 ```
-___
 ### Getters and setters
 
 `get currentPage(): Pag` returns instance of [Page](https://playwright.dev/docs/api/class-page)
@@ -710,7 +708,6 @@ async function useSetters() {
     BrowserInstance.currentPage = page;
 }
 ```
-___
 ### Is mobile context
 `get isContextMobile(): boolean` to check if current context was set to mobile config
 `set isContextMobile(isMobile: boolean)` allow you to override default logic. By default, this setter is used
@@ -735,7 +732,6 @@ test.describe(`Desktop tests`, () => {
 })
 ```
 
-___
 ### Builder like methods
 
 `withBrowser(browser: Browser): void` sets instance of browser.
@@ -784,7 +780,6 @@ async function useWithBrowser() {
     const storedBrowser = BrowserInstance.browser;
 }
 ```
-___
 ### Switch to previous tab
 
 `switchToPreviousTab(): Promise<void>` when new page is opened `BrowserInstance` stores pointer on previous one,
