@@ -25,7 +25,7 @@
     "playwright/test"
   ],
   "author": "Oleksandr Solomin",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/DanteUkraine/playwright-elements/issues"
   },
