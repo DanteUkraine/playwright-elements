@@ -383,9 +383,9 @@ test(`find error by text`, async () => {
 })
 ```
 ### Get element by index
-Method `nth(index: number)` adds to selector `>> nth=${index}`
-and methods `first()` adds `>> nth=0`, `last()`  adds `>> nth=-1`
-playwright docs about [nth element selector](https://playwright.dev/docs/selectors#n-th-element-selector)
+Method `nth(index: number)` will call from current locator in runtime `locator(...).nth(index)`
+and methods `first()` calls `locator(...).nth(0)`, `last()` calls `locator(...).nth(-1)`
+playwright docs about [nth()](https://playwright.dev/docs/api/class-locator#locator-nth)
 
 ## Strict mode
 By default, Locator is in strict mode, [docs](https://playwright.dev/docs/locators#strictness).
