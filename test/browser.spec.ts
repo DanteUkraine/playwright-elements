@@ -1,12 +1,9 @@
-import {BrowserInstance, BrowserName} from "../src";
-import chai, {expect} from "chai";
-import {afterEach, test} from "mocha";
-import {webkit} from "playwright-core";
+import {BrowserInstance, BrowserName} from '../src';
+import chai, {expect} from 'chai';
+import {afterEach, test} from 'mocha';
+import {webkit} from 'playwright-core';
 import chaiAsPromised from 'chai-as-promised'
-import * as path from 'path';
-
-const localFilePath = `file://${__dirname.replace(/\//g, path.sep)}/test.html`;
-
+import {localFilePath} from './utils'
 
 chai.use(chaiAsPromised)
 

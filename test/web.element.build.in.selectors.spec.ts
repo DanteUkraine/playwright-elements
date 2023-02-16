@@ -9,13 +9,11 @@ import {
     $getByTitle,
     BrowserInstance,
     BrowserName
-} from "../src";
-import { test } from "mocha";
-import chai, { expect } from "chai";
-import path from "path";
+} from '../src';
+import { test } from 'mocha';
+import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-
-const localFilePath = `file://${__dirname.replace(/\//g, path.sep)}/test.html`;
+import { localFilePath } from './utils'
 
 chai.use(chaiAsPromised);
 
@@ -37,84 +35,84 @@ describe(`Web element build in selectors`, function () {
 
     test(`withVisible should point on origin element`, async () => {
         const visibleElement = $(`#visible-target`).withVisible();
-        const elementId = await visibleElement._.getAttribute("id");
-        expect(elementId).to.be.equal("visible-target");
+        const elementId = await visibleElement._.getAttribute('id');
+        expect(elementId).to.be.equal('visible-target');
     })
 
     test(`withText for string should point on origin element`, async () => {
-        const visibleElement = $(`*css=#visible-target`).withText("visible target");
-        const elementId = await visibleElement._.getAttribute("id");
-        expect(elementId).to.be.equal("visible-target");
+        const visibleElement = $(`*css=#visible-target`).withText('visible target');
+        const elementId = await visibleElement._.getAttribute('id');
+        expect(elementId).to.be.equal('visible-target');
     })
 
     test(`withText for string should point on sub element`, async () => {
-        const visibleElement = $(`#visible-target`).withText("is visible target");
-        const elementId = await visibleElement._.getAttribute("id");
-        expect(elementId).to.be.equal("target");
+        const visibleElement = $(`#visible-target`).withText('is visible target');
+        const elementId = await visibleElement._.getAttribute('id');
+        expect(elementId).to.be.equal('target');
     })
 
     test(`withText for regex should point on origin element`, async () => {
         const visibleElement = $(`*css=#visible-target`).withText(/visible\starget/);
-        const elementId = await visibleElement._.getAttribute("id");
-        expect(elementId).to.be.equal("visible-target");
+        const elementId = await visibleElement._.getAttribute('id');
+        expect(elementId).to.be.equal('visible-target');
     })
 
     test(`withText regex should point on sub element`, async () => {
         const visibleElement = $(`#visible-target`).withText(/is\svisible\starget/);
-        const elementId = await visibleElement._.getAttribute("id");
-        expect(elementId).to.be.equal("target");
+        const elementId = await visibleElement._.getAttribute('id');
+        expect(elementId).to.be.equal('target');
     })
 
     test(`whereTextIs should point on original element`, async () => {
-        const visibleElement = $(`*css=#visible-target`).whereTextIs("Second visible target");
-        const elementId = await visibleElement._.getAttribute("id");
-        expect(elementId).to.be.equal("visible-target");
+        const visibleElement = $(`*css=#visible-target`).whereTextIs('Second visible target');
+        const elementId = await visibleElement._.getAttribute('id');
+        expect(elementId).to.be.equal('visible-target');
     })
 
     test(`whereTextIs should point on sub element`, async () => {
-        const visibleElement = $(`#visible-target`).whereTextIs("Second visible target");
-        const elementId = await visibleElement._.getAttribute("id");
-        expect(elementId).to.be.equal("second-target");
+        const visibleElement = $(`#visible-target`).whereTextIs('Second visible target');
+        const elementId = await visibleElement._.getAttribute('id');
+        expect(elementId).to.be.equal('second-target');
     })
 
     test(`first should point on first element`, async () => {
         const visibleElement = $(`li`).first();
         const elementId = await visibleElement._.textContent();
-        expect(elementId).to.be.equal("1");
+        expect(elementId).to.be.equal('1');
     })
 
     test(`last should point on last element`, async () => {
         const visibleElement = $(`li`).last();
         const elementId = await visibleElement._.textContent();
-        expect(elementId).to.be.equal("text");
+        expect(elementId).to.be.equal('text');
     })
 
     test(`nth should point on element by index element`, async () => {
         const visibleElement = $(`li`).nth(3);
         const elementId = await visibleElement._.textContent();
-        expect(elementId).to.be.equal("4");
+        expect(elementId).to.be.equal('4');
     })
 
     test(`has with string argument should point on element witch has specific child`, async () => {
         const visibleElement = $(`#visible-target div`).has(`#right-target`);
-        const elementId = await visibleElement._.getAttribute("id");
-        expect(elementId).to.be.equal("inner-visible-target2");
+        const elementId = await visibleElement._.getAttribute('id');
+        expect(elementId).to.be.equal('inner-visible-target2');
     })
 
     test(`has with WebElement argument should point on element witch has specific child`, async () => {
         const visibleElement = $(`#visible-target div`).has($(`#right-target`));
-        const elementId = await visibleElement._.getAttribute("id");
-        expect(elementId).to.be.equal("inner-visible-target2");
+        const elementId = await visibleElement._.getAttribute('id');
+        expect(elementId).to.be.equal('inner-visible-target2');
     })
 
     test(`hasText with WebElement argument should point on element witch has specific text`, async () => {
         const element = $(`li`).hasText('text');
-        expect(await element.locator.count()).to.be.equal(1);
+        expect(await element.count()).to.be.equal(1);
     })
 
     test(`hasText with WebElement argument should point on element witch has specific child with text`, async () => {
         const element = $(`ul`).hasText('text');
-        expect(await element.$('li').locator.count()).to.be.equal(7);
+        expect(await element.$('li').count()).to.be.equal(7);
     })
 
     test(`has with sub elements argument should point on element witch has specific parent`, async () => {
@@ -122,46 +120,45 @@ describe(`Web element build in selectors`, function () {
             .subElements({
                 paragraph: $(`p[hidden]`)
             });
-        expect(visibleElement.has($('#right-target')).first().selector).to.be.equal("#visible-target div >> internal:has=\"#right-target\" >> nth=0");
-        expect(visibleElement.first().has($('#right-target')).selector).to.be.equal("#visible-target div >> nth=0 >> internal:has=\"#right-target\"");
-        await visibleElement.has($('#right-target')).paragraph.expect().toHaveText("This is hidden right target");
+        expect(visibleElement.has($('#right-target')).first().selector).to.be.equal('#visible-target div >> internal:has=\"#right-target\"');
+        await visibleElement.has($('#right-target')).paragraph.expect().toHaveText('This is hidden right target');
     })
 
     test(`get by alt text selector method`, async () => {
-        expect(await $getByAltText('alt text').locator.getAttribute('alt')).to.equal('This is the alt text');
-        expect(await $('body').$getByAltText('alt text').locator.getAttribute('alt')).to.equal('This is the alt text');
+        expect(await $getByAltText('alt text').getAttribute('alt')).to.equal('This is the alt text');
+        expect(await $('body').$getByAltText('alt text').getAttribute('alt')).to.equal('This is the alt text');
     })
 
     test(`get by label selector method`, async () => {
-        expect(await $getByLabel('Checked box', {exact: true}).locator.getAttribute('id')).to.equal('checked');
-        expect(await Promise.all((await $getByLabel('Checked box').locator.all()).map(el => el.getAttribute('id')))).to.have.members(['checked', 'unchecked']);
-        expect(await $('body').$getByLabel('Checked box', {exact: true}).locator.getAttribute('id')).to.equal('checked');
-        expect(await Promise.all((await $('body').$getByLabel('Checked box').locator.all()).map(el => el.getAttribute('id')))).to.have.members(['checked', 'unchecked']);
+        expect(await $getByLabel('Checked box', {exact: true}).getAttribute('id')).to.equal('checked');
+        expect(await $getByLabel('Checked box').map(el => el.getAttribute('id'))).to.have.members(['checked', 'unchecked']);
+        expect(await $('body').$getByLabel('Checked box', {exact: true}).getAttribute('id')).to.equal('checked');
+        expect(await $('body').$getByLabel('Checked box').map(el => el.getAttribute('id'))).to.have.members(['checked', 'unchecked']);
     })
 
     test(`get by placeholder selector method`, async () => {
         const element = $('fieldset').subElements({ input: $getByPlaceholder('enabled') });
-        expect(await element.input.locator.getAttribute('id')).to.equal('enabled-field');
+        expect(await element.input.getAttribute('id')).to.equal('enabled-field');
     })
 
     test(`get by role selector method`, async () => {
         const elements = $getByRole('list');
-        expect(await elements.locator.count()).to.equal(2);
+        expect(await elements.count()).to.equal(2);
     })
 
     test(`get by test id selector method`, async () => {
         const element = $getByTestId('main-title');
-        expect(await element.locator.textContent()).to.equal('Hello Playwright elements');
+        expect(await element.textContent()).to.equal('Hello Playwright elements');
     })
 
     test(`get by text selector method`, async () => {
         const element = $getByText('Hello Playwright');
-        expect(await element.locator.textContent()).to.equal('Hello Playwright elements');
+        expect(await element.textContent()).to.equal('Hello Playwright elements');
     })
 
     test(`get by title selector method`, async () => {
         const element = $getByTitle('Submit button');
-        expect(await element.locator.textContent()).to.equal('Button');
+        expect(await element.textContent()).to.equal('Button');
     })
 
     test(`get by with direct child plus has`, async () => {
@@ -169,7 +166,7 @@ describe(`Web element build in selectors`, function () {
             .subElements({
                 p: $('p')
             })
-        expect(await element.has('#inner-visible-target').p.withText('Second visible target').locator.isVisible()).to.be.true;
+        expect(await element.has('#inner-visible-target').p.withText('Second visible target').isVisible()).to.be.true;
     })
 
     test(`get by selector methods should not be used with has method`, async () => {

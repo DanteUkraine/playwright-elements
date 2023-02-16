@@ -29,6 +29,44 @@ ___
     - [Sync for each](#sync-for-each)
     - [Map](#map)
     - [Filter](#filter)
+  - [Actions](#actions) 
+    - [All inner texts](#all-inner-texts)
+    - [All text contents](#all-text-contents)
+    - [Blur](#blur)
+    - [Bounding box](#bounding-box)
+    - [Check](#check)
+    - [Clear](#clear)
+    - [Click](#click)
+    - [Count](#count)
+    - [Double click](#double-click)
+    - [Dispatch event](#dispatch-event)
+    - [Drag to](#drag-to)
+    - [Fill](#fill)
+    - [Focus](#focus)
+    - [Get attribute](#get-attribute)
+    - [Highlight](#highlight)
+    - [Hover](#hover)
+    - [Inner HTML](#inner-html)
+    - [Inner text](#inner-text)
+    - [Input value](#input-value)
+    - [Is checked](#is-checked)
+    - [Is disabled](#is-disabled)
+    - [Is editable](#is-editable)
+    - [Is enabled](#is-enabled)
+    - [Is hidden](#is-hidden)
+    - [Is visible](#is-visible)
+    - [Press](#press)
+    - [Screenshot](#screenshot)
+    - [Scroll into view if needed](#scroll-into-view-if-needed)
+    - [Select option](#select-option)
+    - [Select text](#select-text)
+    - [Set checked](#set-checked)
+    - [Set input files](#set-input-files)
+    - [Tap](#tap)
+    - [Text content](#text-content)
+    - [Type](#type)
+    - [Uncheck](#uncheck)
+    - [Wait for](#wait-for)
   - [How to extend WebElement](#how-to-extend-web-element)
 - [Playwright elements fixtures](#playwright-elements-fixtures)
   - [goto](#goto)
@@ -241,7 +279,6 @@ test(`header should contain user info`, async () => {
 })
 ```
 ### With methods, Locator and underscore
-
 ```ts
 import { $, WebElement } from "playwright-elements"; 
 
@@ -310,7 +347,7 @@ class MainPage {
 import { $ } from "playwright-elements";
 
 class MainPage {
-    readonly paragraph = $(`.field-row`).hasText(/Some text:/);
+    readonly paragraph = $(`.p`).hasText(/Some text:/);
 }
 ```
 
@@ -347,7 +384,7 @@ test(`find error by text`, async () => {
 ```
 ### Get element by index
 Method `nth(index: number)` adds to selector `>> nth=${index}`
-and methods `first()` adds `>> nth=0`, `last()`  adds `>>nth=-1`
+and methods `first()` adds `>> nth=0`, `last()`  adds `>> nth=-1`
 playwright docs about [nth element selector](https://playwright.dev/docs/selectors#n-th-element-selector)
 
 ## Strict mode
@@ -392,9 +429,137 @@ test(`find error by text`, async () => {
   await mainPage.iframe.header.expec().toBeVisible();
 })
 ```
+___
+## Actions
+Web elements provide users with direct access to common actions from playwright [locator class](https://playwright.dev/docs/api/class-locator).
+
+### All inner texts
+`$('selector').allInnerTexts();` calls: [allInnerTexts()](https://playwright.dev/docs/api/class-locator#locator-all-inner-texts).
+
+### All text contents 
+`$('selector').allTextContents();` calls: [allTextContents()](https://playwright.dev/docs/api/class-locator#locator-all-text-contents).
+
+### Blur
+`$('selector').blur(options?);` calls: [blur()](https://playwright.dev/docs/api/class-locator#locator-blur).
+
+### Bounding box
+`$('selector').boundingBox(options?);` calls: [boundingBox()](https://playwright.dev/docs/api/class-locator#locator-bounding-box).
+
+### Check
+`$('selector').check(options?);` calls: [check()](https://playwright.dev/docs/api/class-locator#locator-check).
+
+### Clear
+`$('selector').clear(options?);` calls: [clear()](https://playwright.dev/docs/api/class-locator#locator-clear).
+
+### Click
+`$('selector').click(options?);` calls: [click()](https://playwright.dev/docs/api/class-locator#locator-click).
+
+### Count
+`$('selector').count();` calls: [count()](https://playwright.dev/docs/api/class-locator#locator-count).
+
+### Double click
+`$('selector').dblclick(options?);` calls: [dblclick()](https://playwright.dev/docs/api/class-locator#locator-dblclick).
+
+### Dispatch event
+`$('selector').dispatchEvent(type, eventInit?, options?);` calls: [dispatchEvent()](https://playwright.dev/docs/api/class-locator#locator-dispatch-event).
+
+### Drag to
+`$('selector').dragTo(target, options?);` calls: [dragTo()](https://playwright.dev/docs/api/class-locator#locator-drag-to).
+
+### Fill
+`$('selector').fill(value, options?);` calls: [fill()](https://playwright.dev/docs/api/class-locator#locator-fill).
+
+### Focus
+`$('selector').focus(options?);` calls: [focus()](https://playwright.dev/docs/api/class-locator#locator-focus).
+
+### Get attribute
+`$('selector').getAttribute(name, options?);` calls: [getAttribute()](https://playwright.dev/docs/api/class-locator#locator-get-attribute).
+
+### Highlight
+`$('selector').highlight();` calls: [highlight()](https://playwright.dev/docs/api/class-locator#locator-highlight).
+
+### Hover
+`$('selector').hover(options?);` calls: [hover()](https://playwright.dev/docs/api/class-locator#locator-hover).
+
+### Inner HTML
+`$('selector').innerHTML(options?);` calls: [innerHTML()](https://playwright.dev/docs/api/class-locator#locator-inner-html).
+
+### Inner text
+`$('selector').innerText(options?);` calls: [innerText()](https://playwright.dev/docs/api/class-locator#locator-inner-text).
+
+### Input value
+`$('selector').inputValue(options?);` calls: [inputValue()](https://playwright.dev/docs/api/class-locator#locator-input-value).
+
+### Is checked
+`$('selector').isChecked(options?);` calls: [isChecked()](https://playwright.dev/docs/api/class-locator#locator-is-checked).
+
+### Is disabled
+`$('selector').isDisabled(options?);` calls: [isDisabled()](https://playwright.dev/docs/api/class-locator#locator-is-disabled).
+
+### Is editable
+`$('selector').isEditable(options?);` calls: [isEditable()](https://playwright.dev/docs/api/class-locator#locator-is-editable).
+
+### Is enabled
+`$('selector').isEnabled(options?);` calls: [isEnabled()](https://playwright.dev/docs/api/class-locator#locator-is-enabled).
+
+### Is hidden
+`$('selector').isHidden();` calls: [isHidden()](https://playwright.dev/docs/api/class-locator#locator-is-hidden).
+
+### Is visible
+`$('selector').isVisible(options?);` calls: [isVisible()](https://playwright.dev/docs/api/class-locator#locator-is-visible).
+
+### Press
+`$('selector').press(key, options?);` calls: [press()](https://playwright.dev/docs/api/class-locator#locator-press).
+
+### Screenshot
+`$('selector').screenshot(options?);` calls: [screenshot()](https://playwright.dev/docs/api/class-locator#locator-screenshot).
+
+### Scroll into view if needed
+`$('selector').scrollIntoViewIfNeeded(options?);` calls: [scrollIntoViewIfNeeded()](https://playwright.dev/docs/api/class-locator#locator-scroll-into-view-if-needed).
+
+### Select option
+`$('selector').selectOption(values, options?);` calls: [selectOption()](https://playwright.dev/docs/api/class-locator#locator-select-option).
+
+### Select text
+`$('selector').selectText(options?);` calls: [selectText()](https://playwright.dev/docs/api/class-locator#locator-select-text).
+
+### Set checked
+`$('selector').setChecked(checked, options?);` calls: [setChecked()](https://playwright.dev/docs/api/class-locator#locator-set-checked).
+
+### Set input files
+`$('selector').setInputFiles(files, options?);` calls: [setInputFiles()](https://playwright.dev/docs/api/class-locator#locator-set-input-files).
+
+### Tap
+`$('selector').tap(options?);` calls: [tap()](https://playwright.dev/docs/api/class-locator#locator-tap).
+
+### Text content
+`$('selector').textContent(options?);` calls: [textContent()](https://playwright.dev/docs/api/class-locator#locator-text-content).
+
+### Type
+`$('selector').type(text, options?);` calls: [type()](https://playwright.dev/docs/api/class-locator#locator-type).
+
+### Uncheck
+`$('selector').uncheck(options?);` calls: [uncheck()](https://playwright.dev/docs/api/class-locator#locator-uncheck).
+
+### Wait for
+`$('selector').waitFor(options?);` calls: [waitFor()](https://playwright.dev/docs/api/class-locator#locator-wait-for).
+
+___
 ## Lists of WebElements
 
 Suite of methods to work with arrays of elements.
+
+### Get all
+Method `getAll<T extends WebElement>(this: T): Promise<T[]>` returns list of Web elements without any waiting 
+based on count of elements in particular moment of time.
+
+```ts
+import { $, WebElement } from 'playwright-elements';
+
+test(`list of web elements`, async () => {
+  const elements: WebElement[] = $(`li`).getAll();
+})
+```
 
 ### Async for each
 Method `asyncForEach(action: (element: T) => unknown | Promise<unknown>)): Promise<void>`
@@ -452,7 +617,7 @@ In case you want to create custom web element.
 
 *Extend base class, create init function:*
 ```ts
-import { WebElement } from "playwright-elements";
+import { WebElement } from 'playwright-elements';
 
 class Field extends WebElement {
 	async set(this: WebElement, value: string) {

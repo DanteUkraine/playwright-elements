@@ -1,10 +1,8 @@
-import { $, BrowserInstance, BrowserName } from "../src";
-import { test } from "mocha";
-import chai, { expect } from "chai";
-import path from "path";
+import { $, BrowserInstance, BrowserName } from '../src';
+import { test } from 'mocha';
+import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised'
-
-const localFilePath = `file://${__dirname.replace(/\//g, path.sep)}/test.html`;
+import { localFilePath } from './utils'
 
 chai.use(chaiAsPromised);
 
@@ -29,7 +27,7 @@ describe(`Web element frame pointer`, function () {
             .subElements({
                 title: $(`.navbar__title`).first()
             });
-        expect(iframe.title._.textContent()).to.become("Playwright").and.notify(done);
+        expect(iframe.title._.textContent()).to.become('Playwright').and.notify(done);
     })
 
 });

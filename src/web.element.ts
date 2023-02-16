@@ -1,7 +1,7 @@
-import { FrameLocator, Locator, Page } from "playwright-core";
-import { cloneDeep } from "lodash";
-import { BrowserInstance } from "./browser";
-import { expect } from "@playwright/test";
+import {FrameLocator, Locator, LocatorScreenshotOptions, Page} from 'playwright-core';
+import { cloneDeep } from 'lodash';
+import { BrowserInstance } from './browser';
+import { expect } from '@playwright/test';
 
 function extractSelector(pointer: string | WebElement): string {
     return pointer instanceof WebElement ? pointer.selector : pointer;
@@ -9,6 +9,43 @@ function extractSelector(pointer: string | WebElement): string {
 
 export type LocatorAssertions = ReturnType<typeof expect<Locator>>;
 type InternalElements = {[key: string]: WebElement};
+// Locator method options and return types
+type BlurOptions = Parameters<Locator['blur']>[0];
+type BoundingBoxOptions = Parameters<Locator['boundingBox']>[0];
+type BoundingBoxReturnType = ReturnType<Locator['boundingBox']>;
+type CheckOptions = Parameters<Locator['check']>[0];
+type ClearOptions = Parameters<Locator['clear']>[0];
+type ClickOptions = Parameters<Locator['click']>[0];
+type DblClickOptions = Parameters<Locator['dblclick']>[0];
+type DispatchEventInit = Parameters<Locator['dispatchEvent']>[1];
+type DispatchEventOptions = Parameters<Locator['dispatchEvent']>[2];
+type DragToOptions = Parameters<Locator['dragTo']>[1];
+type FillOptions = Parameters<Locator['fill']>[1];
+type FocusOptions = Parameters<Locator['focus']>[0];
+type GetAttributeOptions = Parameters<Locator['getAttribute']>[1];
+type HoverOptions = Parameters<Locator['hover']>[0];
+type InnerHTMLOptions = Parameters<Locator['innerHTML']>[0];
+type InnerTextOptions = Parameters<Locator['innerText']>[0];
+type InputValueOptions = Parameters<Locator['inputValue']>[0];
+type IsCheckedOptions = Parameters<Locator['isChecked']>[0];
+type IsDisabledOptions = Parameters<Locator['isDisabled']>[0];
+type IsEditableOptions = Parameters<Locator['isEditable']>[0];
+type IsEnabledOptions = Parameters<Locator['isEnabled']>[0];
+type IsVisibleOptions = Parameters<Locator['isVisible']>[0];
+type PressOptions = Parameters<Locator['press']>[1];
+type ScrollIntoViewIfNeededOptions = Parameters<Locator['scrollIntoViewIfNeeded']>[0];
+type SelectOptionValuesType = Parameters<Locator['selectOption']>[0];
+type SelectOptionOptions = Parameters<Locator['selectOption']>[1];
+type SelectTextOptions = Parameters<Locator['selectText']>[0];
+type SetCheckedOptions = Parameters<Locator['setChecked']>[1];
+type SetInputFilesType = Parameters<Locator['setInputFiles']>[0];
+type SetInputFilesOptions = Parameters<Locator['setInputFiles']>[1];
+type TapOptions = Parameters<Locator['tap']>[0];
+type TextContentOptions = Parameters<Locator['textContent']>[0];
+type TypeOptions = Parameters<Locator['type']>[1];
+type UncheckOptions = Parameters<Locator['uncheck']>[0];
+type WaitForOptions = Parameters<Locator['waitFor']>[0];
+///////////////////////////////////////////////////////////////
 
 export class WebElement {
 
@@ -21,6 +58,7 @@ export class WebElement {
     private _byOptions: ByOptions | ByRoleOptions | undefined;
     private _hasLocator: string | undefined;
     private _hasText: string | RegExp | undefined;
+    private _nth: number | undefined;
 
     constructor(selector: string, by?: By, options?: ByOptions | ByRoleOptions) {
         this._selector = selector;
@@ -70,6 +108,7 @@ export class WebElement {
                 locatorsChain = locatorsChainWithIframeType.locator(element.narrowSelector, { hasText: element._hasText, has: subLocator });
                 break;
         }
+        if (element._nth != undefined) locatorsChain = locatorsChain.nth(element._nth);
         return locatorsChain as Locator;
     }
 
@@ -173,7 +212,7 @@ export class WebElement {
     }
 
     get parentsSelector(): string {
-        return this.parentElements.map(element => this.buildNarrowSelectorWithInternalLocator(element)).join(" >> ");
+        return this.parentElements.map(element => this.buildNarrowSelectorWithInternalLocator(element)).join(' >> ');
     }
 
     private get parentElements(): WebElement[] {
@@ -186,7 +225,7 @@ export class WebElement {
 
     // chainable web element creation
 
-    protected deepClone<T extends WebElement>(this: T, selector: string, internalLocator?: string, internalText?: string | RegExp): T {
+    protected deepClone<T extends WebElement>(this: T, selector: string, internalLocator?: string, internalText?: string | RegExp, nth?: number): T {
         return Object.defineProperties(cloneDeep(this), {
                 _selector: {
                     value: selector,
@@ -200,6 +239,11 @@ export class WebElement {
                 },
                 _hasText: {
                     value: internalText,
+                    writable: true,
+                    configurable: false
+                },
+                _nth: {
+                    value: nth,
                     writable: true,
                     configurable: false
                 }
@@ -270,7 +314,7 @@ export class WebElement {
     }
 
     public nth(index: number) {
-        return this.deepClone(`${this.buildNarrowSelectorWithInternalLocator()} >> nth=${index}`);
+        return this.deepClone(this.narrowSelector, this._hasLocator, this._hasText, index);
     }
 
     public first() {
@@ -283,9 +327,9 @@ export class WebElement {
 
     // arrays of elements
 
-    private async getAll<T extends WebElement>(this: T): Promise<T[]> {
+    public async getAll<T extends WebElement>(this: T): Promise<T[]> {
         const elements: T[] = [];
-        const amount = await this.locator.count();
+        const amount = await this.count();
         for (let i = 0; i < amount; i++) {
             elements.push(this.nth(i));
         }
@@ -325,6 +369,156 @@ export class WebElement {
                 matchedElements.push(ele);
         }
         return matchedElements;
+    }
+
+    // Locator methods
+
+    public async allInnerTexts(): Promise<Array<string>> {
+        return this.locator.allInnerTexts();
+    }
+
+    public async allTextContents(): Promise<Array<string>> {
+        return this.locator.allTextContents();
+    }
+
+    public async blur(options?: BlurOptions): Promise<void> {
+        await this.locator.blur(options);
+    }
+
+    public async boundingBox(options?: BoundingBoxOptions): BoundingBoxReturnType {
+        return this.locator.boundingBox(options);
+    }
+
+    public async check(options?: CheckOptions): Promise<void> {
+        await this.locator.check(options);
+    }
+
+    public async clear(options?: ClearOptions): Promise<void> {
+        await this.locator.clear(options);
+    }
+
+    public async click(options?: ClickOptions): Promise<void> {
+        await this.locator.click(options);
+    }
+
+    public async count(): Promise<number> {
+        return this.locator.count();
+    }
+
+    public async dblclick(options?: DblClickOptions): Promise<void> {
+        await this.locator.dblclick(options);
+    }
+
+    public async dispatchEvent(type: string, eventInit?: DispatchEventInit, options?: DispatchEventOptions): Promise<void> {
+        await this.locator.dispatchEvent(type, eventInit, options);
+    }
+
+    public async dragTo(target: Locator | WebElement, options?: DragToOptions): Promise<void> {
+        await this.locator.dragTo(target instanceof WebElement ? target.locator : target, options);
+    }
+
+    public async fill(value: string, options?: FillOptions): Promise<void> {
+        await this.locator.fill(value, options);
+    }
+
+    public async focus(options?: FocusOptions): Promise<void> {
+        await this.locator.focus(options);
+    }
+
+    public async getAttribute(name: string, options?: GetAttributeOptions): Promise<string | null> {
+        return this.locator.getAttribute(name, options);
+    }
+
+    public async highlight(): Promise<void> {
+        await this.locator.highlight();
+    }
+
+    public async hover(options?: HoverOptions): Promise<void> {
+        await this.locator.hover(options);
+    }
+
+    public async innerHTML(options?: InnerHTMLOptions): Promise<string> {
+        return this.locator.innerHTML(options);
+    }
+
+    public async innerText(options?: InnerTextOptions): Promise<string> {
+        return this.locator.innerText(options);
+    }
+
+    public async inputValue(options?: InputValueOptions): Promise<string> {
+        return this.locator.inputValue(options);
+    }
+
+    public async isChecked(options?: IsCheckedOptions): Promise<boolean> {
+        return this.locator.isChecked(options);
+    }
+
+    public async isDisabled(options?: IsDisabledOptions): Promise<boolean> {
+        return this.locator.isDisabled(options);
+    }
+
+    public async isEditable(options?: IsEditableOptions): Promise<boolean> {
+        return this.locator.isEditable(options);
+    }
+
+    public async isEnabled(options?: IsEnabledOptions): Promise<boolean> {
+        return this.locator.isEnabled(options);
+    }
+
+    public async isHidden(): Promise<boolean> {
+        return this.locator.isHidden();
+    }
+
+    public async isVisible(options?: IsVisibleOptions): Promise<boolean> {
+        return this.locator.isVisible(options);
+    }
+
+    public async press(key: string, options?: PressOptions): Promise<void> {
+        await this.locator.press(key, options);
+    }
+
+    public async screenshot(options?: LocatorScreenshotOptions): Promise<Buffer> {
+        return this.locator.screenshot(options);
+    }
+
+    public async scrollIntoViewIfNeeded(options?: ScrollIntoViewIfNeededOptions): Promise<void> {
+        await this.locator.scrollIntoViewIfNeeded(options);
+    }
+
+    public async selectOption(values: SelectOptionValuesType, options?: SelectOptionOptions): Promise<Array<string>> {
+        return  this.locator.selectOption(values, options);
+    }
+
+    public async selectText(options?: SelectTextOptions): Promise<void> {
+        await this.locator.selectText(options);
+    }
+
+    public async setChecked(checked: boolean, options?: SetCheckedOptions): Promise<void> {
+        await this.locator.setChecked(checked, options);
+    }
+
+    public async setInputFiles(files: SetInputFilesType, options?: SetInputFilesOptions): Promise<void> {
+        await this.locator.setInputFiles(files, options);
+    }
+
+    public async tap(options?: TapOptions): Promise<void> {
+        await this.locator.tap(options);
+    }
+
+    public async textContent(options?: TextContentOptions): Promise<string | null> {
+        return this.locator.textContent(options);
+    }
+
+    public async type(text: string, options?: TypeOptions): Promise<void> {
+        await this.locator.type(text, options);
+    }
+
+    public async uncheck(options?: UncheckOptions): Promise<void> {
+        await this.locator.uncheck(options);
+    }
+
+    public async waitFor(options?: WaitForOptions): Promise<void> {
+        await this.locator.waitFor(options);
     }
 }
 
