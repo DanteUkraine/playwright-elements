@@ -1,11 +1,11 @@
-import {BrowserInstance, BrowserName} from '../src';
-import chai, {expect} from 'chai';
-import {afterEach, test} from 'mocha';
-import {webkit} from 'playwright-core';
+import { BrowserInstance, BrowserName } from '../src';
+import chai, { expect } from 'chai';
+import { afterEach, test } from 'mocha';
+import { webkit } from 'playwright-core';
 import chaiAsPromised from 'chai-as-promised'
-import {localFilePath} from './utils'
+import { localFilePath } from './utils'
 
-chai.use(chaiAsPromised)
+chai.use(chaiAsPromised);
 
 describe('Browser Instance', function (this: Mocha.Suite) {
     this.timeout(30_000);

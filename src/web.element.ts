@@ -1,4 +1,4 @@
-import {FrameLocator, Locator, LocatorScreenshotOptions, Page} from 'playwright-core';
+import { FrameLocator, Locator, LocatorScreenshotOptions, Page } from 'playwright-core';
 import { cloneDeep } from 'lodash';
 import { BrowserInstance } from './browser';
 import { expect } from '@playwright/test';
@@ -45,7 +45,6 @@ type TextContentOptions = Parameters<Locator['textContent']>[0];
 type TypeOptions = Parameters<Locator['type']>[1];
 type UncheckOptions = Parameters<Locator['uncheck']>[0];
 type WaitForOptions = Parameters<Locator['waitFor']>[0];
-///////////////////////////////////////////////////////////////
 
 export class WebElement {
 
