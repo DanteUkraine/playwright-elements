@@ -1,8 +1,47 @@
 import { expect } from 'chai';
-import { test } from "mocha";
-import { $getByTestId, $, WebElement } from '../src';
+import { test } from 'mocha';
+import { $getByTestId, $, WebElement, BrowserInstance, BrowserName } from '../src';
+import { localFilePath } from "./utils";
 
 describe('Web Element chainable selectors', () => {
+
+    describe('by index', function () {
+        this.timeout(10_000);
+
+        before(async () => {
+            await BrowserInstance.start(BrowserName.CHROME);
+            await BrowserInstance.startNewPage();
+            await BrowserInstance.currentPage.goto(localFilePath);
+            await BrowserInstance.currentPage.waitForSelector('h1');
+        })
+
+        after(async () => {
+            await BrowserInstance.close();
+        })
+
+        test('should point on first element', async () => {
+            const element = $getByTestId(`test-div`)
+                .subElements({
+                    child: $(`div`)
+                        .subElements({
+                            innerChild: $(`[id]`)
+                        })
+                })
+            expect(await element.child.first().innerChild.getAttribute('id')).is.equal(`missed`);
+        });
+
+        test('should point on last element', async () => {
+            const element = $getByTestId(`test-div`)
+                .subElements({
+                    child: $(`div`)
+                        .subElements({
+                            innerChild: $(`[id]`)
+                        })
+                })
+            expect(await element.child.last().innerChild.getAttribute('id')).is.equal(`wrong-target2`);
+        });
+
+    })
 
     test('should have a visible', () => {
         const element = $(`.class`)
@@ -16,30 +55,6 @@ describe('Web Element chainable selectors', () => {
         expect(element.child.withVisible().innerChild.selector).is.equal(`.class >> .child >> visible=true >> .innerChild`);
     });
 
-    test('should point on first element', () => {
-        const element = $(`.class`)
-            .subElements({
-                child: $(`.child`)
-                    .subElements({
-                        innerChild: $(`.innerChild`)
-                    })
-            })
-        expect(element.first().child.selector).is.equal(`.class >> nth=0 >> .child`);
-        expect(element.child.first().innerChild.selector).is.equal(`.class >> .child >> nth=0 >> .innerChild`);
-    });
-
-    test('should point on last element', () => {
-        const element = $(`.class`)
-            .subElements({
-                child: $(`.child`)
-                    .subElements({
-                        innerChild: $(`.innerChild`)
-                    })
-            })
-        expect(element.last().child.selector).is.equal(`.class >> nth=-1 >> .child`);
-        expect(element.child.last().innerChild.selector).is.equal(`.class >> .child >> nth=-1 >> .innerChild`);
-    });
-
     test('should point on element with text', () => {
         const element = $(`.class`)
             .subElements({
@@ -48,8 +63,8 @@ describe('Web Element chainable selectors', () => {
                         innerChild: $(`.innerChild`)
                     })
             })
-        expect(element.withText("text").child.selector).is.equal(`.class >> text=text >> .child`);
-        expect(element.child.withText("text").innerChild.selector).is.equal(`.class >> .child >> text=text >> .innerChild`);
+        expect(element.withText('text').child.selector).is.equal(`.class >> text=text >> .child`);
+        expect(element.child.withText('text').innerChild.selector).is.equal(`.class >> .child >> text=text >> .innerChild`);
     });
 
     test('should point on element where is text', () => {
@@ -60,7 +75,7 @@ describe('Web Element chainable selectors', () => {
                         innerChild: $(`.innerChild`)
                     })
             })
-        expect(element.whereTextIs("text").child.innerChild.selector).is.equal(`.class >> text="text" >> .child >> .innerChild`);
+        expect(element.whereTextIs('text').child.innerChild.selector).is.equal(`.class >> text="text" >> .child >> .innerChild`);
         expect(element.child.innerChild.selector).is.equal(`.class >> .child >> .innerChild`);
     });
 });
@@ -128,7 +143,7 @@ describe('Web Element augmentation', () => {
         expect($(`.selector`)
             .withMethods({
                 additionalMethod() {
-
+                    // stab
                 }
             })).has.property('additionalMethod');
     });
@@ -138,7 +153,7 @@ describe('Web Element augmentation', () => {
         element
             .withMethods({
                 additionalMethod() {
-
+                    // stab
                 }
             })
         expect(element).has.property('additionalMethod');
@@ -149,14 +164,14 @@ describe('Web Element augmentation', () => {
             child: $(`.child`)
                 .withMethods({
                     additionalMethod() {
-
+                        // stab
                     }
                 })
                 .subElements({
                     innerChild: $(`.innerChild`)
                         .withMethods({
                             additionalMethod() {
-
+                                // stab
                             }
                         })
                 })
@@ -164,12 +179,12 @@ describe('Web Element augmentation', () => {
         const element1 = $(`.parent1`).subElements(commonChild);
         commonChild.child.withMethods({
             secondAdditionalMethod(){
-
+                // stab
             }
         })
         commonChild.child.innerChild.withMethods({
             secondAdditionalMethod(){
-
+                // stab
             }
         })
         const element2 = $(`.parent2`).subElements(commonChild);
@@ -188,7 +203,7 @@ describe('Web Element augmentation', () => {
         expect(() => $(`.selector`)
             .withMethods({
                 withVisible() {
-
+                    // pass
                 }
             })).to.throw('Can not add method with name \'withVisible\' because such method already exists.');
     });
