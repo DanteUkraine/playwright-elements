@@ -33,46 +33,16 @@ describe(`Web element build in selectors`, function () {
         await BrowserInstance.close();
     })
 
-    test(`withVisible should point on origin element`, async () => {
-        const visibleElement = $(`#visible-target`).withVisible();
+    test(`getByText for string should point on origin element`, async () => {
+        const visibleElement = $(`*css=#visible-target`).$getByText('visible target');
         const elementId = await visibleElement._.getAttribute('id');
         expect(elementId).to.be.equal('visible-target');
     })
 
-    test(`withText for string should point on origin element`, async () => {
-        const visibleElement = $(`*css=#visible-target`).withText('visible target');
-        const elementId = await visibleElement._.getAttribute('id');
-        expect(elementId).to.be.equal('visible-target');
-    })
-
-    test(`withText for string should point on sub element`, async () => {
-        const visibleElement = $(`#visible-target`).withText('is visible target');
+    test(`getByText for string should point on sub element`, async () => {
+        const visibleElement = $(`#visible-target`).$getByText('is visible target');
         const elementId = await visibleElement._.getAttribute('id');
         expect(elementId).to.be.equal('target');
-    })
-
-    test(`withText for regex should point on origin element`, async () => {
-        const visibleElement = $(`*css=#visible-target`).withText(/visible\starget/);
-        const elementId = await visibleElement._.getAttribute('id');
-        expect(elementId).to.be.equal('visible-target');
-    })
-
-    test(`withText regex should point on sub element`, async () => {
-        const visibleElement = $(`#visible-target`).withText(/is\svisible\starget/);
-        const elementId = await visibleElement._.getAttribute('id');
-        expect(elementId).to.be.equal('target');
-    })
-
-    test(`whereTextIs should point on original element`, async () => {
-        const visibleElement = $(`*css=#visible-target`).whereTextIs('Second visible target');
-        const elementId = await visibleElement._.getAttribute('id');
-        expect(elementId).to.be.equal('visible-target');
-    })
-
-    test(`whereTextIs should point on sub element`, async () => {
-        const visibleElement = $(`#visible-target`).whereTextIs('Second visible target');
-        const elementId = await visibleElement._.getAttribute('id');
-        expect(elementId).to.be.equal('second-target');
     })
 
     test(`first should point on first element`, async () => {
@@ -166,7 +136,7 @@ describe(`Web element build in selectors`, function () {
             .subElements({
                 p: $('p')
             })
-        expect(await element.has('#inner-visible-target').p.withText('Second visible target').isVisible()).to.be.true;
+        expect(await element.has('#inner-visible-target').p.$getByText('Second visible target').isVisible()).to.be.true;
     })
 
     test(`get by selector methods should not be used with has method`, async () => {

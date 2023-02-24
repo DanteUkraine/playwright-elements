@@ -15,12 +15,11 @@ ___
   - [Sub elements](#sub-elements)
   - [Direct child](#direct-child)
   - [Expect](#expect)
-  - [With methods and getters: locator and _](#with-methods-locator-and-underscore)
+  - [Locator and underscore](#locator-and-underscore)
+  - [With methods](#with-methods)
   - [Build in selector helpers](#build-in-selector-helpers)
   - [Has](#has)
   - [Has text](#has-text)
-  - [With visible](#with-visible)
-  - [With text and where text is](#with-text-and-where-text-is)
   - [Get element by index](#get-element-by-index)
   - [Strict mode](#strict-mode)
   - [As frame](#as-frame)
@@ -149,22 +148,7 @@ const config: PlaywrightTestConfig = {
 };
 export default config;
 ```
-WebElement provide access to Locator api via getter `locator` or shortcut `_`:
 
-```ts
-import { test } from 'playwright-elements';
-import { MainPage } from 'main.page';
-
-test.describe('Playwright test integration', () => {
-
-    test('expect positive', async () => {
-        const mainPage = new MainPage();
-        // Both lines do the same.
-        await mainPage.header.logo.locator.click(); 
-        await mainPage.header.logo._.click();
-    })
-})
-```
 Init desktop or mobile version of web element
 
 ```ts
@@ -278,7 +262,26 @@ test(`header should contain user info`, async () => {
     await mainPage.header.userInfoSection.avatar.expect().toBeVisible();
 })
 ```
-### With methods, Locator and underscore
+### Locator and underscore
+
+Web element has getters `locator` and `_` both return instance of [Locator](https://playwright.dev/docs/api/class-locator).
+
+```ts
+import { test } from 'playwright-elements';
+import { MainPage } from 'main.page';
+
+test.describe('Playwright test integration', () => {
+
+    test('expect positive', async () => {
+        const mainPage = new MainPage();
+        // Both lines do the same.
+        await mainPage.header.logo.locator.click(); 
+        await mainPage.header.logo._.click();
+    })
+})
+```
+
+### With methods
 ```ts
 import { $, WebElement } from "playwright-elements"; 
 
@@ -299,14 +302,11 @@ class MainPage {
         })
 }
 ```
-
-Web element has getters `locator` and `_` both return instance of [Locator](https://playwright.dev/docs/api/class-locator).
-Also `hoverAndClick` method now can be used on item element. Please pay attention that to access web element
+`hoverAndClick` method now can be used on item element. Please pay attention that to access web element
 default methods inside additional method declaration is used fake `this: WebElement` pointer.
 ```ts
 test(`user can open documentaation`, async () => {
     const mainPage = new MainPage();
-    await mainPage.header.humburgerButton._.click();
     await mainPage.header.menu.item.withText(`Documentation`).hoverAndClick();
 })
 ```
@@ -350,37 +350,14 @@ class MainPage {
     readonly paragraph = $(`.p`).hasText(/Some text:/);
 }
 ```
-
 *Methods **has** and **hasText** can be combined in chain.*
-
-### With visible
-Method `withVisible()` adds to element selector `>> visible=true`,
-playwright docs about [selecting visible elements](https://playwright.dev/docs/selectors#selecting-visible-elements).
 
 ```ts
 import { $ } from "playwright-elements";
 
 class MainPage {
-    readonly errors = $(`.error-message`).withVisible();
+    readonly fieldRows = $(`.field-row`).hasText(`Title:`).has(`input.enabled`);
 }
-```
-### With text and where text is
-Method `withText("text")` adds to selector `>> text=text`
-and method `whereTextIs("text")` adds to selector `>> text="text"`,
-playwright docs about [text selectors](https://playwright.dev/docs/selectors#text-selector).
-
-```ts
-import {$} from "playwright-elements";
-
-class MainPage {
-  readonly errors = $(`.error-message`);
-}
-
-test(`find error by text`, async () => {
-  const mainPage = new MainPage();
-  await mainPage.errors.withText(`Incorect`).expect().toBeVisible();
-  await mainPage.errors.whereTextIs(`Incorect password`).expect().toBeVisible();
-})
 ```
 ### Get element by index
 Method `nth(index: number)` will call from current locator in runtime `locator(...).nth(index)`
@@ -432,6 +409,8 @@ test(`find error by text`, async () => {
 ___
 ## Actions
 Web elements provide users with direct access to common actions from playwright [locator class](https://playwright.dev/docs/api/class-locator).
+But in case you will need to use such methods as `evaluate`, `evaluateAll`, `locator.filtrer`, `locator.all` or any 
+another method from locator which you will not be abel find in list below please use getter [locator] or [_]
 
 ### All inner texts
 `$('selector').allInnerTexts();` calls: [allInnerTexts()](https://playwright.dev/docs/api/class-locator#locator-all-inner-texts).

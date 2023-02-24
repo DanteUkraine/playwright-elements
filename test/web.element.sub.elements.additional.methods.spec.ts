@@ -42,42 +42,6 @@ describe('Web Element chainable selectors', () => {
         });
 
     })
-
-    test('should have a visible', () => {
-        const element = $(`.class`)
-            .subElements({
-                child: $(`.child`)
-                    .subElements({
-                        innerChild: $(`.innerChild`)
-                    })
-            })
-        expect(element.withVisible().child.selector).is.equal(`.class >> visible=true >> .child`);
-        expect(element.child.withVisible().innerChild.selector).is.equal(`.class >> .child >> visible=true >> .innerChild`);
-    });
-
-    test('should point on element with text', () => {
-        const element = $(`.class`)
-            .subElements({
-                child: $(`.child`)
-                    .subElements({
-                        innerChild: $(`.innerChild`)
-                    })
-            })
-        expect(element.withText('text').child.selector).is.equal(`.class >> text=text >> .child`);
-        expect(element.child.withText('text').innerChild.selector).is.equal(`.class >> .child >> text=text >> .innerChild`);
-    });
-
-    test('should point on element where is text', () => {
-        const element = $(`.class`)
-            .subElements({
-                child: $(`.child`)
-                    .subElements({
-                        innerChild: $(`.innerChild`)
-                    })
-            })
-        expect(element.whereTextIs('text').child.innerChild.selector).is.equal(`.class >> text="text" >> .child >> .innerChild`);
-        expect(element.child.innerChild.selector).is.equal(`.class >> .child >> .innerChild`);
-    });
 });
 
 describe('Web Element augmentation', () => {
@@ -112,17 +76,17 @@ describe('Web Element augmentation', () => {
 
     test('should reuse chainable sub elements', () => {
         const commonChild = {
-            child: $(`.child`).withVisible()
+            child: $(`.child`).$(`.subChild`)
                 .subElements({
-                    innerChild: $(`.innerChild`).withVisible()
+                    innerChild: $(`.innerChild`).$(`.subChild`)
                 })
         };
         const element1 = $(`.parent1`).subElements(commonChild);
         const element2 = $(`.parent2`).subElements(commonChild);
-        expect(element1.child.selector).is.equal(`.parent1 >> .child >> visible=true`);
-        expect(element2.child.selector).is.equal(`.parent2 >> .child >> visible=true`);
-        expect(element1.child.innerChild.selector).is.equal(`.parent1 >> .child >> visible=true >> .innerChild >> visible=true`);
-        expect(element2.child.innerChild.selector).is.equal(`.parent2 >> .child >> visible=true >> .innerChild >> visible=true`);
+        expect(element1.child.selector).is.equal(`.parent1 >> .child >> .subChild`);
+        expect(element2.child.selector).is.equal(`.parent2 >> .child >> .subChild`);
+        expect(element1.child.innerChild.selector).is.equal(`.parent1 >> .child >> .subChild >> .innerChild >> .subChild`);
+        expect(element2.child.innerChild.selector).is.equal(`.parent2 >> .child >> .subChild >> .innerChild >> .subChild`);
     });
 
     test('chainable sub elements should not mutate original element', () => {
@@ -133,9 +97,9 @@ describe('Web Element augmentation', () => {
                 })
         };
         const element1 = $(`.parent1`).subElements(commonChild);
-        expect(element1.child.withVisible().selector).is.equal(`.parent1 >> .child >> visible=true`);
+        expect(element1.child.$(`.subChild`).selector).is.equal(`.parent1 >> .child >> .subChild`);
+        expect(element1.child.innerChild.$(`.subChild`).selector).is.equal(`.parent1 >> .child >> .innerChild >> .subChild`);
         expect(element1.child.selector).is.equal(`.parent1 >> .child`);
-        expect(element1.child.innerChild.withVisible().selector).is.equal(`.parent1 >> .child >> .innerChild >> visible=true`);
         expect(element1.child.innerChild.selector).is.equal(`.parent1 >> .child >> .innerChild`);
     });
 
@@ -202,10 +166,10 @@ describe('Web Element augmentation', () => {
     test('should throw on duplicated additional method', () => {
         expect(() => $(`.selector`)
             .withMethods({
-                withVisible() {
+                click() {
                     // pass
                 }
-            })).to.throw('Can not add method with name \'withVisible\' because such method already exists.');
+            })).to.throw('Can not add method with name \'click\' because such method already exists.');
     });
 
     test('direct child', () => {
