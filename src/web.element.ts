@@ -261,8 +261,7 @@ export class WebElement {
 
     private addParentsToWebElement(element: WebElement): WebElement {
         element.addParentSelector(this);
-        const parents = this.parentElements.reverse();
-        for(const parent of parents) {
+        for(const parent of cloneDeep(this.parentElements).reverse()) {
             element.addParentSelector(parent);
         }
         return element;
@@ -298,18 +297,6 @@ export class WebElement {
 
     public $getByTitle(title: string, options?: ByOptions): WebElement {
         return this.addParentsToWebElement(new WebElement(title, By.getByTitle, options));
-    }
-
-    public withVisible() {
-        return this.deepClone(`${this.buildNarrowSelectorWithInternalLocator()} >> visible=true`);
-    }
-
-    public withText(text: string | RegExp) {
-        return this.deepClone(`${this.buildNarrowSelectorWithInternalLocator()} >> text=${text}`);
-    }
-
-    public whereTextIs(text: string) {
-        return this.deepClone(`${this.buildNarrowSelectorWithInternalLocator()} >> text="${text}"`);
     }
 
     public nth(index: number) {
