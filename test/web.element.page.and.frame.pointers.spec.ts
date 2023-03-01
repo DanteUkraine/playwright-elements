@@ -1,10 +1,7 @@
 import { $, BrowserInstance, BrowserName } from '../src';
 import { test } from 'mocha';
-import chai, { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised'
+import { expect } from 'chai';
 import { localFilePath } from './utils'
-
-chai.use(chaiAsPromised);
 
 describe(`Web element frame pointer`, function () {
 
@@ -22,12 +19,12 @@ describe(`Web element frame pointer`, function () {
         await BrowserInstance.close();
     })
 
-    test(`asFrame make WebElement to be used as frameLocator`,  (done) => {
+    test(`asFrame make WebElement to be used as frameLocator`,  async () => {
         const iframe = $(`iframe`).asFrame()
             .subElements({
                 title: $(`.navbar__title`).first()
             });
-        expect(iframe.title._.textContent()).to.become('Playwright').and.notify(done);
+        expect(await iframe.title._.textContent()).to.equal('Playwright');
     })
 
 });

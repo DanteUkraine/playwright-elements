@@ -1,11 +1,9 @@
 import { $, BrowserInstance, BrowserName } from '../src';
 import { test } from 'mocha';
-import chai, { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised'
+import { expect } from 'chai';
 import { isArray } from 'lodash';
 import { localFilePath } from './utils'
 
-chai.use(chaiAsPromised);
 
 describe(`Web element build in helpers`, function () {
 

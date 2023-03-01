@@ -1,11 +1,9 @@
 import { BrowserInstance, BrowserName } from '../src';
-import chai, { expect } from 'chai';
+import { AssertionError, expect } from 'chai';
 import { afterEach, test } from 'mocha';
 import { webkit } from 'playwright-core';
-import chaiAsPromised from 'chai-as-promised'
 import { localFilePath } from './utils'
 
-chai.use(chaiAsPromised);
 
 describe('Browser Instance', function (this: Mocha.Suite) {
     this.timeout(30_000);
@@ -92,12 +90,24 @@ describe('Browser Instance getter', () => {
         expect(() => BrowserInstance.browser).to.throw(Error, `Browser was not started`);
     })
 
-    test(`start new context should throw error`, () => {
-        expect(BrowserInstance.startNewContext()).to.be.rejectedWith(Error, `Browser was not started`);
+    test(`start new context should throw error`, async () => {
+        try {
+            await BrowserInstance.startNewContext()
+        } catch (e) {
+            expect(e).to.have.property('message', `Browser was not started`);
+            return;
+        }
+        throw new AssertionError('Error with message: "Browser was not started" should be thrown.')
     })
 
-    test(`start new page should throw error`, () => {
-        expect(BrowserInstance.startNewPage()).to.be.rejectedWith(Error, `Browser was not started`);
+    test(`start new page should throw error`, async () => {
+        try {
+            await BrowserInstance.startNewPage()
+        } catch (e) {
+            expect(e).to.have.property('message', `Browser was not started`);
+            return;
+        }
+        throw new AssertionError('Error with message: "Browser was not started" should be thrown.')
     })
 
     test(`context should throw error`, () => {
