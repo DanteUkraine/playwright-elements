@@ -102,9 +102,8 @@ export class WebElement {
                 locatorsChain = locatorsChainWithIframeType[By.getByTitle](element.narrowSelector, this._byOptions);
                 break;
             default:
-                const subLocator: Locator | undefined = element._hasLocator ?
-                    BrowserInstance.currentPage.locator(element._hasLocator) : undefined;
-                locatorsChain = locatorsChainWithIframeType.locator(element.narrowSelector, { hasText: element._hasText, has: subLocator });
+                locatorsChain = locatorsChainWithIframeType.locator(element.narrowSelector, { hasText: element._hasText, has: element._hasLocator ?
+                        BrowserInstance.currentPage.locator(element._hasLocator) : undefined });
                 break;
         }
         if (element._nth != undefined) locatorsChain = locatorsChain.nth(element._nth);
@@ -158,7 +157,7 @@ export class WebElement {
     public subElements<T extends WebElement, A extends InternalElements>(this: T, augment: A): T & A {
         const elements = augment as Record<string, WebElement>;
         Object.entries(elements).forEach(([key, value]) => {
-            let clone = cloneDeep(value);
+            const clone = cloneDeep(value);
             if (this._isFrame) {
                 clone._isInFrame = true;
                 clone._frameSelector = this.selector;

@@ -1,7 +1,7 @@
 import { test as base, Page, Response } from '@playwright/test';
 import { BrowserInstance } from './browser'
-import { isBoolean } from "lodash";
-export { expect } from "@playwright/test";
+import { isBoolean } from 'lodash';
+export { expect } from '@playwright/test';
 
 type WrappedFixtures = {
     baseURL: string | undefined,
@@ -12,7 +12,7 @@ type WrappedFixtures = {
 type GoToOptions = {
     referer?: string | undefined,
     timeout?: number | undefined,
-    waitUntil?: "load" | "domcontentloaded" | "networkidle" | "commit" | undefined
+    waitUntil?: 'load' | 'domcontentloaded' | 'networkidle' | 'commit' | undefined
 }
 
 export const test = base.extend<{
@@ -22,7 +22,7 @@ export const test = base.extend<{
 }>({
     goto: [
         async ({ page }: { page: Page }, use: (func: (endpoint?: string, options?: GoToOptions) => Promise<null | Response>) => Promise<void>) => {
-            await use((endpoint: string = '/', options?: GoToOptions) => page.goto(endpoint, options));
+            await use((endpoint = '/', options?: GoToOptions) => page.goto(endpoint, options));
         },
         { scope: 'test' },
     ],

@@ -13,7 +13,9 @@
     "install:dependencies": "npm install --registry=https://registry.npmjs.org",
     "install:browsers": "npx playwright install --force chrome chromium msedge firefox webkit --with-deps",
     "test": "mocha",
-    "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts"
+    "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts",
+    "prepare": "husky install",
+    "lint": "npx eslint ."
   },
   "repository": {
     "type": "git",
@@ -37,12 +39,15 @@
     "@types/lodash": "^4.14.186",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.7.23",
-    "chai": "^4.3.6",
-    "chai-as-promised": "^7.1.1",
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/parser": "^5.54.0",
+    "chai": "^4.3.7",
+    "eslint": "^8.35.0",
+    "husky": "^8.0.3",
     "mocha": "^10.0.0",
     "playwright-core": "^1.31.0",
     "ts-node": "^10.9.1",
-    "typescript": "^4.8.4"
+    "typescript": "^4.9.5"
   },
   "dependencies": {
     "lodash": "^4.17.21"

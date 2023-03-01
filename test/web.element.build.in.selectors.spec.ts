@@ -11,11 +11,9 @@ import {
     BrowserName
 } from '../src';
 import { test } from 'mocha';
-import chai, { expect } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { expect } from 'chai';
 import { localFilePath } from './utils'
 
-chai.use(chaiAsPromised);
 
 describe(`Web element build in selectors`, function () {
 
@@ -90,7 +88,7 @@ describe(`Web element build in selectors`, function () {
             .subElements({
                 paragraph: $(`p[hidden]`)
             });
-        expect(visibleElement.has($('#right-target')).first().selector).to.be.equal('#visible-target div >> internal:has=\"#right-target\"');
+        expect(visibleElement.has($('#right-target')).first().selector).to.be.equal('#visible-target div >> internal:has="#right-target"');
         await visibleElement.has($('#right-target')).paragraph.expect().toHaveText('This is hidden right target');
     })
 
@@ -100,9 +98,9 @@ describe(`Web element build in selectors`, function () {
     })
 
     test(`get by label selector method`, async () => {
-        expect(await $getByLabel('Checked box', {exact: true}).getAttribute('id')).to.equal('checked');
+        expect(await $getByLabel('Checked box', { exact: true }).getAttribute('id')).to.equal('checked');
         expect(await $getByLabel('Checked box').map(el => el.getAttribute('id'))).to.have.members(['checked', 'unchecked']);
-        expect(await $('body').$getByLabel('Checked box', {exact: true}).getAttribute('id')).to.equal('checked');
+        expect(await $('body').$getByLabel('Checked box', { exact: true }).getAttribute('id')).to.equal('checked');
         expect(await $('body').$getByLabel('Checked box').map(el => el.getAttribute('id'))).to.have.members(['checked', 'unchecked']);
     })
 

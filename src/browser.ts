@@ -7,9 +7,8 @@ import {
     Page,
     Browser,
     BrowserContextOptions
-} from "playwright-core";
+} from 'playwright-core';
 
-///////////////////////////////////
 export enum BrowserName {
     CHROMIUM = 'chromium',
     CHROME = 'chrome',
@@ -26,7 +25,7 @@ export class Context {
     private readonly context: BrowserContext
     private _pages: Page[];
     private _previousPage: Page | undefined;
-    private _isMobile: boolean = false;
+    private _isMobile = false;
 
     constructor(context: BrowserContext) {
         this.context = context;
@@ -68,10 +67,9 @@ export class BrowserInstance {
     private static _currentContext: Context | undefined;
     private static _currentPage: Page | undefined;
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {
     }
-
-    // page - getter, setter, builder method
 
     static get isContextMobile(): boolean {
         return this.context.isMobile;
@@ -95,8 +93,6 @@ export class BrowserInstance {
         this.withContext(page.context());
     }
 
-    // context - getter, setter, builder method
-
     private static get context(): Context {
         if (this._currentContext) return this._currentContext;
         throw new Error(`Context was not started`);
@@ -119,8 +115,6 @@ export class BrowserInstance {
         else throw new Error(`Browser is undefined and 'context.browser()' returns null.`);
     }
 
-    // browser - getter, setter, builder method
-
     static get browser(): Browser {
         if (this._browser) return this._browser;
         throw new Error(`Browser was not started`);
@@ -134,21 +128,19 @@ export class BrowserInstance {
         this.browser = browser;
     }
 
-    //
-
     private static async launch(browserName?: BrowserName, options?: LaunchOptions): Promise<Browser> {
         this.browserName = browserName;
         switch (browserName) {
             case BrowserName.CHROME:
-                return await chromium.launch({...options, ...{channel: 'chrome'}});
+                return await chromium.launch({ ...options, ...{ channel: 'chrome' } });
             case BrowserName.MSEDGE:
-                return await chromium.launch({...options, ...{channel: 'msedge'}});
+                return await chromium.launch({ ...options, ...{ channel: 'msedge' } });
             case BrowserName.WEBKIT:
-                return await webkit.launch({...options});
+                return await webkit.launch({ ...options });
             case BrowserName.FIREFOX:
-                return await firefox.launch({...options});
+                return await firefox.launch({ ...options });
             default:
-                return chromium.launch({...options});
+                return chromium.launch({ ...options });
         }
     }
 
@@ -182,7 +174,6 @@ export class BrowserInstance {
         this._browser = undefined;
     }
 
-    // tab actions
     public static async switchToPreviousTab(): Promise<void> {
         this.currentPage = this.context.previousPage;
         await this.currentPage.bringToFront();

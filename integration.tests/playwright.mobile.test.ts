@@ -1,8 +1,8 @@
-import {BrowserInstance, expect, test, $, initDesktopOrMobile, WebElement} from "../src";
-import {devices} from "@playwright/test";
+import { BrowserInstance, expect, test, $, initDesktopOrMobile, WebElement } from '../src';
+import { devices } from '@playwright/test';
 
 
-test.use({...devices['iPhone 13']})
+test.use({ ...devices['iPhone 13'] })
 
 test.describe(`Playwright mobile test integration`, () => {
 
