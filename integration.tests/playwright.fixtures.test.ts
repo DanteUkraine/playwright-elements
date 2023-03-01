@@ -1,4 +1,4 @@
-import {test, expect, $, BrowserInstance, initDesktopOrMobile} from "../src";
+import { test, expect, $, BrowserInstance, initDesktopOrMobile } from '../src';
 
 test.describe(`Playwright test integration`, () => {
 
@@ -9,7 +9,7 @@ test.describe(`Playwright test integration`, () => {
                 logo: $(`.navbar__title`)
             });
         await header.logo.expect().toBeVisible();
-        await header.logo.expect().toHaveText("Playwright");
+        await header.logo.expect().toHaveText('Playwright');
     })
 
     test(`soft expect negative`, async ({ goto }) => {
@@ -18,8 +18,8 @@ test.describe(`Playwright test integration`, () => {
             .subElements({
                 logo: $(`.navbar__title`),
             });
-        await header.logo.softExpect().not.toBeVisible({timeout: 500});
-        await header.logo.softExpect().not.toHaveText("Playwright", {timeout: 500});
+        await header.logo.softExpect().not.toBeVisible({ timeout: 500 });
+        await header.logo.softExpect().not.toHaveText('Playwright', { timeout: 500 });
         expect(test.info().errors).toHaveLength(2);
         test.fail()
     })

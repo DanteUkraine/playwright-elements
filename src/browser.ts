@@ -7,7 +7,7 @@ import {
     Page,
     Browser,
     BrowserContextOptions
-} from "playwright-core";
+} from 'playwright-core';
 
 ///////////////////////////////////
 export enum BrowserName {
@@ -26,7 +26,7 @@ export class Context {
     private readonly context: BrowserContext
     private _pages: Page[];
     private _previousPage: Page | undefined;
-    private _isMobile: boolean = false;
+    private _isMobile = false;
 
     constructor(context: BrowserContext) {
         this.context = context;
@@ -68,6 +68,7 @@ export class BrowserInstance {
     private static _currentContext: Context | undefined;
     private static _currentPage: Page | undefined;
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {
     }
 
@@ -140,15 +141,15 @@ export class BrowserInstance {
         this.browserName = browserName;
         switch (browserName) {
             case BrowserName.CHROME:
-                return await chromium.launch({...options, ...{channel: 'chrome'}});
+                return await chromium.launch({ ...options, ...{ channel: 'chrome' } });
             case BrowserName.MSEDGE:
-                return await chromium.launch({...options, ...{channel: 'msedge'}});
+                return await chromium.launch({ ...options, ...{ channel: 'msedge' } });
             case BrowserName.WEBKIT:
-                return await webkit.launch({...options});
+                return await webkit.launch({ ...options });
             case BrowserName.FIREFOX:
-                return await firefox.launch({...options});
+                return await firefox.launch({ ...options });
             default:
-                return chromium.launch({...options});
+                return chromium.launch({ ...options });
         }
     }
 
