@@ -58,7 +58,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npx eslint ."
+      "pre-commit": "eslint ."
     }
   }
 }
