@@ -9,7 +9,6 @@ import {
     BrowserContextOptions
 } from 'playwright-core';
 
-///////////////////////////////////
 export enum BrowserName {
     CHROMIUM = 'chromium',
     CHROME = 'chrome',
@@ -72,8 +71,6 @@ export class BrowserInstance {
     private constructor() {
     }
 
-    // page - getter, setter, builder method
-
     static get isContextMobile(): boolean {
         return this.context.isMobile;
     }
@@ -95,8 +92,6 @@ export class BrowserInstance {
         this.currentPage = page;
         this.withContext(page.context());
     }
-
-    // context - getter, setter, builder method
 
     private static get context(): Context {
         if (this._currentContext) return this._currentContext;
@@ -120,8 +115,6 @@ export class BrowserInstance {
         else throw new Error(`Browser is undefined and 'context.browser()' returns null.`);
     }
 
-    // browser - getter, setter, builder method
-
     static get browser(): Browser {
         if (this._browser) return this._browser;
         throw new Error(`Browser was not started`);
@@ -134,8 +127,6 @@ export class BrowserInstance {
     static withBrowser(browser: Browser): void {
         this.browser = browser;
     }
-
-    //
 
     private static async launch(browserName?: BrowserName, options?: LaunchOptions): Promise<Browser> {
         this.browserName = browserName;
@@ -183,7 +174,6 @@ export class BrowserInstance {
         this._browser = undefined;
     }
 
-    // tab actions
     public static async switchToPreviousTab(): Promise<void> {
         this.currentPage = this.context.previousPage;
         await this.currentPage.bringToFront();
