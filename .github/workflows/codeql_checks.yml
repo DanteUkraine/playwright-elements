@@ -1,4 +1,4 @@
-name: TestsPipeline
+name: CodeQL checks
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ on:
       - main
 jobs:
 
-  test:
+  analyze:
     strategy:
       matrix:
         platform: [ ubuntu-latest ]
