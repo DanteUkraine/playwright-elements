@@ -25,11 +25,11 @@ jobs:
       - name: Build code base
         run: npm run build
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v1
+        uses: github/codeql-action/init@v2
         with:
           languages: typescript
       - name: Analyze code with CodeQL
-        uses: github/codeql-action/analyze@v1
+        uses: github/codeql-action/analyze@v2
         with:
           database: pr-${{ github.event.pull_request.number }}
           query: 'javascript-security-and-quality/typescript/codecov'
