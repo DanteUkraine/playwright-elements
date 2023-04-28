@@ -63,9 +63,9 @@ describe(`Web element build in helpers`, function () {
         expect(selectors).has.all.members(['1', '2', '3', '4', '5', '6', 'text']);
     })
 
-    test(`filter should work with async callback`, async () => {
+    test(`filterElements should work with async callback`, async () => {
         const elements = $(`li`);
-        const filtered = await elements.filter( async (el) => {
+        const filtered = await elements.filterElements( async (el) => {
             const text = await el.textContent();
             return text ? text.includes('text') : false;
         });
@@ -73,11 +73,41 @@ describe(`Web element build in helpers`, function () {
         expect(await filtered[0].textContent()).to.be.equal('text');
     })
 
-    test(`filter should work with sync callback`, async () => {
+    test(`filterElements should work with sync callback`, async () => {
         const elements = $(`li`);
-        const filtered = await elements.filter( (el) => el.textContent().then(value => value ? value.includes('5') : false));
+        const filtered = await elements.filterElements( (el) => el.textContent().then(value => value ? value.includes('5') : false));
         expect(filtered).has.length(1);
         expect(await filtered[0].textContent()).to.be.equal('5');
+    })
+
+    test(`filter should work with has child`, async () => {
+        const elements = $(`div#visible-target`).$('div');
+        const filtered = await elements.filter({ has: $('#right-target') });
+        expect(await filtered.getAttribute('id')).to.be.equal('inner-visible-target2');
+    })
+
+    test(`filter should work with hasNot child`, async () => {
+        const elements = $(`div#visible-target`).$('div');
+        const filtered = await elements.filter({ hasNot: $('#wrong-target, #wrong-target2') });
+        expect(await filtered.getAttribute('id')).to.be.equal('inner-visible-target2');
+    })
+
+    test(`filter should work with has text`, async () => {
+        const elements = $(`li`);
+        const filtered = await elements.filter({ hasText: 'text' });
+        expect(await filtered.textContent()).to.be.equal('text');
+    })
+
+    test(`filter should work with has not text`, async () => {
+        const elements = $(`li`);
+        const filtered = await elements.filter({ hasNotText: /[0-6]/ });
+        expect(await filtered.textContent()).to.be.equal('text');
+    })
+
+    test(`filter should work with multiple options`, async () => {
+        const elements = $(`div`);
+        const filtered = elements.filter({ has: '#right-target', hasNot: '#missed', hasText: 'Visible target', hasNotText: 'Visible wrong target' });
+        expect(await filtered.getAttribute('id')).to.be.equal('inner-visible-target2');
     })
 
 });

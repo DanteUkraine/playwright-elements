@@ -137,20 +137,34 @@ describe(`Web element build in selectors`, function () {
         expect(await element.has('#inner-visible-target').p.$getByText('Second visible target').isVisible()).to.be.true;
     })
 
-    test(`get by selector methods should not be used with has method`, async () => {
+    test(`get by selector methods should not be used with has or hasNot methods`, async () => {
         expect(() => $getByAltText('list').has('#child'))
             .to.throw('has option can not be used with getByAltText, it can be used only with $ or new WebElement(\'#id\') syntax.');
+        expect(() => $getByAltText('list').hasNot('#child'))
+            .to.throw('hasNot option can not be used with getByAltText, it can be used only with $ or new WebElement(\'#id\') syntax.');
         expect(() => $getByLabel('list').has('#child'))
             .to.throw('has option can not be used with getByLabel, it can be used only with $ or new WebElement(\'#id\') syntax.');
+        expect(() => $getByLabel('list').hasNot('#child'))
+            .to.throw('hasNot option can not be used with getByLabel, it can be used only with $ or new WebElement(\'#id\') syntax.');
         expect(() => $getByPlaceholder('list').has('#child'))
             .to.throw('has option can not be used with getByPlaceholder, it can be used only with $ or new WebElement(\'#id\') syntax.');
+        expect(() => $getByPlaceholder('list').hasNot('#child'))
+            .to.throw('hasNot option can not be used with getByPlaceholder, it can be used only with $ or new WebElement(\'#id\') syntax.');
         expect(() => $getByRole('list').has('#child'))
             .to.throw('has option can not be used with getByRole, it can be used only with $ or new WebElement(\'#id\') syntax.');
+        expect(() => $getByRole('list').hasNot('#child'))
+            .to.throw('hasNot option can not be used with getByRole, it can be used only with $ or new WebElement(\'#id\') syntax.');
         expect(() => $getByTestId('title').has('#child'))
             .to.throw('has option can not be used with getByTestId, it can be used only with $ or new WebElement(\'#id\') syntax.');
+        expect(() => $getByTestId('title').hasNot('#child'))
+            .to.throw('hasNot option can not be used with getByTestId, it can be used only with $ or new WebElement(\'#id\') syntax.');
         expect(() => $getByText('title').has('#child'))
             .to.throw('has option can not be used with getByText, it can be used only with $ or new WebElement(\'#id\') syntax.');
+        expect(() => $getByText('title').hasNot('#child'))
+            .to.throw('hasNot option can not be used with getByText, it can be used only with $ or new WebElement(\'#id\') syntax.');
         expect(() => $getByTitle('title').has('#child'))
             .to.throw('has option can not be used with getByTitle, it can be used only with $ or new WebElement(\'#id\') syntax.');
+        expect(() => $getByTitle('title').hasNot('#child'))
+            .to.throw('hasNot option can not be used with getByTitle, it can be used only with $ or new WebElement(\'#id\') syntax.');
     })
 });

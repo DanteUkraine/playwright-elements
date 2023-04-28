@@ -1,4 +1,5 @@
 # Playwright-elements
+[![Awesome](https://awesome.re/mentioned-badge.svg)](https://github.com/mxschmitt/awesome-playwright/blob/master/README.md#utils)
 ___
 *Playwright elements helps you to create reusable components and allows lazy initialization of elements
 in page object of another abstraction. Also, it includes helper methods for implementing 
@@ -7,7 +8,8 @@ desktop and mobile tests.*
 ***Installation:*** `npm install -D playwright-elements`
 
 ***IMPORTANT:*** playwright elements is not standalone framework, it requires:
--  `@playwright/test >= 1.27.x` to added to project.
+-  v1.5: `@playwright/test >= 1.27.x` to added to project.
+-  v1.6: `@playwright/test >= 1.33.x` to added to project.
 ___
 - [Get started](#get-started)
 - [Web element](#web-element)
@@ -19,7 +21,9 @@ ___
   - [With methods](#with-methods)
   - [Build in selector helpers](#build-in-selector-helpers)
   - [Has](#has)
+  - [Has not](#has-not)
   - [Has text](#has-text)
+  - [Has not text](#has-not-text)
   - [Get element by index](#get-element-by-index)
   - [Strict mode](#strict-mode)
   - [As frame](#as-frame)
@@ -27,6 +31,7 @@ ___
     - [Async for each](#async-for-each)
     - [Sync for each](#sync-for-each)
     - [Map](#map)
+    - [Filter elements](#filter-elements)
     - [Filter](#filter)
   - [Actions](#actions) 
     - [All inner texts](#all-inner-texts)
@@ -332,7 +337,29 @@ class MainPage {
     readonly fieldRows = $(`.field-row`).has(enabledEnputs);
 }
 ```
-# Has text
+
+### Has not
+Method `hasNot(selector: string | WebElement)` helps to find elements without specific child.
+
+*Based on selector:*
+```ts
+import { $ } from "playwright-elements";
+
+class MainPage {
+    readonly fieldRows = $(`.field-row`).hasNot(`input.disabled`);
+}
+```
+*Based on WebElement:*
+```ts
+import { $ } from "playwright-elements";
+
+class MainPage {
+    private readonly enabledEnputs = $(`input.disabled`);
+    readonly fieldRows = $(`.field-row`).hasNot(enabledEnputs);
+}
+```
+
+### Has text
 Method `hasText(text: string | RegExp)` helps to find elements with specific text or child with text.
 *Based on text:*
 ```ts
@@ -350,7 +377,26 @@ class MainPage {
     readonly paragraph = $(`.p`).hasText(/Some text:/);
 }
 ```
-*Methods **has** and **hasText** can be combined in chain.*
+
+### Has not text
+Method `hasNotText(text: string | RegExp)` helps to find elements without specific text or child with text.
+*Based on text:*
+```ts
+import { $ } from "playwright-elements";
+
+class MainPage {
+    readonly paragraph = $(`p`).hasNotText(`Some text`);
+}
+```
+*Based on RegExp:*
+```ts
+import { $ } from "playwright-elements";
+
+class MainPage {
+    readonly paragraph = $(`.p`).hasNotText(/Some text/);
+}
+```
+*Methods **has**, **hasNot**, **hasText** and **HasNotText** can be combined in chain.*
 
 ```ts
 import { $ } from "playwright-elements";
@@ -580,16 +626,27 @@ test(`map example`, async () => {
     const texts: (string | null)[] = await elements.map(async (e) => await e.locator.textContent());
 })
 ```
-### Filter
-Method `filter<T extends WebElement>(this: T, predicate: (element: T) => boolean | Promise<boolean>): Promise<T[]>`
+### Filter elements
+Method `filterElements<T extends WebElement>(this: T, predicate: (element: T) => boolean | Promise<boolean>): Promise<T[]>`
 works with sync and async functions in callbacks and returns sub list of elements for with predicate returned true.
 
 ```ts
-test(`filter example`, async () => {
+test(`filter elements example`, async () => {
     const elements = $(`input`);
-    const enabledInputs = await elements.filter(async (e) => await e.locator.isEnabled());
+    const enabledInputs = await elements.filterElements(async (e) => await e.locator.isEnabled());
 })
 ```
+### Filter
+Method `filter<T extends WebElement, R extends WebElement>(this: T, options: { has?: string | T, hasNot?: string | T: hasText?: string, hasNotText?: string }): R`
+This method narrows existing locator according to the options, for example filters by text.
+
+```ts
+test(`filter elements example`, async () => {
+  const elements = $(`div`);
+  const filtered = elements.filter({ has: '#id', hasNot: '.hidden', hasText: 'Visible target', hasNotText: 'Visible wrong target' });
+})
+```
+
 ## How to extend Web Element
 
 In case you want to create custom web element.
