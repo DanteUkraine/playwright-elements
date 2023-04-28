@@ -56,7 +56,9 @@ export class WebElement {
     private readonly _by: By | undefined;
     private _byOptions: ByOptions | ByRoleOptions | undefined;
     private _hasLocator: string | undefined;
+    private _hasNotLocator: string | undefined;
     private _hasText: string | RegExp | undefined;
+    private _hasNotText: string | RegExp | undefined;
     private _nth: number | undefined;
 
     constructor(selector: string, by?: By, options?: ByOptions | ByRoleOptions) {
@@ -102,8 +104,14 @@ export class WebElement {
                 locatorsChain = locatorsChainWithIframeType[By.getByTitle](element.narrowSelector, this._byOptions);
                 break;
             default:
-                locatorsChain = locatorsChainWithIframeType.locator(element.narrowSelector, { hasText: element._hasText, has: element._hasLocator ?
-                        BrowserInstance.currentPage.locator(element._hasLocator) : undefined });
+                locatorsChain = locatorsChainWithIframeType.locator(element.narrowSelector, {
+                    hasText: element._hasText,
+                    hasNotText: element._hasNotText,
+                    has: element._hasLocator ?
+                        BrowserInstance.currentPage.locator(element._hasLocator) : undefined ,
+                    hasNot: element._hasNotLocator ?
+                        BrowserInstance.currentPage.locator(element._hasNotLocator) : undefined
+                });
                 break;
         }
         if (element._nth != undefined) locatorsChain = locatorsChain.nth(element._nth);
@@ -223,7 +231,13 @@ export class WebElement {
 
     // chainable web element creation
 
-    protected deepClone<T extends WebElement>(this: T, selector: string, internalLocator?: string, internalText?: string | RegExp, nth?: number): T {
+    protected deepClone<T extends WebElement>(this: T, selector: string, options: {
+        hasLocator?: string,
+        hasNotLocator?: string,
+        hasText?: string | RegExp,
+        hasNotText?: string | RegExp,
+        nth?: number
+    }): T {
         return Object.defineProperties(cloneDeep(this), {
                 _selector: {
                     value: selector,
@@ -231,17 +245,27 @@ export class WebElement {
                     configurable: false
                 },
                 _hasLocator: {
-                    value: internalLocator,
+                    value: options.hasLocator,
+                    writable: true,
+                    configurable: false
+                },
+                _hasNotLocator: {
+                    value: options.hasNotLocator,
                     writable: true,
                     configurable: false
                 },
                 _hasText: {
-                    value: internalText,
+                    value: options.hasText,
+                    writable: true,
+                    configurable: false
+                },
+                _hasNotText: {
+                    value: options.hasNotText,
                     writable: true,
                     configurable: false
                 },
                 _nth: {
-                    value: nth,
+                    value: options.nth,
                     writable: true,
                     configurable: false
                 }
@@ -250,12 +274,48 @@ export class WebElement {
 
     public has<T extends WebElement, R extends WebElement>(this: R, selector: string | T): R {
         if(this._by) throw Error(`has option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
-        return this.deepClone(this.narrowSelector, extractSelector(selector));
+        return this.deepClone(this.narrowSelector, {
+            hasLocator: extractSelector(selector),
+            hasNotLocator: this._hasNotLocator,
+            hasText: this._hasText,
+            hasNotText: this._hasNotText,
+            nth: this._nth
+        });
+    }
+
+    public hasNot<T extends WebElement, R extends WebElement>(this: R, selector: string | T): R {
+        if(this._by) throw Error(`hasNot option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
+        return this.deepClone(this.narrowSelector, {
+            hasLocator: this._hasLocator,
+            hasNotLocator: extractSelector(selector),
+            hasText: this._hasText,
+            hasNotText: this._hasNotText,
+            nth: this._nth
+        });
     }
 
     public hasText<R extends WebElement>(this: R, text: string | RegExp): R {
         if(this._by) throw Error(`has option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
-        return this.deepClone(this.narrowSelector, undefined, text);
+        return this.deepClone(this.narrowSelector, {
+            hasLocator: this._hasLocator,
+            hasNotLocator: this._hasNotLocator,
+            hasText: text,
+            hasNotText: this._hasNotText,
+            nth: this._nth
+        });
+    }
+
+
+
+    public hasNotText<R extends WebElement>(this: R, text: string | RegExp): R {
+        if(this._by) throw Error(`hasNot option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
+        return this.deepClone(this.narrowSelector,{
+            hasLocator: this._hasLocator,
+            hasNotLocator: this._hasNotLocator,
+            hasText: this._hasText,
+            hasNotText: text,
+            nth: this._nth
+        });
     }
 
     private addParentsToWebElement(element: WebElement): WebElement {
@@ -299,7 +359,13 @@ export class WebElement {
     }
 
     public nth(index: number) {
-        return this.deepClone(this.narrowSelector, this._hasLocator, this._hasText, index);
+        return this.deepClone(this.narrowSelector, {
+            hasLocator: this._hasLocator,
+            hasNotLocator: this._hasNotLocator,
+            hasText: this._hasText,
+            hasNotText: this._hasNotText,
+            nth: index
+        });
     }
 
     public first() {
@@ -346,7 +412,21 @@ export class WebElement {
         return Promise.all(futureItems);
     }
 
-    public async filter<T extends WebElement>(this: T, predicate: (element: T) => boolean | Promise<boolean>): Promise<T[]> {
+    public filter<T extends WebElement, R extends WebElement>(this: R, options: {
+        has?: string | T,
+        hasNot?: string | T,
+        hasText?: string | RegExp,
+        hasNotText?: string | RegExp
+    }): R {
+        return this.deepClone(this.narrowSelector, {
+            hasLocator: options.has ? extractSelector(options.has) : undefined,
+            hasNotLocator: options.hasNot ? extractSelector(options.hasNot) : undefined,
+            hasText: options.hasText,
+            hasNotText: options.hasNotText,
+        });
+    }
+
+    public async filterElements<T extends WebElement>(this: T, predicate: (element: T) => boolean | Promise<boolean>): Promise<T[]> {
         const list: T[] = await this.getAll();
         const matchedElements: T[] = [];
         for (const ele of list) {
