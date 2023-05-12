@@ -19,6 +19,7 @@ ___
   - [Expect](#expect)
   - [Locator and underscore](#locator-and-underscore)
   - [With methods](#with-methods)
+  - [Get parent](#get-parent)
   - [Build in selector helpers](#build-in-selector-helpers)
   - [Has](#has)
   - [Has not](#has-not)
@@ -27,6 +28,7 @@ ___
   - [Get element by index](#get-element-by-index)
   - [Strict mode](#strict-mode)
   - [As frame](#as-frame)
+  - [Clone](#clone)
   - [Lists of WebElements](#lists-of-webelements)
     - [Async for each](#async-for-each)
     - [Sync for each](#sync-for-each)
@@ -253,6 +255,7 @@ class MainPage {
             });
 }
 ```
+
 ### Expect
 Web element has methods `expect()` and `softExpect()` which allows access to
 [playwright assert library](https://playwright.dev/docs/test-assertions).
@@ -287,6 +290,7 @@ test.describe('Playwright test integration', () => {
 ```
 
 ### With methods
+Allows to add custom methods to web elements.
 ```ts
 import { $, WebElement } from "playwright-elements"; 
 
@@ -310,11 +314,57 @@ class MainPage {
 `hoverAndClick` method now can be used on item element. Please pay attention that to access web element
 default methods inside additional method declaration is used fake `this: WebElement` pointer.
 ```ts
-test(`user can open documentaation`, async () => {
+test(`user can open documentation`, async () => {
     const mainPage = new MainPage();
     await mainPage.header.menu.item.withText(`Documentation`).hoverAndClick();
 })
 ```
+
+### Get parent
+`parent<T>(this: WebElement): WebElement & T` method allows get parent and extend it's type.
+
+Allows to access parent element.
+
+```ts
+import { $, WebElement } from "playwright-elements";
+
+const header = $('.header')
+    .subElements({
+         logo: $('.log-img'),
+         logIn : $('#log-in')
+    });
+header.logo.parent(); // allows to access parent web element
+header.login.parent<{ logo: WebElement }>(); // also parent method accepts generic with type
+```
+It allows users to access sibling elements inside custom methods. 
+```ts
+import { $, WebElement } from "playwright-elements";
+
+const header = $('.header')
+    .subElements({
+         userIcon: $('#icon'), 
+         logIn : $('#log-in')
+             .withMethods({
+                  async goToLoginPage(this: WebElement) {
+                      await this.parent<userIcon>().userIcon.hover();
+                      await this.click();
+                  } 
+             })
+    });
+```
+Despite strict return type `parent<T>(this: WebElement): WebElement & T` 
+when element has not parent it returns `undefined`. 
+It allows avoid optional chaining each time you need call anything from parent 
+but still implement if condition.
+```ts
+import { $, WebElement } from "playwright-elements";
+
+test(`get parent`, () => {
+  const header = $('.header');
+  header.parent; // undefined
+})
+```
+
 ## Build in selector helpers
 
 ### Has
@@ -452,6 +502,23 @@ test(`find error by text`, async () => {
   await mainPage.iframe.header.expec().toBeVisible();
 })
 ```
+### Clone
+`clone<T extends WebElement>(this: T, options?: {
+selector?: string
+hasLocator?: string,
+hasNotLocator?: string,
+hasText?: string | RegExp,
+hasNotText?: string | RegExp,
+nth?: number
+}): T` method allows to clone any web element and override it's selector and filter properties.
+
+```ts
+import { $ } from 'playwright-elements';
+
+const originElement = $('.button').hasText('Submit').hasNotText('Ok');
+const owerridenElement = originElement.clone({ selector: 'input[type=button]' }); // will still hasText=Submit and haasNotTet=Ok but will use another selector.
+```
+
 ___
 ## Actions
 Web elements provide users with direct access to common actions from playwright [locator class](https://playwright.dev/docs/api/class-locator).

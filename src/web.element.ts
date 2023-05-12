@@ -221,6 +221,10 @@ export class WebElement {
         return this.parentElements.map(element => this.buildNarrowSelectorWithInternalLocator(element)).join(' >> ');
     }
 
+    parent<T>(this: WebElement): WebElement & T {
+        return this._parents.at(-1) as WebElement & T;
+    }
+
     private get parentElements(): WebElement[] {
         return this._parents;
     }
@@ -231,7 +235,8 @@ export class WebElement {
 
     // chainable web element creation
 
-    protected deepClone<T extends WebElement>(this: T, selector: string, options: {
+    public clone<T extends WebElement>(this: T, options?: {
+        selector?: string
         hasLocator?: string,
         hasNotLocator?: string,
         hasText?: string | RegExp,
@@ -240,32 +245,32 @@ export class WebElement {
     }): T {
         return Object.defineProperties(cloneDeep(this), {
                 _selector: {
-                    value: selector,
+                    value: options?.selector ?? this._selector,
                     writable: false,
                     configurable: false
                 },
                 _hasLocator: {
-                    value: options.hasLocator,
+                    value: options?.hasLocator ?? this._hasLocator,
                     writable: true,
                     configurable: false
                 },
                 _hasNotLocator: {
-                    value: options.hasNotLocator,
+                    value: options?.hasNotLocator ?? this._hasNotLocator,
                     writable: true,
                     configurable: false
                 },
                 _hasText: {
-                    value: options.hasText,
+                    value: options?.hasText ?? this._hasText,
                     writable: true,
                     configurable: false
                 },
                 _hasNotText: {
-                    value: options.hasNotText,
+                    value: options?.hasNotText ?? this._hasNotLocator,
                     writable: true,
                     configurable: false
                 },
                 _nth: {
-                    value: options.nth,
+                    value: options?.nth ?? this._nth,
                     writable: true,
                     configurable: false
                 }
@@ -274,7 +279,8 @@ export class WebElement {
 
     public has<T extends WebElement, R extends WebElement>(this: R, selector: string | T): R {
         if(this._by) throw Error(`has option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
-        return this.deepClone(this.narrowSelector, {
+        return this.clone({
+            selector: this.narrowSelector,
             hasLocator: extractSelector(selector),
             hasNotLocator: this._hasNotLocator,
             hasText: this._hasText,
@@ -285,7 +291,8 @@ export class WebElement {
 
     public hasNot<T extends WebElement, R extends WebElement>(this: R, selector: string | T): R {
         if(this._by) throw Error(`hasNot option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
-        return this.deepClone(this.narrowSelector, {
+        return this.clone({
+            selector: this.narrowSelector,
             hasLocator: this._hasLocator,
             hasNotLocator: extractSelector(selector),
             hasText: this._hasText,
@@ -296,7 +303,8 @@ export class WebElement {
 
     public hasText<R extends WebElement>(this: R, text: string | RegExp): R {
         if(this._by) throw Error(`has option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
-        return this.deepClone(this.narrowSelector, {
+        return this.clone({
+            selector: this.narrowSelector,
             hasLocator: this._hasLocator,
             hasNotLocator: this._hasNotLocator,
             hasText: text,
@@ -309,7 +317,8 @@ export class WebElement {
 
     public hasNotText<R extends WebElement>(this: R, text: string | RegExp): R {
         if(this._by) throw Error(`hasNot option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
-        return this.deepClone(this.narrowSelector,{
+        return this.clone({
+            selector: this.narrowSelector,
             hasLocator: this._hasLocator,
             hasNotLocator: this._hasNotLocator,
             hasText: this._hasText,
@@ -359,7 +368,8 @@ export class WebElement {
     }
 
     public nth(index: number) {
-        return this.deepClone(this.narrowSelector, {
+        return this.clone({
+            selector: this.narrowSelector,
             hasLocator: this._hasLocator,
             hasNotLocator: this._hasNotLocator,
             hasText: this._hasText,
@@ -418,7 +428,8 @@ export class WebElement {
         hasText?: string | RegExp,
         hasNotText?: string | RegExp
     }): R {
-        return this.deepClone(this.narrowSelector, {
+        return this.clone({
+            selector: this.narrowSelector,
             hasLocator: options.has ? extractSelector(options.has) : undefined,
             hasNotLocator: options.hasNot ? extractSelector(options.hasNot) : undefined,
             hasText: options.hasText,

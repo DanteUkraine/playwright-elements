@@ -19,6 +19,23 @@ describe('Web Element chainable selectors', () => {
             await BrowserInstance.close();
         })
 
+        describe('element clone and override', () => {
+            
+            test('has text', async () => {
+                const origin = $('li').hasText(/[1-6]/g);
+                const overridden = origin.clone({ hasText: 'text' });
+                expect(await origin.count()).to.be.equal(6);
+                expect(await overridden.count()).to.be.equal(1);
+            })
+
+            test('has not text', async () => {
+                const origin = $('li').hasNotText(/[1-6]/g);
+                const overridden = origin.clone({ hasNotText: 'text' });
+                expect(await origin.count()).to.be.equal(1);
+                expect(await overridden.count()).to.be.equal(6);
+            })
+        })
+
         test('should point on first element', async () => {
             const element = $getByTestId(`test-div`)
                 .subElements({
@@ -192,5 +209,25 @@ describe('Web Element augmentation', () => {
                 subChild: $getByTestId('subChild').$('subChild2'),
             });
         expect(element.subChild.$getByPlaceholder('placeholder').selector).to.equal('parentTestId >> child >> subChild >> subChild2 >> placeholder');
+    })
+
+    test('get parent of element', async () => {
+        const component = $('component')
+            .subElements({
+                subComponent: $('sub-component')
+                    .subElements({
+                        innerComponent: $('inner-component'),
+                        secondInnerComponent: $('second-inner-component')
+                            .withMethods({
+                                checkParent(this: WebElement) {
+                                    return this.parent<{ innerComponent: WebElement }>();
+                                }
+                            })
+                    })
+            });
+        expect(component.subComponent.innerComponent.parent().narrowSelector).to.be.equal('sub-component');
+        expect(component.subComponent.innerComponent.parent().parent().narrowSelector).to.be.equal('component');
+        expect(component.subComponent.secondInnerComponent.checkParent().innerComponent.narrowSelector).to.be.equal('inner-component');
+        expect(component.parent()).to.be.undefined;
     })
 });
