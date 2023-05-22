@@ -1,6 +1,6 @@
 {
   "name": "playwright-elements",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "This is Playwright extension.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "tsc --build --clean",
-    "install:dependencies": "npm install --registry=https://registry.npmjs.org",
+    "install:deps": "npm install --registry=https://registry.npmjs.org",
     "install:browsers": "npx playwright install --force chrome chromium msedge firefox webkit --with-deps",
     "test": "mocha",
     "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts",
@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/DanteUkraine/playwright-elements#readme",
   "devDependencies": {
-    "@playwright/test": "^1.33.0",
+    "@playwright/test": "^1.34.0",
     "@types/chai": "^4.3.3",
     "@types/chai-as-promised": "^7.1.5",
     "@types/lodash": "^4.14.186",

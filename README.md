@@ -10,6 +10,7 @@ desktop and mobile tests.*
 ***IMPORTANT:*** playwright elements is not standalone framework, it requires:
 -  v1.5: `@playwright/test >= 1.27.x` to added to project.
 -  v1.6: `@playwright/test >= 1.33.x` to added to project.
+-  v1.8: `@playwright/test >= 1.34.x` to added to project.
 ___
 - [Get started](#get-started)
 - [Web element](#web-element)
@@ -21,6 +22,7 @@ ___
   - [With methods](#with-methods)
   - [Get parent](#get-parent)
   - [Build in selector helpers](#build-in-selector-helpers)
+  - [And](#and)
   - [Has](#has)
   - [Has not](#has-not)
   - [Has text](#has-text)
@@ -366,6 +368,22 @@ test(`get parent`, () => {
 ```
 
 ## Build in selector helpers
+
+### And 
+Method `and<T extends WebElement, R extends WebElement>(this: R, element: string | T): R` helps to use multiple
+selectors to find one element.
+
+```ts
+import { $ } from "playwright-elements";
+
+const button = $('button').and('[title=Subscribe]');
+```
+or
+```ts
+import { $getByRole, $getByTitle } from "playwright-elements";
+
+const button = $getByRole('button').and($getByTitle('Subscribe'));
+```
 
 ### Has
 Method `has(selector: string | WebElement)` helps to find elements with specific child.

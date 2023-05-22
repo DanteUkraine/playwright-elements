@@ -167,4 +167,9 @@ describe(`Web element build in selectors`, function () {
         expect(() => $getByTitle('title').hasNot('#child'))
             .to.throw('hasNot option can not be used with getByTitle, it can be used only with $ or new WebElement(\'#id\') syntax.');
     })
+
+    test('and should add condition to locator', async () => {
+        const element = $('input').and($('[type=checkbox]')).and('[checked]');
+        expect(await element.isVisible()).to.be.true;
+    })
 });

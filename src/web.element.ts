@@ -60,6 +60,7 @@ export class WebElement {
     private _hasText: string | RegExp | undefined;
     private _hasNotText: string | RegExp | undefined;
     private _nth: number | undefined;
+    private _and: (WebElement | string) [] = [];
 
     constructor(selector: string, by?: By, options?: ByOptions | ByRoleOptions) {
         this._selector = selector;
@@ -108,11 +109,15 @@ export class WebElement {
                     hasText: element._hasText,
                     hasNotText: element._hasNotText,
                     has: element._hasLocator ?
-                        BrowserInstance.currentPage.locator(element._hasLocator) : undefined ,
+                        BrowserInstance.currentPage.locator(element._hasLocator) : undefined,
                     hasNot: element._hasNotLocator ?
                         BrowserInstance.currentPage.locator(element._hasNotLocator) : undefined
                 });
                 break;
+        }
+        for (const andElement of element._and) {
+            locatorsChain = locatorsChain.and(andElement instanceof WebElement ?
+                andElement.locator : locatorsChainWithIframeType.locator(andElement));
         }
         if (element._nth != undefined) locatorsChain = locatorsChain.nth(element._nth);
         return locatorsChain as Locator;
@@ -275,6 +280,12 @@ export class WebElement {
                     configurable: false
                 }
             });
+    }
+
+    public and<T extends WebElement, R extends WebElement>(this: R, element: string | T): R {
+        const clone = this.clone();
+        clone._and.push(element);
+        return clone;
     }
 
     public has<T extends WebElement, R extends WebElement>(this: R, selector: string | T): R {
