@@ -27,4 +27,9 @@ describe(`Web element frame pointer`, function () {
         expect(await iframe.title._.textContent()).to.equal('Playwright');
     })
 
+    test(`asFrame make WebElement to be used as frameLocator in chain`,  async () => {
+        expect(await $(`iframe`).asFrame().$(`.navbar__title`).first()._.textContent())
+            .to.equal('Playwright');
+    })
+
 });

@@ -1,4 +1,4 @@
-import { FrameLocator, Locator, LocatorScreenshotOptions, Page } from 'playwright-core';
+import { Locator, LocatorScreenshotOptions, Page } from 'playwright-core';
 import { cloneDeep } from 'lodash';
 import { BrowserInstance } from './browser';
 import { expect } from '@playwright/test';
@@ -75,13 +75,8 @@ export class WebElement {
         return this;
     }
 
-    private buildFrameLocatorIfInFrame(locatorsChain: Locator | Page, element: WebElement): Locator | FrameLocator | Page {
-        if(element._isInFrame) return locatorsChain.frameLocator(element._frameSelector);
-        return locatorsChain;
-    }
-
     private buildLocator(locatorsChain: Locator | Page, element: WebElement): Locator {
-        const locatorsChainWithIframeType = this.buildFrameLocatorIfInFrame(locatorsChain, element);
+        const locatorsChainWithIframeType = element._isInFrame ? locatorsChain.frameLocator(element._frameSelector) : locatorsChain;
         switch (element._by) {
             case By.getByAltText:
                 locatorsChain = locatorsChainWithIframeType[By.getByAltText](element.narrowSelector, this._byOptions);
@@ -123,11 +118,28 @@ export class WebElement {
         return locatorsChain as Locator;
     }
 
-    private buildParentLocatorsChain(): Locator | Page{
+    private buildParentLocatorsChain(): Locator | Page {
         let locatorsChain: Locator | Page = BrowserInstance.currentPage;
         if(this.parentElements.length > 0) {
-            for (const element of this.parentElements){
+            let isInFrame = false;
+            let frameSelector: string | undefined;
+            for (const element of this.parentElements) {
+                if (element._isFrame) {
+                    isInFrame = true;
+                    frameSelector = element.selector;
+                    continue;
+                }
+                if (isInFrame) {
+                    element._isInFrame = true;
+                    if (frameSelector) element._frameSelector = frameSelector;
+                    isInFrame = false;
+                    frameSelector = undefined;
+                }
                 locatorsChain = this.buildLocator(locatorsChain, element);
+            }
+            if (isInFrame) {
+                this._isInFrame = true;
+                if (frameSelector) this._frameSelector = frameSelector;
             }
         }
         return locatorsChain;
