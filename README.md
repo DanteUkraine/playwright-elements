@@ -500,7 +500,7 @@ test(`find error by text`, async () => {
 
 ## As Frame
 When you need to use [FrameLocator](https://playwright.dev/docs/api/class-framelocator)
-as `WebElement` method `asFraame()` let to know that selector
+as `WebElement` method `asFrame()` let to know that selector
 should be used in `page.frameLocator('#my-frame')`.
 
 *Behind the scene playwright-elements will build next expression:
