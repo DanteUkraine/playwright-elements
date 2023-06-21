@@ -126,7 +126,7 @@ export class WebElement {
             for (const element of this.parentElements) {
                 if (element._isFrame) {
                     isInFrame = true;
-                    frameSelector = element.selector;
+                    frameSelector = element.narrowSelector;
                     continue;
                 }
                 if (isInFrame) {
@@ -183,26 +183,12 @@ export class WebElement {
         const elements = augment as Record<string, WebElement>;
         Object.entries(elements).forEach(([key, value]) => {
             const clone = cloneDeep(value);
-            if (this._isFrame) {
-                clone._isInFrame = true;
-                clone._frameSelector = this.selector;
-            } else if (this._isInFrame) {
-                clone._isInFrame = true;
-                clone._frameSelector = this._frameSelector;
-                clone.addParentSelector(this as WebElement);
-                const parents = this.parentElements;
-                for(const parent of parents) {
-                    clone.addParentSelector(parent);
-                }
-                this.recursiveParentSelectorInjection(clone);
-            } else {
-                clone.addParentSelector(this as WebElement);
-                const parents = this.parentElements;
-                for(const parent of parents) {
-                    clone.addParentSelector(parent);
-                }
-                this.recursiveParentSelectorInjection(clone);
+            clone.addParentSelector(this as WebElement);
+            const parents = this.parentElements;
+            for(const parent of parents) {
+                clone.addParentSelector(parent);
             }
+            this.recursiveParentSelectorInjection(clone);
             (this as any)[key] = clone;
         });
         return this as T & A;
