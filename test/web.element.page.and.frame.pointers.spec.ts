@@ -32,4 +32,27 @@ describe(`Web element frame pointer`, function () {
             .to.equal('Playwright');
     })
 
+    test(`asFrame make WebElement to be used as frameLocator in chain after another element`,  async () => {
+        expect(await $('body').$(`iframe`).asFrame().$(`.navbar__title`).first()._.textContent())
+            .to.equal('Playwright');
+    })
+
+    test(`asFrame make WebElement to be used as frameLocator in chain and sub elements`,  async () => {
+        const iframe = $('body').$(`iframe`).asFrame()
+            .subElements({
+                title: $(`.navbar__title`).first()
+            });
+        expect(await iframe.title._.textContent()).to.equal('Playwright');
+    })
+
+    test(`asFrame make WebElement to be used as frameLocator in sub elements on second nested level`,  async () => {
+        const body = $('body').subElements({
+            iframe: $(`iframe`).asFrame()
+                .subElements({
+                    title: $(`.navbar__title`).first()
+                })
+        });
+        expect(await body.iframe.title._.textContent()).to.equal('Playwright');
+    })
+
 });
