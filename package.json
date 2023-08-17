@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/DanteUkraine/playwright-elements#readme",
   "devDependencies": {
-    "@playwright/test": "^1.35.1",
+    "@playwright/test": "^1.37.0",
     "@types/chai": "^4.3.5",
     "@types/chai-as-promised": "^7.1.5",
     "@types/lodash": "^4.14.195",

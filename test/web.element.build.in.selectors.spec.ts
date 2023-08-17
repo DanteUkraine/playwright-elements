@@ -166,6 +166,14 @@ describe(`Web element build in selectors`, function () {
             .to.throw('has option can not be used with getByTitle, it can be used only with $ or new WebElement(\'#id\') syntax.');
         expect(() => $getByTitle('title').hasNot('#child'))
             .to.throw('hasNot option can not be used with getByTitle, it can be used only with $ or new WebElement(\'#id\') syntax.');
+    });
+
+    test(`get by role in chain generate correct selector`, async () => {
+        const table = $getByRole('table', { name: 'Users' })
+            .subElements({
+                row: $('tbody').$getByRole('row', { name: 'Something' })
+            });
+        await table.row.expect().toBeVisible();
     })
 
     test('and should add condition to locator', async () => {
