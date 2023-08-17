@@ -79,25 +79,25 @@ export class WebElement {
         const locatorsChainWithIframeType = element._isInFrame ? locatorsChain.frameLocator(element._frameSelector) : locatorsChain;
         switch (element._by) {
             case By.getByAltText:
-                locatorsChain = locatorsChainWithIframeType[By.getByAltText](element.narrowSelector, this._byOptions);
+                locatorsChain = locatorsChainWithIframeType[By.getByAltText](element.narrowSelector, element._byOptions);
                 break;
             case By.getByLabel:
-                locatorsChain = locatorsChainWithIframeType[By.getByLabel](element.narrowSelector, this._byOptions);
+                locatorsChain = locatorsChainWithIframeType[By.getByLabel](element.narrowSelector, element._byOptions);
                 break;
             case By.getByPlaceholder:
-                locatorsChain = locatorsChainWithIframeType[By.getByPlaceholder](element.narrowSelector, this._byOptions);
+                locatorsChain = locatorsChainWithIframeType[By.getByPlaceholder](element.narrowSelector, element._byOptions);
                 break;
             case By.getByRole:
-                locatorsChain = locatorsChainWithIframeType[By.getByRole](element.narrowSelector as Role, this._byOptions);
+                locatorsChain = locatorsChainWithIframeType[By.getByRole](element.narrowSelector as Role, element._byOptions);
                 break;
             case By.getByTestId:
                 locatorsChain = locatorsChainWithIframeType[By.getByTestId](element.narrowSelector);
                 break;
             case By.getByText:
-                locatorsChain = locatorsChainWithIframeType[By.getByText](element.narrowSelector, this._byOptions);
+                locatorsChain = locatorsChainWithIframeType[By.getByText](element.narrowSelector, element._byOptions);
                 break;
             case By.getByTitle:
-                locatorsChain = locatorsChainWithIframeType[By.getByTitle](element.narrowSelector, this._byOptions);
+                locatorsChain = locatorsChainWithIframeType[By.getByTitle](element.narrowSelector, element._byOptions);
                 break;
             default:
                 locatorsChain = locatorsChainWithIframeType.locator(element.narrowSelector, {
