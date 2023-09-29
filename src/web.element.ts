@@ -43,6 +43,7 @@ type SetInputFilesOptions = Parameters<Locator['setInputFiles']>[1];
 type TapOptions = Parameters<Locator['tap']>[0];
 type TextContentOptions = Parameters<Locator['textContent']>[0];
 type TypeOptions = Parameters<Locator['type']>[1];
+type PressSequentiallyOptions = Parameters<Locator['pressSequentially']>[1];
 type UncheckOptions = Parameters<Locator['uncheck']>[0];
 type WaitForOptions = Parameters<Locator['waitFor']>[0];
 
@@ -596,6 +597,10 @@ export class WebElement {
 
     public async type(text: string, options?: TypeOptions): Promise<void> {
         await this.locator.type(text, options);
+    }
+
+    public async pressSequentially(text: string, options?: PressSequentiallyOptions): Promise<void> {
+        await this.locator.pressSequentially(text, options);
     }
 
     public async uncheck(options?: UncheckOptions): Promise<void> {
