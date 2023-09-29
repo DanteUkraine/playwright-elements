@@ -11,6 +11,7 @@ desktop and mobile tests.*
 -  v1.5: `@playwright/test >= 1.27.x` to added to project.
 -  v1.6: `@playwright/test >= 1.33.x` to added to project.
 -  v1.8: `@playwright/test >= 1.34.x` to added to project.
+-  v1.9: `@playwright/test >= 1.38.x` to added to project.
 ___
 - [Get started](#get-started)
 - [Web element](#web-element)
@@ -72,7 +73,7 @@ ___
     - [Set input files](#set-input-files)
     - [Tap](#tap)
     - [Text content](#text-content)
-    - [Type](#type)
+    - [Press sequentially](#press-sequentially)
     - [Uncheck](#uncheck)
     - [Wait for](#wait-for)
   - [How to extend WebElement](#how-to-extend-web-element)
@@ -645,8 +646,8 @@ another method from locator which you will not be abel find in list below please
 ### Text content
 `$('selector').textContent(options?);` calls: [textContent()](https://playwright.dev/docs/api/class-locator#locator-text-content).
 
-### Type
-`$('selector').type(text, options?);` calls: [type()](https://playwright.dev/docs/api/class-locator#locator-type).
+### Press sequentially
+`$('selector').pressSequentially(text, options?);` calls: [type()](https://playwright.dev/docs/api/class-locator#locator-press-sequentially).
 
 ### Uncheck
 `$('selector').uncheck(options?);` calls: [uncheck()](https://playwright.dev/docs/api/class-locator#locator-uncheck).

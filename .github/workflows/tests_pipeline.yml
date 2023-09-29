@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         platform: [ ubuntu-latest, macos-latest, windows-latest ]
-        node: [ '16', '18' ]
+        node: [ '16', '18', '20' ]
     name: ${{ matrix.platform }} - Node ${{ matrix.node }}
     runs-on: ${{ matrix.platform }}
     steps:

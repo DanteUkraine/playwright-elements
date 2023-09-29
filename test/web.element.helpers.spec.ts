@@ -22,7 +22,7 @@ describe(`Web element build in helpers`, function () {
 
     test(`syncForEach should work with async callback`, async () => {
         const elements = $(`.field`);
-        await elements.syncForEach( async (el) => await el.type('1234567890'));
+        await elements.syncForEach( async (el) => await el.pressSequentially('1234567890'));
         const elementsTexts: (string | null)[] = [];
         await elements.syncForEach(async (e) => elementsTexts.push(await e.inputValue()));
         expect(elementsTexts).has.members(['1234567890', '1234567890', '1234567890', '1234567890', '1234567890', '1234567890']);
