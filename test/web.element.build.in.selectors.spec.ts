@@ -176,6 +176,10 @@ describe(`Web element build in selectors`, function () {
         await table.row.expect().toBeVisible();
     })
 
+    test(`get by role in has condition generate correct selector`, async () => {
+        await $('div').has($getByRole('checkbox')).expect().toHaveCount(2);
+    })
+
     test('and should add condition to locator', async () => {
         const element = $('input').and($('[type=checkbox]')).and('[checked]');
         expect(await element.isVisible()).to.be.true;
