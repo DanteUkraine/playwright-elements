@@ -56,8 +56,8 @@ export class WebElement {
     private readonly _selector: string;
     private readonly _by: By | undefined;
     private _byOptions: ByOptions | ByRoleOptions | undefined;
-    private _hasLocator: string | undefined;
-    private _hasNotLocator: string | undefined;
+    private _hasLocator: string | WebElement | undefined;
+    private _hasNotLocator: string | WebElement | undefined;
     private _hasText: string | RegExp | undefined;
     private _hasNotText: string | RegExp | undefined;
     private _nth: number | undefined;
@@ -74,6 +74,33 @@ export class WebElement {
     public asFrame() {
         this._isFrame = true;
         return this;
+    }
+
+    private selectGetByMethod(element: WebElement): Locator {
+        switch (element._by) {
+            case By.getByAltText:
+                return BrowserInstance.currentPage[By.getByAltText](element.narrowSelector, element._byOptions);
+            case By.getByLabel:
+                return BrowserInstance.currentPage[By.getByLabel](element.narrowSelector, element._byOptions);
+            case By.getByPlaceholder:
+                return BrowserInstance.currentPage[By.getByPlaceholder](element.narrowSelector, element._byOptions);
+            case By.getByRole:
+                return BrowserInstance.currentPage[By.getByRole](element.narrowSelector as Role, element._byOptions);
+            case By.getByTestId:
+                return BrowserInstance.currentPage[By.getByTestId](element.narrowSelector);
+            case By.getByText:
+                return BrowserInstance.currentPage[By.getByText](element.narrowSelector, element._byOptions);
+            case By.getByTitle:
+                return BrowserInstance.currentPage[By.getByTitle](element.narrowSelector, element._byOptions);
+            default:
+                return BrowserInstance.currentPage.locator(element.narrowSelector);
+        }
+    }
+
+    private selectLocatorMethod(element: string | WebElement | undefined): Locator | undefined {
+        if (!element) return undefined;
+        if (typeof element === 'string') return BrowserInstance.currentPage.locator(element);
+        return this.selectGetByMethod(element);
     }
 
     private buildLocator(locatorsChain: Locator | Page, element: WebElement): Locator {
@@ -104,10 +131,8 @@ export class WebElement {
                 locatorsChain = locatorsChainWithIframeType.locator(element.narrowSelector, {
                     hasText: element._hasText,
                     hasNotText: element._hasNotText,
-                    has: element._hasLocator ?
-                        BrowserInstance.currentPage.locator(element._hasLocator) : undefined,
-                    hasNot: element._hasNotLocator ?
-                        BrowserInstance.currentPage.locator(element._hasNotLocator) : undefined
+                    has: this.selectLocatorMethod(element._hasLocator),
+                    hasNot: this.selectLocatorMethod(element._hasNotLocator)
                 });
                 break;
         }
@@ -211,7 +236,8 @@ export class WebElement {
 
     private buildNarrowSelectorWithInternalLocator(target: WebElement = this): string {
         return target._hasLocator ?
-            `${target.narrowSelector} >> internal:has="${target._hasLocator}"` : target.narrowSelector;
+            `${target.narrowSelector} >> internal:has="${typeof target._hasLocator === 'string' ? target._hasLocator : target._hasLocator.narrowSelector}"`
+            : target.narrowSelector;
     }
 
     get selector(): string {
@@ -241,8 +267,8 @@ export class WebElement {
 
     public clone<T extends WebElement>(this: T, options?: {
         selector?: string
-        hasLocator?: string,
-        hasNotLocator?: string,
+        hasLocator?: string | WebElement,
+        hasNotLocator?: string | WebElement,
         hasText?: string | RegExp,
         hasNotText?: string | RegExp,
         nth?: number
@@ -287,11 +313,11 @@ export class WebElement {
         return clone;
     }
 
-    public has<T extends WebElement, R extends WebElement>(this: R, selector: string | T): R {
+    public has<T extends WebElement, R extends WebElement>(this: R, element: string | T): R {
         if(this._by) throw Error(`has option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
         return this.clone({
             selector: this.narrowSelector,
-            hasLocator: extractSelector(selector),
+            hasLocator: element,
             hasNotLocator: this._hasNotLocator,
             hasText: this._hasText,
             hasNotText: this._hasNotText,
@@ -299,12 +325,12 @@ export class WebElement {
         });
     }
 
-    public hasNot<T extends WebElement, R extends WebElement>(this: R, selector: string | T): R {
+    public hasNot<T extends WebElement, R extends WebElement>(this: R, element: string | T): R {
         if(this._by) throw Error(`hasNot option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
         return this.clone({
             selector: this.narrowSelector,
             hasLocator: this._hasLocator,
-            hasNotLocator: extractSelector(selector),
+            hasNotLocator: element,
             hasText: this._hasText,
             hasNotText: this._hasNotText,
             nth: this._nth

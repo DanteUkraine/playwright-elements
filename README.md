@@ -647,7 +647,7 @@ another method from locator which you will not be abel find in list below please
 `$('selector').textContent(options?);` calls: [textContent()](https://playwright.dev/docs/api/class-locator#locator-text-content).
 
 ### Press sequentially
-`$('selector').pressSequentially(text, options?);` calls: [type()](https://playwright.dev/docs/api/class-locator#locator-press-sequentially).
+`$('selector').pressSequentially(text, options?);` calls: [pressSequentially()](https://playwright.dev/docs/api/class-locator#locator-press-sequentially).
 
 ### Uncheck
 `$('selector').uncheck(options?);` calls: [uncheck()](https://playwright.dev/docs/api/class-locator#locator-uncheck).
