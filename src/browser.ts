@@ -109,6 +109,10 @@ export class BrowserInstance {
 
     static withContext(context: BrowserContext): void {
         this.currentContext = context;
+        this.currentContext.on('page', page => {
+            if (this._currentPage) this.context.previousPage = this.currentPage;
+            this.currentPage = page;
+        });
         if (this._browser) return;
         const currentBrowser = context.browser();
         if (currentBrowser) this.browser = currentBrowser;
