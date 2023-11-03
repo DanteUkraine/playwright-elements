@@ -73,6 +73,12 @@ describe(`Web element build in selectors`, function () {
         expect(elementId).to.be.equal('inner-visible-target2');
     })
 
+    test(`has with WebElement argument should point on element witch has specific child with specific text`, async () => {
+        const visibleElement = $(`#visible-target div`).has($('p').hasText('Visible target'));
+        const elementId = await visibleElement._.getAttribute('id');
+        expect(elementId).to.be.equal('inner-visible-target2');
+    })
+
     test(`hasText with WebElement argument should point on element witch has specific text`, async () => {
         const element = $(`li`).hasText('text');
         expect(await element.count()).to.be.equal(1);

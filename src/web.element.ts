@@ -93,7 +93,7 @@ export class WebElement {
             case By.getByTitle:
                 return BrowserInstance.currentPage[By.getByTitle](element.narrowSelector, element._byOptions);
             default:
-                return BrowserInstance.currentPage.locator(element.narrowSelector);
+                return element.locator;
         }
     }
 
