@@ -79,7 +79,7 @@ export class WebElement {
     private selectLocatorMethod(element: string | WebElement | undefined): Locator | undefined {
         if (!element) return undefined;
         if (typeof element === 'string') return BrowserInstance.currentPage.locator(element);
-        return this.buildLocator(BrowserInstance.currentPage, element);
+        return element.locator;
     }
 
     private buildLocator(locatorsChain: Locator | Page, element: WebElement): Locator {
@@ -170,8 +170,12 @@ export class WebElement {
 
     // augmentation
     private recursiveParentSelectorInjection<T extends WebElement, E>(this: T, element: E) {
-        const values = Object.values(element as Record<string, any>)
-            .filter((value) => value instanceof WebElement);
+        const entries = Object.entries(element as Record<string, unknown>)
+            .filter(([key, value]) => {
+                if (key == '_hasLocator' || key == '_hasNotLocator') return false;
+                return value instanceof WebElement;
+            });
+        const values: WebElement[] = entries.map(entry => entry[1] as WebElement);
         if (values.length) {
             values.forEach((value: WebElement) => {
                 value.addParentSelector(this);
