@@ -76,31 +76,10 @@ export class WebElement {
         return this;
     }
 
-    private selectGetByMethod(element: WebElement): Locator {
-        switch (element._by) {
-            case By.getByAltText:
-                return BrowserInstance.currentPage[By.getByAltText](element.narrowSelector, element._byOptions);
-            case By.getByLabel:
-                return BrowserInstance.currentPage[By.getByLabel](element.narrowSelector, element._byOptions);
-            case By.getByPlaceholder:
-                return BrowserInstance.currentPage[By.getByPlaceholder](element.narrowSelector, element._byOptions);
-            case By.getByRole:
-                return BrowserInstance.currentPage[By.getByRole](element.narrowSelector as Role, element._byOptions);
-            case By.getByTestId:
-                return BrowserInstance.currentPage[By.getByTestId](element.narrowSelector);
-            case By.getByText:
-                return BrowserInstance.currentPage[By.getByText](element.narrowSelector, element._byOptions);
-            case By.getByTitle:
-                return BrowserInstance.currentPage[By.getByTitle](element.narrowSelector, element._byOptions);
-            default:
-                return element.locator;
-        }
-    }
-
     private selectLocatorMethod(element: string | WebElement | undefined): Locator | undefined {
         if (!element) return undefined;
         if (typeof element === 'string') return BrowserInstance.currentPage.locator(element);
-        return this.selectGetByMethod(element);
+        return this.buildLocator(BrowserInstance.currentPage, element);
     }
 
     private buildLocator(locatorsChain: Locator | Page, element: WebElement): Locator {
