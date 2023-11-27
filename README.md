@@ -12,6 +12,7 @@ desktop and mobile tests.*
 -  v1.6: `@playwright/test >= 1.33.x` to added to project.
 -  v1.8: `@playwright/test >= 1.34.x` to added to project.
 -  v1.9: `@playwright/test >= 1.38.x` to added to project.
+-  v1.10: `@playwright/test >= 1.40.x` to added to project.
 ___
 - [Get started](#get-started)
 - [Web element](#web-element)
@@ -19,6 +20,7 @@ ___
   - [Sub elements](#sub-elements)
   - [Direct child](#direct-child)
   - [Expect](#expect)
+  - [Use Expect](#use-expect)
   - [Locator and underscore](#locator-and-underscore)
   - [With methods](#with-methods)
   - [Get parent](#get-parent)
@@ -273,6 +275,33 @@ test(`header should contain user info`, async () => {
     await mainPage.header.userInfoSection.avatar.expect().toBeVisible();
 })
 ```
+### Use Expect
+Web element has static method with allows users to use custom expects:
+https://playwright.dev/docs/next/test-assertions#add-custom-matchers-using-expectextend
+
+```ts
+import { Locator } from '@playwright/test';
+import { WebElement, expect as baseExpect, $, test } from 'playwright-elements';
+
+
+const extendedExpect = baseExpect.extend({
+    async toHaveAriaLabel(locator: Locator, expected: string, options?: { timeout?: number }) {
+       ...
+    }
+});
+
+WebElement.useExpect(extendedExpect);
+
+test.describe(`Playwright test integration`, () => {
+
+    test(`custom expect matcher`, async ({ goto }) => {
+        await goto('/', { waitUntil: 'domcontentloaded' });
+        const header = $(`.navbar`);
+        await header.expect().toHaveAriaLabel('Main');
+    })
+})
+```
+
 ### Locator and underscore
 
 Web element has getters `locator` and `_` both return instance of [Locator](https://playwright.dev/docs/api/class-locator).
@@ -654,6 +683,7 @@ another method from locator which you will not be abel find in list below please
 
 ### Wait for
 `$('selector').waitFor(options?);` calls: [waitFor()](https://playwright.dev/docs/api/class-locator#locator-wait-for).
+___
 
 ___
 ## Lists of WebElements

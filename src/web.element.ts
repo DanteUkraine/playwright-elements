@@ -7,7 +7,6 @@ function extractSelector(pointer: string | WebElement): string {
     return pointer instanceof WebElement ? pointer.selector : pointer;
 }
 
-export type LocatorAssertions = ReturnType<typeof expect<Locator>>;
 type InternalElements = {[key: string]: WebElement};
 // Locator method options and return types
 type BlurOptions = Parameters<Locator['blur']>[0];
@@ -62,6 +61,7 @@ export class WebElement {
     private _hasNotText: string | RegExp | undefined;
     private _nth: number | undefined;
     private _and: (WebElement | string) [] = [];
+    private static expectType: any = expect<Locator>;
 
     constructor(selector: string, by?: By, options?: ByOptions | ByRoleOptions) {
         this._selector = selector;
@@ -160,11 +160,15 @@ export class WebElement {
 
     // Expect
 
-    public expect(message?: string): LocatorAssertions {
+    public static useExpect(expects: unknown) {
+        WebElement.expectType = expects;
+    }
+
+    public expect(message?: string): ReturnType<typeof WebElement.expectType> {
         return expect(this.locator, message);
     }
 
-    public softExpect(message?: string): LocatorAssertions {
+    public softExpect(message?: string): ReturnType<typeof WebElement.expectType> {
         return expect.soft(this.locator, message);
     }
 

@@ -1,5 +1,14 @@
-import { test, expect, $, BrowserInstance, initDesktopOrMobile } from '../src';
-import { localFilePath } from '../test/utils'
+import { expect, $, BrowserInstance, initDesktopOrMobile, test as originalTest } from '../src';
+import { localFilePath } from '../test/utils';
+import { mergeTests, test as baseTest } from '@playwright/test';
+
+type TestFixtures = { newOne: string };
+export const additionalFixtures = baseTest.extend<TestFixtures>({
+    newOne: [async ({}, use) => await use('newOne'), { scope: 'test' }]
+});
+
+export const test = mergeTests(originalTest, additionalFixtures);
+
 
 test.describe(`Playwright test integration`, () => {
 
@@ -37,21 +46,16 @@ test.describe(`Playwright test integration`, () => {
         await expect.poll(() => BrowserInstance.currentPage.url()).toEqual('https://playwright.dev/');
     })
 
-    test.skip(`custom expect matcher`, async ({ goto }) => {
-        await goto('/', { waitUntil: 'domcontentloaded' });
-        const header = $(`.navbar`)
-            .subElements({
-                logo: $(`.navbar__title`),
-            });
-        await header.logo.expect().toBeVisible();
-    })
-
     test(`isMobile flag`, () => {
         expect(BrowserInstance.isContextMobile).toBeFalsy();
     })
 
     test(`initDesktopOrMobile helper`, () => {
         expect(initDesktopOrMobile($(`.desktop`), $(`.mobile`)).narrowSelector).toEqual(`.desktop`);
+    })
+
+    test('is fixtures merged', ({ newOne }) => {
+        expect(newOne).toEqual('newOne');
     })
 })
 
