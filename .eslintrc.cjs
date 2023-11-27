@@ -8,7 +8,8 @@ module.exports = {
         '@typescript-eslint/ban-types': [0],
         'quotes': [2, 'single', { 'avoidEscape': false, 'allowTemplateLiterals': true }],
         'template-curly-spacing': [ 'error', 'never' ],
-        'object-curly-spacing': [ 'error', 'always' ]
+        'object-curly-spacing': [ 'error', 'always' ],
+        'no-empty-pattern': [0],
     },
     ignorePatterns: ['lib/**', '**.cjs']
 };

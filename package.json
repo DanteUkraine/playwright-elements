@@ -1,6 +1,6 @@
 {
   "name": "playwright-elements",
-  "version": "1.9.4",
+  "version": "1.10.0",
   "description": "This is Playwright extension.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -53,7 +53,7 @@
     "lodash": "^4.17.21"
   },
   "peerDependencies": {
-    "@playwright/test": ">=1.38.x",
-    "playwright-core": ">= 1.38.x"
+    "@playwright/test": ">=1.40.x",
+    "playwright-core": ">= 1.40.x"
   }
 }
