@@ -91,6 +91,7 @@ ___
   - [Getters and setters](#getters-and-setters)
   - [Builder like methods](#builder-like-methods)
   - [Switch to previous tab](#switch-to-previous-tab)
+  - [Switch tab by index](#switch-tab-by-index)
 ___
 ## Get started
 
@@ -292,9 +293,9 @@ const extendedExpect = baseExpect.extend({
 
 WebElement.useExpect(extendedExpect);
 
-test.describe(`Playwright test integration`, () => {
+test.describe(() => {
 
-    test(`custom expect matcher`, async ({ goto }) => {
+    test(`custom expect matcher example`, async ({ goto }) => {
         await goto('/', { waitUntil: 'domcontentloaded' });
         const header = $(`.navbar`);
         await header.expect().toHaveAriaLabel('Main');
@@ -1113,6 +1114,26 @@ async function useSwitchToPreviousTab() {
     await BrowserInstance.startNewPage();
     expect(BrowserInstance.currentPage.url()).toEqual('about:blank');
     await BrowserInstance.switchToPreviousTab();
+    expect(BrowserInstance.currentPage.url()).toEqual('https://playwright.dev');
+}
+```
+
+### Switch tab by index
+
+`switchToTabByIndex(): Promise<void>` when new page is opened `BrowserInstance` stores pointer on previous one,
+this method with set page with specific index as currentPage and call [bring to front](https://playwright.dev/docs/api/class-page#page-bring-to-front) function.
+
+Example:
+```ts
+import { BrowserName, BrowserInstance, expect } from "playwright-elements";
+
+async function useSwitchToTabByIndex() {
+    await BrowserInstance.start(BrowserName.WEBKIT);
+    await BrowserInstance.startNewPage();
+    await BrowserInstance.currentPage.goto(`https://playwright.dev`);
+    await BrowserInstance.startNewPage();
+    expect(BrowserInstance.currentPage.url()).toEqual('about:blank');
+    await BrowserInstance.switchToTabByIndex(0);
     expect(BrowserInstance.currentPage.url()).toEqual('https://playwright.dev');
 }
 ```

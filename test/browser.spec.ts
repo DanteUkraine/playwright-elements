@@ -42,11 +42,30 @@ describe('Browser Instance', function (this: Mocha.Suite) {
             await BrowserInstance.currentPage.goto(localFilePath);
         })
 
-        test(`switch tab`, async () => {
+        test(`switch to previous tab`, async () => {
             await BrowserInstance.startNewPage();
             expect(BrowserInstance.currentPage.url()).to.be.equal('about:blank');
             await BrowserInstance.switchToPreviousTab();
             expect(BrowserInstance.currentPage.url()).to.contain('test.html');
+        })
+
+        test(`switch tab by index`, async () => {
+            await BrowserInstance.startNewPage();
+            expect(BrowserInstance.currentPage.url()).to.be.equal('about:blank');
+            await BrowserInstance.switchToTabByIndex(0);
+            expect(BrowserInstance.currentPage.url()).to.contain('test.html');
+        })
+
+        test(`switch tab by defunct index`, async () => {
+            const expectedMessage = 'Page was not started';
+            await BrowserInstance.startNewPage();
+            try {
+                await BrowserInstance.switchToTabByIndex(2)
+            } catch (e) {
+                expect(e).to.have.property('message', expectedMessage);
+                return;
+            }
+            throw new AssertionError(`Error with message: "${expectedMessage}" should be thrown.`)
         })
 
     })
