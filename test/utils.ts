@@ -1,3 +1,3 @@
-import path from 'path';
+import { sep } from 'path';
 
-export const localFilePath = `file://${__dirname.replace(/\//g, path.sep)}/test.html`;
+export const localFilePath = `file://${__dirname.replace(/\//g, sep)}/test.html`;

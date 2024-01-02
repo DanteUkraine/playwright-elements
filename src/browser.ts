@@ -8,6 +8,7 @@ import {
     Browser,
     BrowserContextOptions
 } from 'playwright-core';
+// import { isEqual } from 'lodash';
 
 export enum BrowserName {
     CHROMIUM = 'chromium',
@@ -180,6 +181,11 @@ export class BrowserInstance {
 
     public static async switchToPreviousTab(): Promise<void> {
         this.currentPage = this.context.previousPage;
+        await this.currentPage.bringToFront();
+    }
+
+    public static async switchToTabByIndex(index: number): Promise<void> {
+        this.currentPage = this.context.pages[index];
         await this.currentPage.bringToFront();
     }
 }
