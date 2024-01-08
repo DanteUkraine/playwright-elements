@@ -8,7 +8,15 @@ import {
     Browser,
     BrowserContextOptions
 } from 'playwright-core';
-// import { isEqual } from 'lodash';
+import { AsyncLocalStorage } from 'async_hooks';
+
+const customUserPage: AsyncLocalStorage<Page> = new AsyncLocalStorage();
+
+export async function usePage<T>(page: Page, callBack: () => Promise<T>): Promise<T> {
+    return customUserPage.run(page, async () => {
+        return (await callBack()) as T;
+    });
+}
 
 export enum BrowserName {
     CHROMIUM = 'chromium',
@@ -81,6 +89,8 @@ export class BrowserInstance {
     }
 
     static get currentPage(): Page {
+        const customPage = customUserPage.getStore();
+        if (customPage) return customPage;
         if (this._currentPage) return this._currentPage;
         throw new Error(`Page was not started`);
     }

@@ -1,9 +1,9 @@
 # Playwright-elements
 [![Awesome](https://awesome.re/mentioned-badge.svg)](https://github.com/mxschmitt/awesome-playwright/blob/master/README.md#utils)
 ___
-*Playwright elements helps you to create reusable components and allows lazy initialization of elements
-in page object of another abstraction. Also, it includes helper methods for implementing 
-desktop and mobile tests.*
+*Playwright elements helps you to create reusable components with ability to add child elements, methods
+and call them in chain.
+Also, it includes helper methods for implementing desktop and mobile tests.*
 
 ***Installation:*** `npm install -D playwright-elements`
 
