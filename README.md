@@ -3,8 +3,7 @@
 
 ___
 *Playwright elements helps you to create reusable components with ability to add child elements, methods
-and call them in chain.
-Also, it includes helper methods for implementing desktop and mobile tests.*
+and call them in chain. Reduce amount of your code in page object, or even use elements without page object.*
 
 ***Installation:*** `npm install -D playwright-elements`
 
