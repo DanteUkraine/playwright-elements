@@ -1,5 +1,6 @@
 # Playwright-elements
 [![Awesome](https://awesome.re/mentioned-badge.svg)](https://github.com/mxschmitt/awesome-playwright/blob/master/README.md#utils)
+
 ___
 *Playwright elements helps you to create reusable components with ability to add child elements, methods
 and call them in chain.
@@ -13,6 +14,7 @@ Also, it includes helper methods for implementing desktop and mobile tests.*
 -  v1.8: `@playwright/test >= 1.34.x` to added to project.
 -  v1.9: `@playwright/test >= 1.38.x` to added to project.
 -  v1.10: `@playwright/test >= 1.40.x` to added to project.
+
 ___
 - [Get started](#get-started)
 - [Web element](#web-element)
@@ -93,6 +95,7 @@ ___
   - [Switch to previous tab](#switch-to-previous-tab)
   - [Switch tab by index](#switch-tab-by-index)
 - [Use page](#use-page)   
+
 ___
 ## Get started
 
