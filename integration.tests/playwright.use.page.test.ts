@@ -1,4 +1,4 @@
-import { test as baseTest, $, usePage } from '../src';
+import { test as baseTest, $, usePage, expect } from '../src';
 import { Page } from '@playwright/test';
 
 type TestFixtures = { secondContextPage: Page };
@@ -32,6 +32,14 @@ test.describe('Playwright test integration', () => {
         const defaultContextPromise = mainPage.title.softExpect()
             .toHaveText('Playwright enables reliable end-to-end testing for modern web apps.');
         await Promise.all([defaultContextPromise, customContextPromise]);
+    });
+
+    test('usePage returns value', async ({ goto, page }) => {
+        await goto('/docs/test-fixtures');
+        const text = await usePage<string>(page, async () => {
+            return testFixturesPage.title.textContent();
+        });
+        expect(text).toEqual('Fixtures');
     });
 });
 

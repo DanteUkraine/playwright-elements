@@ -92,6 +92,7 @@ ___
   - [Builder like methods](#builder-like-methods)
   - [Switch to previous tab](#switch-to-previous-tab)
   - [Switch tab by index](#switch-tab-by-index)
+- [Use page](#use-page)   
 ___
 ## Get started
 
@@ -1136,6 +1137,53 @@ async function useSwitchToTabByIndex() {
     await BrowserInstance.switchToTabByIndex(0);
     expect(BrowserInstance.currentPage.url()).toEqual('https://playwright.dev');
 }
+```
+
+## Use page
+
+`usePage<T>(page: Page, callBack: () => Promise<T>): Promise<T>` this function allows to execute actions in specific page.
+The most common use case for this function when user needs more than one BrowserContext in test. 
+
+Example:
+```ts
+import { test as baseTest, $, usePage } from 'playwright-elements';
+
+type TestFixtures = { secondContextPage: Page };
+const test = baseTest.extend<TestFixtures, {}>({
+  secondContextPage: [async ({ browser }, use) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  }, { scope: 'test' }]
+});
+
+test.describe('Two contexts', () => {
+  const testFixturesPage = new TestFixturesPage();
+
+  test('use two contexts', async ({ goto, secondContextPage }) => {
+    await Promise.all([goto('https://default.com'), secondContextPage.goto('https://url.com')]);
+    const customContextPromise = usePage(secondContextPage, async () => {
+      // All playwright-elements in this scope will use secondContextPage.
+      $('h1').softExpect().toHaveUrl('https://url.com');
+    });
+    // All playwright-elements in main scope will use default context started by playwright test.
+    const defaultContextPromise = $('h1').softExpect().toHaveUrl('https://default.com');
+    await Promise.all([defaultContextPromise, customContextPromise]);
+  });
+});
+```
+
+Use page function can return value from callback:
+
+```ts
+    test('usePage returns value', async ({ goto, page }) => {
+      await goto();
+      const text = await usePage<string>(page, async () => {
+        return $('h1').textContent();
+      });
+      expect(text).toEqual('Expected title');
+    });
 ```
 
 ___
