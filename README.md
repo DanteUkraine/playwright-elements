@@ -1,9 +1,9 @@
 # Playwright-elements
 [![Awesome](https://awesome.re/mentioned-badge.svg)](https://github.com/mxschmitt/awesome-playwright/blob/master/README.md#utils)
+
 ___
-*Playwright elements helps you to create reusable components and allows lazy initialization of elements
-in page object of another abstraction. Also, it includes helper methods for implementing 
-desktop and mobile tests.*
+*Playwright elements helps you to create reusable components with ability to add child elements, methods
+and call them in chain. Reduce amount of your code in page object, or even use elements without page object.*
 
 ***Installation:*** `npm install -D playwright-elements`
 
@@ -13,6 +13,7 @@ desktop and mobile tests.*
 -  v1.8: `@playwright/test >= 1.34.x` to added to project.
 -  v1.9: `@playwright/test >= 1.38.x` to added to project.
 -  v1.10: `@playwright/test >= 1.40.x` to added to project.
+
 ___
 - [Get started](#get-started)
 - [Web element](#web-element)
@@ -92,6 +93,8 @@ ___
   - [Builder like methods](#builder-like-methods)
   - [Switch to previous tab](#switch-to-previous-tab)
   - [Switch tab by index](#switch-tab-by-index)
+- [Use page](#use-page)   
+
 ___
 ## Get started
 
@@ -1136,6 +1139,53 @@ async function useSwitchToTabByIndex() {
     await BrowserInstance.switchToTabByIndex(0);
     expect(BrowserInstance.currentPage.url()).toEqual('https://playwright.dev');
 }
+```
+
+## Use page
+
+`usePage<T>(page: Page, callBack: () => Promise<T>): Promise<T>` this function allows to execute actions in specific page.
+The most common use case for this function when user needs more than one BrowserContext in test. 
+
+Example:
+```ts
+import { test as baseTest, $, usePage } from 'playwright-elements';
+
+type TestFixtures = { secondContextPage: Page };
+const test = baseTest.extend<TestFixtures, {}>({
+  secondContextPage: [async ({ browser }, use) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  }, { scope: 'test' }]
+});
+
+test.describe('Two contexts', () => {
+  const testFixturesPage = new TestFixturesPage();
+
+  test('use two contexts', async ({ goto, secondContextPage }) => {
+    await Promise.all([goto('https://default.com'), secondContextPage.goto('https://url.com')]);
+    const customContextPromise = usePage(secondContextPage, async () => {
+      // All playwright-elements in this scope will use secondContextPage.
+      $('h1').softExpect().toHaveUrl('https://url.com');
+    });
+    // All playwright-elements in main scope will use default context started by playwright test.
+    const defaultContextPromise = $('h1').softExpect().toHaveUrl('https://default.com');
+    await Promise.all([defaultContextPromise, customContextPromise]);
+  });
+});
+```
+
+Use page function can return value from callback:
+
+```ts
+    test('usePage returns value', async ({ goto, page }) => {
+      await goto();
+      const text = await usePage<string>(page, async () => {
+        return $('h1').textContent();
+      });
+      expect(text).toEqual('Expected title');
+    });
 ```
 
 ___
