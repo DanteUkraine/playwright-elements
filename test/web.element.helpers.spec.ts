@@ -1,7 +1,6 @@
 import { $, BrowserInstance, BrowserName } from '../src';
 import { test } from 'mocha';
 import { expect } from 'chai';
-import { isArray } from 'lodash';
 import { localFilePath } from './utils'
 
 
@@ -52,14 +51,12 @@ describe(`Web element build in helpers`, function () {
     test(`map should work with async callback`, async () => {
         const elements = $(`li`);
         const elementsText = await elements.map( async (el) => await el.textContent());
-        expect(isArray(elementsText)).to.be.true
         expect(elementsText).has.all.members(['1', '2', '3', '4', '5', '6', 'text']);
     })
 
     test(`map should work with sync callback`, async () => {
         const elements = $(`li`);
         const selectors = await elements.map( (el) => el.textContent());
-        expect(isArray(selectors)).to.be.true
         expect(selectors).has.all.members(['1', '2', '3', '4', '5', '6', 'text']);
     })
 

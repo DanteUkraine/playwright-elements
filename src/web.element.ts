@@ -1,5 +1,5 @@
 import { Locator, LocatorScreenshotOptions, Page } from 'playwright-core';
-import { cloneDeep } from 'lodash';
+import cloneDeep from 'lodash.clonedeep';
 import { BrowserInstance } from './browser';
 import { expect } from '@playwright/test';
 
