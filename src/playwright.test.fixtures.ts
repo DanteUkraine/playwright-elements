@@ -1,6 +1,5 @@
 import { test as base, Page, Response } from '@playwright/test';
 import { BrowserInstance } from './browser'
-import { isBoolean } from 'lodash';
 export { expect } from '@playwright/test';
 
 type WrappedFixtures = {
@@ -29,7 +28,7 @@ export const test = base.extend<{
     initBrowserInstance: [
         async ({ isMobile, page }: WrappedFixtures, use: () => Promise<void>) => {
             BrowserInstance.withPage(page);
-            BrowserInstance.isContextMobile = isBoolean(isMobile)? isMobile : false;
+            BrowserInstance.isContextMobile = Boolean(isMobile);
             await use();
             BrowserInstance.currentPage = undefined;
             BrowserInstance.currentContext = undefined;
