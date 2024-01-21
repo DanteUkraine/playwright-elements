@@ -21,7 +21,7 @@ ___
   - [Sub elements](#sub-elements)
   - [Direct child](#direct-child)
   - [Expect](#expect)
-  - [Use Expect](#use-expect)
+  - [Extended Expect](#use-expect)
   - [Locator and underscore](#locator-and-underscore)
   - [With methods](#with-methods)
   - [Get parent](#get-parent)
@@ -269,7 +269,8 @@ class MainPage {
 Web element has methods `expect()` and `softExpect()` which allows access to
 [playwright assert library](https://playwright.dev/docs/test-assertions).
 Please pay attention that Locator passed to native expect method under the hood
-that's why you can access only locators based assert methods.
+that's why autocomplete works only for default locator matchers but pay attention that it allows you to call
+custom matchers without errors.
 
 ```ts
 test(`header should contain user info`, async () => {
@@ -279,32 +280,75 @@ test(`header should contain user info`, async () => {
     await mainPage.header.userInfoSection.avatar.expect().toBeVisible();
 })
 ```
-### Use Expect
-Web element has static method with allows users to use custom expects:
-https://playwright.dev/docs/next/test-assertions#add-custom-matchers-using-expectextend
+
+### Extended Expect
+Web element allows users to use custom matchers (even if you do not reassign extended expect explicitly), 
+they can be called without any errors but autocomplete features may not work.
+Related playwright docs: https://playwright.dev/docs/next/test-assertions#add-custom-matchers-using-expectextend
 
 ```ts
 import { Locator } from '@playwright/test';
-import { WebElement, expect as baseExpect, $, test } from 'playwright-elements';
+import { expect, $, test } from 'playwright-elements';
 
-
-const extendedExpect = baseExpect.extend({
+expect.extend({
     async toHaveAriaLabel(locator: Locator, expected: string, options?: { timeout?: number }) {
        ...
     }
 });
 
-WebElement.useExpect(extendedExpect);
-
 test.describe(() => {
-
-    test(`custom expect matcher example`, async ({ goto }) => {
-        await goto('/', { waitUntil: 'domcontentloaded' });
+    test(`use custom expect matcher example`, async ({ goto }) => {
+        await goto('/');
         const header = $(`.navbar`);
         await header.expect().toHaveAriaLabel('Main');
     })
 })
 ```
+
+In case you have plenty of custom expect matchers, and you want to make autocomplete work you need to extend 
+web element and add additional expect method:
+
+customWebElement.ts
+```ts
+import { WebElement, expect } from 'playwright-elements';
+
+const extendedExpect = expect.extend(customMatchers);
+class CustomWebElement extends WebElement {
+  public customExpect(message?: string) {
+    return extendedExpect(this.locator, message);
+  }
+}
+
+export function $(selector: string): CustomWebElement {
+  return new CustomWebElement(selector);
+}
+```
+
+someTest.test.ts
+```ts
+import { test } from 'playwright-elements';
+import { $ } from './customWebElement';
+
+test(`custom expect matcher`, async ({ goto }) => {
+  await goto('/');
+  const header = $(`.navbar`);
+  await header.customExpect().toHaveAriaLabel('Main');
+})
+```
+Now autocomplete works but in case you want explicitly define return type for customExpect method 
+you can use utility type (ReturnType), this will guarantee correct autocomplete: 
+```ts
+import { Locator } from '@playwright/test';
+import { WebElement, expect } from 'playwright-elements';
+
+const extendedExpect = expect.extend(customMatchers);
+class CustomWebElement extends WebElement {
+  public customExpect(message?: string): ReturnType<typeof extendedExpect<Locator>> {
+    return extendedExpect(this.locator, message);
+  }
+}
+```
+
 
 ### Locator and underscore
 
@@ -776,9 +820,10 @@ In case you want to create custom web element.
 import { WebElement } from 'playwright-elements';
 
 class Field extends WebElement {
-	async set(this: WebElement, value: string) {
-        await this.fill("");
-        await this.type(value, { delay: 50 });
+    
+	public async set(this: WebElement, value: string) {
+          await this.fill("");
+          await this.type(value, { delay: 50 });
 	}
 }
 
@@ -791,13 +836,14 @@ export function $field(selector: string): Input {
 import { WebElement } from "playwright-elements";
 
 export class Field extends WebElement {
-	async set(this: WebElement, value: string) {
-        await this.fill("");
-        await this.type(value, { delay: 50 });
+    
+	public async set(this: WebElement, value: string) {
+          await this.fill("");
+          await this.type(value, { delay: 50 });
 	}
     
     static $(selector: string): Input {
-    return new Field(selector);
+      return new Field(selector);
   }
 }
 ```
