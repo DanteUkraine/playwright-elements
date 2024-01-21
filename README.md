@@ -21,7 +21,7 @@ ___
   - [Sub elements](#sub-elements)
   - [Direct child](#direct-child)
   - [Expect](#expect)
-  - [Extended Expect](#use-expect)
+  - [Extended Expect](#extended-expect)
   - [Locator and underscore](#locator-and-underscore)
   - [With methods](#with-methods)
   - [Get parent](#get-parent)
