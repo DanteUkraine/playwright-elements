@@ -1,14 +1,13 @@
 import { Locator } from '@playwright/test';
-import { WebElement, expect as baseExpect, $, test } from '../src';
+import { WebElement, expect, $, test } from '../src';
 
-
-const extendedExpect = baseExpect.extend({
+const customMatchers = {
     async toHaveAriaLabel(locator: Locator, expected: string, options?: { timeout?: number }) {
         const assertionName = 'toHaveAmount';
         let pass: boolean;
         let matcherResult: any;
         try {
-            await baseExpect(locator).toHaveAttribute('aria-label', expected, options);
+            await expect(locator).toHaveAttribute('aria-label', expected, options);
             pass = true;
         } catch (e: any) {
             matcherResult = e.matcherResult;
@@ -33,16 +32,41 @@ const extendedExpect = baseExpect.extend({
             expected,
             actual: matcherResult?.actual,
         };
-    },
-});
-
-WebElement.useExpect(extendedExpect);
+    }
+};
 
 test.describe(`Playwright test integration`, () => {
 
-    test(`custom expect matcher`, async ({ goto }) => {
-        await goto('/', { waitUntil: 'domcontentloaded' });
-        const header = $(`.navbar`);
-        await header.expect().toHaveAriaLabel('Main');
+    test.describe('default web element', () => {
+
+        expect.extend(customMatchers);
+
+        test(`custom expect matcher`, async ({ goto }) => {
+            await goto('/', { waitUntil: 'domcontentloaded' });
+            const header = $(`.navbar`);
+            await header.expect().toHaveAriaLabel('Main');
+
+        })
+    });
+
+    test.describe('custom web element', () => {
+
+        const extendedExpect = expect.extend(customMatchers);
+        class CustomWebElement extends WebElement {
+            public customExpect(message?: string): ReturnType<typeof extendedExpect<Locator>> {
+                return extendedExpect(this.locator, message);
+            }
+        }
+
+        function $(selector: string): CustomWebElement {
+            return new CustomWebElement(selector);
+        }
+
+        test(`custom expect matcher`, async ({ goto }) => {
+            await goto('/', { waitUntil: 'domcontentloaded' });
+            const header = $(`.navbar`);
+            await header.customExpect().toHaveAriaLabel('Main');
+        })
     })
+
 })

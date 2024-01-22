@@ -1,7 +1,7 @@
 import { Locator, LocatorScreenshotOptions, Page } from 'playwright-core';
 import cloneDeep from 'lodash.clonedeep';
 import { BrowserInstance } from './browser';
-import { expect } from '@playwright/test';
+import { Expect, expect } from '@playwright/test';
 
 function extractSelector(pointer: string | WebElement): string {
     return pointer instanceof WebElement ? pointer.selector : pointer;
@@ -46,6 +46,9 @@ type PressSequentiallyOptions = Parameters<Locator['pressSequentially']>[1];
 type UncheckOptions = Parameters<Locator['uncheck']>[0];
 type WaitForOptions = Parameters<Locator['waitFor']>[0];
 
+const _expect: Expect<{[key: string]: (...args: any[]) => Promise<void>}> = expect;
+type LocatorExpect = ReturnType<typeof _expect<Locator>>;
+
 export class WebElement {
 
     protected _isFrame = false;
@@ -61,7 +64,6 @@ export class WebElement {
     private _hasNotText: string | RegExp | undefined;
     private _nth: number | undefined;
     private _and: (WebElement | string) [] = [];
-    private static expectType: any = expect<Locator>;
 
     constructor(selector: string, by?: By, options?: ByOptions | ByRoleOptions) {
         this._selector = selector;
@@ -159,17 +161,21 @@ export class WebElement {
     }
 
     // Expect
-
-    public static useExpect(expects: unknown) {
-        WebElement.expectType = expects;
+    // TODO: remove this method from next v.1.13.0
+    /**
+     * @deprecated The method should not be used, it will be removed in next minor release.
+     * Can be removed from your project since it has no more effect on expect behaviour.
+     */
+    public static useExpect<T>(expect: Expect<T>) {
+        expect;
     }
 
-    public expect(message?: string): ReturnType<typeof WebElement.expectType> {
-        return expect(this.locator, message);
+    public expect(message?: string): LocatorExpect {
+        return _expect(this.locator, message) as LocatorExpect;
     }
 
-    public softExpect(message?: string): ReturnType<typeof WebElement.expectType> {
-        return expect.soft(this.locator, message);
+    public softExpect(message?: string): LocatorExpect {
+        return _expect.soft(this.locator, message) as LocatorExpect;
     }
 
     // augmentation
