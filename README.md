@@ -106,6 +106,7 @@ class MainPage {
     readonly header = $('.navbar');
 }
 ```
+
 Each element which was created by **$** function returns instance of WebElement so code may look next:
 ```ts
 import { $, WebElement } from 'playwright-elements';
@@ -114,10 +115,10 @@ class MainPage {
     readonly header: WebElement = $('.navbar');
 }
 ```
+
 **$** function is just a shortcut for **new WebElement('.navbar');**
 
-
-Each WebElement can have sub elements.
+Each WebElement can have sub elements and child elements can have sub elements as well.
 **subElements({logo: $('.navbar__title')})** returns type intersection.
 ```ts
 import { $, WebElement } from 'playwright-elements';
@@ -130,6 +131,43 @@ class MainPage {
             logo: $('.navbar__title')
         });
 }
+```
+
+Several elements deep structure:
+
+```ts
+import { $, WebElement } from 'playwright-elements';
+
+type Table = WebElement & { thead: Webelement }
+
+class MainPage {
+    readonly table = $('table')
+        .subElements({
+            columnHeaders: $('thead td'),
+            rows: $('tbody tr')
+                    .subElements({
+                        cells: $('td')
+                    })
+        });
+}
+```
+
+Such elements as table can be called in chain with different filters to narrow target inner 
+elements for asserts or actions. 
+Usage in test:
+```ts
+import { test } from 'playwright-elements'
+import { MainPage } from '...';
+
+test.describe('Example', () => {
+    
+    const mainPage = new MainPage();
+    test('test', async () => {
+        await mainPage.table.columnHeaders.expect().toHaveText(['ID', 'Name', 'Status']);
+        await mainPage.table.rows.hasText('Justin').cells.expect().toHaveText(['123', 'Justin', 'Single']);
+    });
+    
+});
 ```
 
 ___
@@ -187,13 +225,11 @@ test.describe('Playwright test integration', () => {
 ___
 ## Web element
 
-*WebElement class is a wrapper on playwright Locator. Tt was created to allow lazy initialization in
-page object and creation of complex web components which support more than two levels deep sub elements
-with ability to add custom methods.*
+*WebElement class is a wrapper on playwright Locator. It was created to allow creation of complex 
+web components which support multiple levels sub elements with ability to add custom methods.*
 
 ___
-First you need to allow lazy initialization,
-if you use `@playwright/test` see: [Playwright elements fixtures](#playwright-elements-fixtures).
+If you use `@playwright/test` see: [Playwright elements fixtures](#playwright-elements-fixtures).
 In case you use any another test runner see: [Browser Instance](#browser-instance).
 ___
 ### Get by methods
