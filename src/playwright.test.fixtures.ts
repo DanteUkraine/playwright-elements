@@ -1,5 +1,5 @@
 import { test as base, Page, Response } from '@playwright/test';
-import { BrowserInstance } from './browser'
+import { BrowserInstance, usePage } from './browser'
 export { expect } from '@playwright/test';
 
 type WrappedFixtures = {
@@ -17,11 +17,12 @@ type GoToOptions = {
 export const test = base.extend<{
     implicitNavigation: void,
     goto: (endpoint?: string, options?: GoToOptions) => Promise<null | Response>,
-    initBrowserInstance: void
+    initBrowserInstance: void,
+    usePage: <T>(page: Page, callback: () => Promise<T>) => Promise<T>
 }>({
     goto: [
-        async ({ page }: { page: Page }, use: (func: (endpoint?: string, options?: GoToOptions) => Promise<null | Response>) => Promise<void>) => {
-            await use((endpoint = '/', options?: GoToOptions) => page.goto(endpoint, options));
+        async ({}, use: (func: (endpoint?: string, options?: GoToOptions) => Promise<null | Response>) => Promise<void>) => {
+            await use((endpoint = '/', options?: GoToOptions) => BrowserInstance.currentPage.goto(endpoint, options));
         },
         { scope: 'test' },
     ],
@@ -36,4 +37,10 @@ export const test = base.extend<{
         },
         { scope: 'test', auto: true }
     ],
+    usePage: [
+        async ({}, use) => {
+            await use(<T>(page: Page, callback: () => Promise<T>) => usePage<T>(page, callback));
+        },
+        { scope: 'test' }
+    ]
 });
