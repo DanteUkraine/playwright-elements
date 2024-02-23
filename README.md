@@ -83,6 +83,7 @@ ___
 - [Playwright elements fixtures](#playwright-elements-fixtures)
   - [goto](#goto)
   - [Init browser instance](#init-browser-instance)
+  - [use page](#fixture-use-page)
 - [Browser instance](#browser-instance)
   - [Browser name](#browser-name)
   - [Start](#start)
@@ -963,6 +964,37 @@ test(`goto playwright docs`, async ({ goto }) => {
 
 `initBrowserInstance` is auto fixture which returns void, and it's main purpose is to set currentPage,
 currentContext and browser pointers.
+
+### Fixture use page
+Just a representation of function [Use page](#use-page) as fixture.
+`usePage` allows user to perform actions in specific page. Pages may be from different contexts.
+
+use case:
+```ts
+type TestFixtures = { secondContextPage: Page, useSecondContext: <T>(callback: () => Promise<T>) => Promise<T> };
+
+const test = baseTest.extend<TestFixtures>({
+  secondContextPage: [async ({ browser }, use) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  }, { scope: 'test' }],
+  useSecondContext: [async ({ secondContextPage }, use) => {
+    await use(<T>(callback: () => Promise<T>) => usePage<T>(secondContextPage, callback));
+  }, {  scope: 'test' }]
+});
+
+test('example', async ({ goto, useSecondContext }) => {
+  await goto();
+  const text = await useSecondContext<string>(async () => {
+    await goto('/docs/test-fixtures');
+    return title.textContent();
+  });
+  expect(text).toEqual('Fixtures');
+  expect(await title.textContent()).toEqual('Playwright enables reliable end-to-end testing for modern web apps.')
+});
+```
 
 ___
 ## Browser Instance
