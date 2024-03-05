@@ -230,4 +230,26 @@ describe('Web Element augmentation', () => {
         expect(component.subComponent.secondInnerComponent.checkParent().innerComponent.narrowSelector).to.be.equal('inner-component');
         expect(component.parent()).to.be.undefined;
     })
+
+    test('with adds elements and methods', async () => {
+        const element = $(`.parent`)
+            .with({
+                child: $(`.child`)
+                    .with({
+                        innerChild: $(`.innerChild`),
+                        additionalMethod() {
+                            // stab
+                        }
+                    }),
+                additionalMethod() {
+                    // stab
+                }
+            });
+        expect(element).has.property('additionalMethod');
+        expect(element.child).to.have.property('additionalMethod');
+        expect(element).to.have.property('child');
+        expect(element.child).to.have.property('innerChild');
+        expect(element.narrowSelector).to.be.equal('.parent')
+
+    });
 });

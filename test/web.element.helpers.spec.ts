@@ -107,4 +107,32 @@ describe(`Web element build in helpers`, function () {
         expect(await filtered.getAttribute('id')).to.be.equal('inner-visible-target2');
     })
 
+
+});
+
+describe('Web element handler', function () {
+    this.timeout(10_000);
+
+    before(async () => {
+        await BrowserInstance.start(BrowserName.CHROME);
+        await BrowserInstance.startNewPage();
+    })
+
+    after(async () => {
+        await BrowserInstance.close();
+    })
+
+    test(`addHandler should execute callback`, async () => {
+        const field1 = $('#field1');
+        const field2 = $('#field2');
+        const field3 = $('#field3');
+        field1.addHandler(async () => await field1.fill('Field 1'));
+        field2.addHandler(async () => await field2.fill('Field 2'));
+        field3.addHandler(async () => await field3.fill('Field 3'));
+        await BrowserInstance.currentPage.goto(localFilePath);
+        await BrowserInstance.currentPage.waitForSelector('h1');
+        await field1.expect().toHaveValue('Field 1');
+        await field2.expect().toHaveValue('Field 2');
+        await field3.expect().toHaveValue('Field 3');
+    })
 });
