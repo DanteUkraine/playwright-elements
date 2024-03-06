@@ -13,6 +13,7 @@ and call them in chain. Reduce amount of your code in page object, or even use e
 -  v1.8: `@playwright/test >= 1.34.x` to added to project.
 -  v1.9: `@playwright/test >= 1.38.x` to added to project.
 -  v1.10: `@playwright/test >= 1.40.x` to added to project.
+-  v1.13: `@playwright/test >= 1.42.x` to added to project.
 
 ___
 - [Get started](#get-started)
@@ -41,6 +42,7 @@ ___
     - [Map](#map)
     - [Filter elements](#filter-elements)
     - [Filter](#filter)
+  - [Add handler](#add-handler)
   - [Actions](#actions) 
     - [All inner texts](#all-inner-texts)
     - [All text contents](#all-text-contents)
@@ -120,7 +122,7 @@ class MainPage {
 **$** function is just a shortcut for **new WebElement('.navbar');**
 
 Each WebElement can have sub elements and child elements can have sub elements as well.
-**subElements({logo: $('.navbar__title')})** returns type intersection.
+**subElements({logo: $('.navbar__title')})** or **with({logo: $('.navbar__title')})** returns type intersection.
 ```ts
 import { $, WebElement } from 'playwright-elements';
 
@@ -128,7 +130,7 @@ type Header = WebElement & { logo: WebElement }
 
 class MainPage {
     readonly header: Header = $('.navbar')
-        .subElements({
+        .with({
             logo: $('.navbar__title')
         });
 }
@@ -143,12 +145,34 @@ type Table = WebElement & { thead: Webelement }
 
 class MainPage {
     readonly table = $('table')
-        .subElements({
+        .with({
             columnHeaders: $('thead td'),
             rows: $('tbody tr')
-                    .subElements({
+                    .with({
                         cells: $('td')
                     })
+        });
+}
+```
+
+Sub elements and custom methods:
+
+```ts
+import { $, WebElement } from 'playwright-elements';
+
+type Table = WebElement & { thead: Webelement }
+
+class MainPage {
+    readonly table = $('table')
+        .with({
+            columnHeaders: $('thead td'),
+            rows: $('tbody tr')
+                    .with({
+                        cells: $('td')
+                    }),
+            async someCustomMethod(this: WebElement) {
+                //...
+            }
         });
 }
 ```
@@ -261,7 +285,7 @@ class MainPage {
 
 ### Sub elements
 
-*Simple child element creation*
+*Simple child element creation* 
 
 ```ts
 import { $, $getByTestId } from "playwright-elements"; 
@@ -435,6 +459,32 @@ test(`user can open documentation`, async () => {
     const mainPage = new MainPage();
     await mainPage.header.menu.item.withText(`Documentation`).hoverAndClick();
 })
+```
+
+### With
+This method combines `subElements` and `withMethods` in one method, 
+it allows you to create sub elements and add custom methods in one body.
+
+```ts
+import { $, WebElement } from "playwright-elements"; 
+
+class MainPage {
+    readonly header = $(`.header`)
+        .with({
+            humburgerButton: $(`.hButton`),
+            menu: $(`.menu`)
+                .with({
+                    item: $(`.menu-item`),
+                    async expand(this: WebElement) {
+                      await this.locator.hover();
+                      await this._.click();
+                    }
+                }),
+            async someCustomHeaderMethod(this: WebElement) {
+              //...
+            }
+        })
+}
 ```
 
 ### Get parent
@@ -650,6 +700,15 @@ import { $ } from 'playwright-elements';
 
 const originElement = $('.button').hasText('Submit').hasNotText('Ok');
 const owerridenElement = originElement.clone({ selector: 'input[type=button]' }); // will still hasText=Submit and haasNotTet=Ok but will use another selector.
+```
+
+### Add handler
+`addHandler(handler: () => any): Promise<void>` method is simple port of [addLocatorHandler function](https://playwright.dev/docs/api/class-page#page-add-locator-handler).
+
+```ts
+public addHandler(handler: () => any): Promise<void> {
+  return BrowserInstance.currentPage.addLocatorHandler(this.locator, handler);
+}
 ```
 
 ___
