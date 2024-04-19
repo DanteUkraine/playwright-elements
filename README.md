@@ -110,7 +110,7 @@ No need to pass instance of page into your page object.
 ```ts
 import { $ } from 'playwright-elements';
 
-class PlaywrightMainPage {
+class MainPage {
     readonly header = $('.navbar');
 }
 ```
@@ -133,7 +133,7 @@ import { $, WebElement } from 'playwright-elements';
 
 type Header = WebElement & { logo: WebElement }
 
-class Page {
+class MainPage {
     readonly header: Header = $('.navbar')
         .with({
             logo: $('.navbar__title'),
@@ -188,11 +188,11 @@ elements for asserts or actions.
 Usage in test:
 ```ts
 import { test } from 'playwright-elements'
-import { MainPage } from '...';
+import { MainPage } from 'page.object';
 
 test.describe('Invocation chain example', () => {
     
-    const mainPage = new MainPage();
+    const mainPage = new MainPage(); // Pay attention that now your page can be initialized out of test of hooks.
     test('test', async () => {
         await mainPage.table.columnHeaders.expect().toHaveText(['ID', 'Name', 'Status']);
         await mainPage.table.rows.hasText('Justin').cells.expect().toHaveText(['123', 'Justin', 'Single']);
@@ -222,7 +222,7 @@ export default config;
 
 ```ts
 import { test } from 'playwright-elements';
-import { MainPage } from 'main.page'
+import { MainPage } from 'page.object'
 
 test.describe('Goto fixure example', () => {
 
