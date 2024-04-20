@@ -5,6 +5,11 @@ ___
 *Playwright elements helps you to create reusable components with ability to add child elements, methods
 and call them in chain. Reduce amount of your code in page object, or even use elements without page object.*
 
+*Playwright-elements facilitates the representation of a web component's tree structure, 
+where each component can have multiple descendants, and all elements within the tree inherit the Locator API.
+Each element enables the invocation of both descendant elements and methods from the Locator API, 
+allowing to construct an invocation-chain of calls involving elements and synchronous methods.*
+
 ***Installation:*** `npm install -D playwright-elements`
 
 ***IMPORTANT:*** playwright elements is not standalone framework, it requires:
@@ -34,7 +39,7 @@ ___
   - [Has not text](#has-not-text)
   - [Get element by index](#get-element-by-index)
   - [Strict mode](#strict-mode)
-  - [As frame](#as-frame)
+  - [Content Frame and Owner](#content-frame-and-owner)
   - [Clone](#clone)
   - [Lists of WebElements](#lists-of-webelements)
     - [Async for each](#async-for-each)
@@ -131,7 +136,8 @@ type Header = WebElement & { logo: WebElement }
 class MainPage {
     readonly header: Header = $('.navbar')
         .with({
-            logo: $('.navbar__title')
+            logo: $('.navbar__title'),
+            githubLogo: $('a[aria-label="GitHub repository"]')
         });
 }
 ```
@@ -182,11 +188,11 @@ elements for asserts or actions.
 Usage in test:
 ```ts
 import { test } from 'playwright-elements'
-import { MainPage } from '...';
+import { MainPage } from 'page.object';
 
-test.describe('Example', () => {
+test.describe('Invocation chain example', () => {
     
-    const mainPage = new MainPage();
+    const mainPage = new MainPage(); // Pay attention that now your page can be initialized out of test of hooks.
     test('test', async () => {
         await mainPage.table.columnHeaders.expect().toHaveText(['ID', 'Name', 'Status']);
         await mainPage.table.rows.hasText('Justin').cells.expect().toHaveText(['123', 'Justin', 'Single']);
@@ -199,23 +205,9 @@ ___
 ## Usage with playwright-test
 
 Playwright elements provides you with extended **test** annotation 
-which includes [goto](#goto) fixture and access to playwright expect 
+which includes [goto](#goto) and [usePage](#fixture-use-page) fixture and access to playwright expect 
 methods via **expect()** function
-```ts
-import { test } from 'playwright-elements';
-import { MainPage } from 'main.page'
 
-test.describe('Playwright test integration', () => {
-
-  test('expect positive', async ({ goto }) => {
-    await goto();
-    const mainPage = new MainPage();
-    await mainPage.header.logo.expect().toBeVisible();
-    await mainPage.header.logo.expect().toHaveText('Playwright');
-  })
-
-})
-```
 `playwright.config.ts`:
 ```ts
 import { devices, PlaywrightTestConfig } from '@playwright/test';
@@ -228,21 +220,39 @@ const config: PlaywrightTestConfig = {
 export default config;
 ```
 
-Init desktop or mobile version of web element
+```ts
+import { test } from 'playwright-elements';
+import { MainPage } from 'page.object'
+
+test.describe('Goto fixure example', () => {
+
+  test('expect positive', async ({ goto }) => {
+    await goto();
+    const mainPage = new MainPage();
+    await mainPage.header.logo.expect().toBeVisible();
+    await mainPage.header.logo.expect().toHaveText('Playwright');
+  })
+
+})
+```
+
+`BrowserInstance` will automatically bring to front and switch to opened tab. 
 
 ```ts
-import { test, $, initDesktopOrMobile } from 'playwright-elements';
-import { devices } from '@playwright/test';
+import { test, $, BrowserInstance, expect } from 'playwright-elements';
 
 test.describe('Playwright test integration', () => {
-
-    test.use({...devices['iPhone 13']})
-    test('expect positive', async () => {
-        const mobileHeader = $('.mobileNavBar');
-        const desktopHeader = $('.navbar');
-        // initDesktopOrMobile will check isMobile flag and return proper element
-        // Also it will check if bouth objects belongs to the same type or interface  
-        const element = initDesktopOrMobile(desktopHeader, mobileHeader);
+    
+    test('Tab swith example', async () => {
+      await goto();
+      const mainPage = new MainPage();
+      await expect(BrowserInstance.currentPage).toHaveURL('https://playwright.dev');
+      await mainPage.header.githubLogo.click();
+      await expect(BrowserInstance.currentPage).toHaveURL('https://github.com/microsoft/playwright');
+      await BrowserInstance.switchToPreviousTab();
+      await expect(BrowserInstance.currentPage).toHaveURL('https://playwright.dev');
+      await BrowserInstance.switchToTabByIndex(1);
+      await expect(BrowserInstance.currentPage).toHaveURL('https://github.com/microsoft/playwright');
     })
 })
 ```
@@ -663,10 +673,10 @@ test(`find error by text`, async () => {
 })
 ```
 
-## As Frame
-When you need to use [FrameLocator](https://playwright.dev/docs/api/class-framelocator)
-as `WebElement` method `asFrame()` let to know that selector
-should be used in `page.frameLocator('#my-frame')`.
+## Content Frame and Owner
+When you need to use [FrameLocator](https://playwright.dev/docs/api/class-locator#locator-content-frame)
+as `WebElement` method `contentFrame()` will use frame locator `page.frameLocator('#my-frame')`.
+And in case you need to switch back use method `owner()`.
 
 *Behind the scene playwright-elements will build next expression:
 `page.frameLocator('#my-frame').locator('.header')`*
@@ -674,7 +684,7 @@ should be used in `page.frameLocator('#my-frame')`.
 import {$} from "playwright-elements";
 
 class MainPage {
-  readonly iframe = $(`#my-frame`).asFrame()
+  readonly iframe = $(`#my-frame`).contentFrame()
           .subElements({
             header: $(`.header`)
           });
@@ -683,8 +693,10 @@ class MainPage {
 test(`find error by text`, async () => {
   const mainPage = new MainPage();
   await mainPage.iframe.header.expec().toBeVisible();
+  await mainPage.iframe.owner(); // will use locator instead of frame locator.
 })
 ```
+
 ### Clone
 `clone<T extends WebElement>(this: T, options?: {
 selector?: string
@@ -970,15 +982,62 @@ export class MissingControlOverviewPage {
 }
 ```
 ___
+
+## Use page
+`usePage<T>(page: Page, callBack: () => Promise<T>): Promise<T>` this function allows to execute actions in specific context.
+The most common use case for this function when user needs more than one BrowserContext in test.
+
+Example:
+```ts
+import { test as baseTest, $, usePage } from 'playwright-elements';
+
+type TestFixtures = { secondContextPage: Page };
+const test = baseTest.extend<TestFixtures, {}>({
+  secondContextPage: [async ({ browser }, use) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  }, { scope: 'test' }]
+});
+
+test.describe('Two contexts', () => {
+  const testFixturesPage = new TestFixturesPage();
+
+  test('use two contexts', async ({ goto, secondContextPage }) => {
+    await Promise.all([goto('https://default.com'), secondContextPage.goto('https://url.com')]);
+    const customContextPromise = usePage(secondContextPage, async () => {
+      // All playwright-elements in this scope will use secondContextPage.
+      $('h1').softExpect().toHaveUrl('https://url.com');
+    });
+    // All playwright-elements in main scope will use default context started by playwright test.
+    const defaultContextPromise = $('h1').softExpect().toHaveUrl('https://default.com');
+    await Promise.all([defaultContextPromise, customContextPromise]);
+  });
+});
+```
+
+Use page function can return value from callback:
+
+```ts
+    test('usePage returns value', async ({ goto, page }) => {
+      await goto();
+      const text = await usePage<string>(page, async () => {
+        return $('h1').textContent();
+      });
+      expect(text).toEqual('Expected title');
+    });
+```
+___
 ## Playwright elements fixtures
 
 *This documentation explains how to use `playwright-elements` with `@playwright/test`.*
 
-*This lib extends default `test` annotation with tree custom fixtures: `goto`, `initBrowserInstance`.
+*This lib extends default `test` annotation with tree custom fixtures: `goto`, `initBrowserInstance` and `usePage`.
 One of them `initBrowserInstance`, are auto fixture, so you do not need to call it explicitly to use.*
 ___
 
-### goto
+### Goto
 
 `goto` returns [function from pure playwright](https://playwright.dev/docs/api/class-page#page-goto).
 
@@ -1026,9 +1085,10 @@ currentContext and browser pointers.
 
 ### Fixture use page
 Just a representation of function [Use page](#use-page) as fixture.
-`usePage` allows user to perform actions in specific page. Pages may be from different contexts.
+`usePage` allows user to perform actions in another context. In case you need to use second tab 
+in the same context use `BrowserInstance.swith`
 
-use case:
+Use case:
 ```ts
 type TestFixtures = { secondContextPage: Page, useSecondContext: <T>(callback: () => Promise<T>) => Promise<T> };
 
@@ -1208,8 +1268,8 @@ async function useSetters() {
 in initBrowserInstance auto fixture and just store `isMobile` fixture state from playwright test.
 
 ```ts
-import {test, BrowserInstance} from "playwright-elements";
-import {devices} from "@playwright/test";
+import { test, BrowserInstance } from "playwright-elements";
+import { devices } from "@playwright/test";
 
 test.describe(`Mobile tests`, () => {
     test.use({...devices['iPhone 13']})
@@ -1288,9 +1348,9 @@ async function useSwitchToPreviousTab() {
     await BrowserInstance.startNewPage();
     await BrowserInstance.currentPage.goto(`https://playwright.dev`);
     await BrowserInstance.startNewPage();
-    expect(BrowserInstance.currentPage.url()).toEqual('about:blank');
+    expect(BrowserInstance.currentPage).toHaveURL('about:blank');
     await BrowserInstance.switchToPreviousTab();
-    expect(BrowserInstance.currentPage.url()).toEqual('https://playwright.dev');
+    expect(BrowserInstance.currentPage).toHaveURL('https://playwright.dev');
 }
 ```
 
@@ -1308,57 +1368,10 @@ async function useSwitchToTabByIndex() {
     await BrowserInstance.startNewPage();
     await BrowserInstance.currentPage.goto(`https://playwright.dev`);
     await BrowserInstance.startNewPage();
-    expect(BrowserInstance.currentPage.url()).toEqual('about:blank');
+    expect(BrowserInstance.currentPage).toHaveURL('about:blank');
     await BrowserInstance.switchToTabByIndex(0);
-    expect(BrowserInstance.currentPage.url()).toEqual('https://playwright.dev');
+    expect(BrowserInstance.currentPage).toHaveURL('https://playwright.dev');
 }
-```
-
-## Use page
-
-`usePage<T>(page: Page, callBack: () => Promise<T>): Promise<T>` this function allows to execute actions in specific page.
-The most common use case for this function when user needs more than one BrowserContext in test. 
-
-Example:
-```ts
-import { test as baseTest, $, usePage } from 'playwright-elements';
-
-type TestFixtures = { secondContextPage: Page };
-const test = baseTest.extend<TestFixtures, {}>({
-  secondContextPage: [async ({ browser }, use) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    await use(page);
-    await context.close();
-  }, { scope: 'test' }]
-});
-
-test.describe('Two contexts', () => {
-  const testFixturesPage = new TestFixturesPage();
-
-  test('use two contexts', async ({ goto, secondContextPage }) => {
-    await Promise.all([goto('https://default.com'), secondContextPage.goto('https://url.com')]);
-    const customContextPromise = usePage(secondContextPage, async () => {
-      // All playwright-elements in this scope will use secondContextPage.
-      $('h1').softExpect().toHaveUrl('https://url.com');
-    });
-    // All playwright-elements in main scope will use default context started by playwright test.
-    const defaultContextPromise = $('h1').softExpect().toHaveUrl('https://default.com');
-    await Promise.all([defaultContextPromise, customContextPromise]);
-  });
-});
-```
-
-Use page function can return value from callback:
-
-```ts
-    test('usePage returns value', async ({ goto, page }) => {
-      await goto();
-      const text = await usePage<string>(page, async () => {
-        return $('h1').textContent();
-      });
-      expect(text).toEqual('Expected title');
-    });
 ```
 
 ___

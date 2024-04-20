@@ -19,8 +19,8 @@ describe(`Web element frame pointer`, function () {
         await BrowserInstance.close();
     })
 
-    test(`asFrame make WebElement to be used as frameLocator`,  async () => {
-        const iframe = $(`iframe`).asFrame()
+    test(`contentFrame make WebElement to be used as frameLocator`,  async () => {
+        const iframe = $(`iframe`).contentFrame()
             .subElements({
                 title: $(`.navbar__title`).first()
             });
@@ -28,17 +28,17 @@ describe(`Web element frame pointer`, function () {
     })
 
     test(`asFrame make WebElement to be used as frameLocator in chain`,  async () => {
-        expect(await $(`iframe`).asFrame().$(`.navbar__title`).first()._.textContent())
+        expect(await $(`iframe`).contentFrame().$(`.navbar__title`).first()._.textContent())
             .to.equal('Playwright');
     })
 
     test(`asFrame make WebElement to be used as frameLocator in chain after another element`,  async () => {
-        expect(await $('body').$(`iframe`).asFrame().$(`.navbar__title`).first()._.textContent())
+        expect(await $('body').$(`iframe`).contentFrame().$(`.navbar__title`).first()._.textContent())
             .to.equal('Playwright');
     })
 
     test(`asFrame make WebElement to be used as frameLocator in chain and sub elements`,  async () => {
-        const iframe = $('body').$(`iframe`).asFrame()
+        const iframe = $('body').$(`iframe`).contentFrame()
             .subElements({
                 title: $(`.navbar__title`).first()
             });
@@ -47,7 +47,7 @@ describe(`Web element frame pointer`, function () {
 
     test(`asFrame make WebElement to be used as frameLocator in sub elements on second nested level`,  async () => {
         const body = $('body').subElements({
-            iframe: $(`iframe`).asFrame()
+            iframe: $(`iframe`).contentFrame()
                 .subElements({
                     title: $(`.navbar__title`).first()
                 })

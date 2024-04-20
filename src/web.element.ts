@@ -74,11 +74,6 @@ export class WebElement {
 
     // page and frame pointers
 
-    public asFrame() {
-        this._isFrame = true;
-        return this;
-    }
-
     private selectLocatorMethod(element: string | WebElement | undefined): Locator | undefined {
         if (!element) return undefined;
         if (typeof element === 'string') return BrowserInstance.currentPage.locator(element);
@@ -161,12 +156,6 @@ export class WebElement {
         return this.locator;
     }
 
-    // Expect
-    // TODO: remove this method from next v.1.13.0
-    /**
-     * @deprecated The method should not be used, it will be removed in next minor release.
-     * Can be removed from your project since it has no more effect on expect behaviour.
-     */
     public static useExpect<T>(expect: Expect<T>) {
         expect;
     }
@@ -353,8 +342,6 @@ export class WebElement {
         });
     }
 
-
-
     public hasNotText<R extends WebElement>(this: R, text: string | RegExp): R {
         if(this._by) throw Error(`hasNot option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
         return this.clone({
@@ -373,6 +360,16 @@ export class WebElement {
             element.addParentSelector(parent);
         }
         return element;
+    }
+
+    public contentFrame() {
+        this._isFrame = true;
+        return this;
+    }
+
+    public owner() {
+        this._isFrame = false;
+        return this;
     }
 
     public addHandler(handler: () => any): Promise<void> {
