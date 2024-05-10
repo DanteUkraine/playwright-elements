@@ -19,6 +19,7 @@ allowing to construct an invocation-chain of calls involving elements and synchr
 -  v1.9: `@playwright/test >= 1.38.x` to added to project.
 -  v1.10: `@playwright/test >= 1.40.x` to added to project.
 -  v1.13: `@playwright/test >= 1.42.x` to added to project.
+-  v1.15: `@playwright/test >= 1.44.x` to added to project.
 
 ___
 - [Get started](#get-started)
@@ -715,13 +716,16 @@ const owerridenElement = originElement.clone({ selector: 'input[type=button]' })
 ```
 
 ### Add handler
-`addHandler(handler: () => any): Promise<void>` method is simple port of [addLocatorHandler function](https://playwright.dev/docs/api/class-page#page-add-locator-handler).
+`addHandler(handler: () => any, options?: { noWaitAfter?: boolean, times?: number }): Promise<void>` method is simple port of [addLocatorHandler function](https://playwright.dev/docs/api/class-page#page-add-locator-handler).
 
 ```ts
-public addHandler(handler: () => any): Promise<void> {
-  return BrowserInstance.currentPage.addLocatorHandler(this.locator, handler);
+public addHandler(handler: () => any, options?: { noWaitAfter?: boolean, times?: number }): Promise<void> {
+  return BrowserInstance.currentPage.addLocatorHandler(this.locator, handler, options);
 }
 ```
+
+### Remove handler
+`removeHandler(): Promise<void>` method is simple port of [removeLocatorHandler function](https://playwright.dev/docs/api/class-page#page-remove-locator-handler).
 
 ___
 ## Actions

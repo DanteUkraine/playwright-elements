@@ -46,6 +46,7 @@ type TypeOptions = Parameters<Locator['type']>[1];
 type PressSequentiallyOptions = Parameters<Locator['pressSequentially']>[1];
 type UncheckOptions = Parameters<Locator['uncheck']>[0];
 type WaitForOptions = Parameters<Locator['waitFor']>[0];
+type AddLocatorHandlerOptions = Parameters<Page['addLocatorHandler']>[2];
 
 const _expect: Expect<{[key: string]: (...args: any[]) => Promise<void>}> = expect;
 type LocatorExpect = ReturnType<typeof _expect<Locator>>;
@@ -372,8 +373,12 @@ export class WebElement {
         return this;
     }
 
-    public addHandler(handler: () => any): Promise<void> {
-        return BrowserInstance.currentPage.addLocatorHandler(this.locator, handler);
+    public addHandler(handler: () => any, options?: AddLocatorHandlerOptions): Promise<void> {
+        return BrowserInstance.currentPage.addLocatorHandler(this.locator, handler, options);
+    }
+
+    public removeHandler(): Promise<void> {
+        return BrowserInstance.currentPage.removeLocatorHandler(this.locator);
     }
 
     public $(selector: string): WebElement {
