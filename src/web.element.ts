@@ -373,8 +373,11 @@ export class WebElement {
         return this;
     }
 
-    public addHandler(handler: () => any, options?: AddLocatorHandlerOptions): Promise<void> {
-        return BrowserInstance.currentPage.addLocatorHandler(this.locator, handler, options);
+    public addHandler<T extends WebElement>(this: T, handler: (element: T) => Promise<any>, options?: AddLocatorHandlerOptions): Promise<void> {
+        const callBack = async () => {
+            await handler(this);
+        };
+        return BrowserInstance.currentPage.addLocatorHandler(this.locator, callBack, options);
     }
 
     public removeHandler(): Promise<void> {
