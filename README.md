@@ -716,13 +716,7 @@ const owerridenElement = originElement.clone({ selector: 'input[type=button]' })
 ```
 
 ### Add handler
-`addHandler(handler: () => any, options?: { noWaitAfter?: boolean, times?: number }): Promise<void>` method is simple port of [addLocatorHandler function](https://playwright.dev/docs/api/class-page#page-add-locator-handler).
-
-```ts
-public addHandler(handler: () => any, options?: { noWaitAfter?: boolean, times?: number }): Promise<void> {
-  return BrowserInstance.currentPage.addLocatorHandler(this.locator, handler, options);
-}
-```
+`addHandler<T extends WebElement>(this: T, handler: (element: T) => Promise<any>, options?: { noWaitAfter?: boolean, times?: number }): Promise<void>` method is simple port of [addLocatorHandler function](https://playwright.dev/docs/api/class-page#page-add-locator-handler).
 
 ### Remove handler
 `removeHandler(): Promise<void>` method is simple port of [removeLocatorHandler function](https://playwright.dev/docs/api/class-page#page-remove-locator-handler).
