@@ -49,6 +49,7 @@ ___
     - [Filter elements](#filter-elements)
     - [Filter](#filter)
   - [Add handler](#add-handler)
+  - [Remove handler](#remove-handler)
   - [Actions](#actions) 
     - [All inner texts](#all-inner-texts)
     - [All text contents](#all-text-contents)
