@@ -1,6 +1,6 @@
 import { Locator, LocatorScreenshotOptions, Page } from 'playwright-core';
 import cloneDeep from 'lodash.clonedeep';
-import { BrowserInstance } from './browser';
+import { BrowserInstance } from './browser.ts';
 import { Expect, expect } from '@playwright/test';
 
 function extractSelector(pointer: string | WebElement): string {
@@ -48,7 +48,7 @@ type UncheckOptions = Parameters<Locator['uncheck']>[0];
 type WaitForOptions = Parameters<Locator['waitFor']>[0];
 type AddLocatorHandlerOptions = Parameters<Page['addLocatorHandler']>[2];
 
-const _expect: Expect<{[key: string]: (...args: any[]) => Promise<void>}> = expect;
+const _expect = expect as Expect<{[key: string]: (...args: any[]) => Promise<void>}>;
 type LocatorExpect = ReturnType<typeof _expect<Locator>>;
 
 export class WebElement {

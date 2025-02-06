@@ -1,8 +1,8 @@
-import { BrowserInstance, BrowserName } from '../src';
+import { BrowserInstance, BrowserName } from '../src/index.ts';
 import { AssertionError, expect } from 'chai';
 import { afterEach, test } from 'mocha';
 import { webkit } from 'playwright-core';
-import { localFilePath } from './utils'
+import { localFilePath } from './utils.js'
 
 
 describe('Browser Instance', function (this: Mocha.Suite) {

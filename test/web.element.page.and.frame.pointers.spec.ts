@@ -1,7 +1,7 @@
-import { $, BrowserInstance, BrowserName } from '../src';
+import { $, BrowserInstance, BrowserName } from '../src/index.ts';
 import { test } from 'mocha';
 import { expect } from 'chai';
-import { localFilePath } from './utils'
+import { localFilePath } from './utils.ts'
 
 describe(`Web element frame pointer`, function () {
 

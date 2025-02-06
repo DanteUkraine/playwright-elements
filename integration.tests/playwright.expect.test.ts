@@ -1,5 +1,5 @@
 import { Locator } from '@playwright/test';
-import { WebElement, expect, $, test } from '../src';
+import { WebElement, expect, $, test } from '../src/index.ts';
 
 const customMatchers = {
     async toHaveAriaLabel(locator: Locator, expected: string, options?: { timeout?: number }) {
@@ -14,16 +14,16 @@ const customMatchers = {
             pass = false;
         }
         const message = pass
-            ? () => this.utils.matcherHint(assertionName, undefined, undefined, { isNot: this.isNot }) +
+            ? () => (this as any).utils.matcherHint(assertionName, undefined, undefined, { isNot: (this as any).isNot }) +
                 '\n\n' +
                 `Locator: ${locator}\n` +
-                `Expected: ${this.isNot ? 'not' : ''}${this.utils.printExpected(expected)}\n` +
-                (matcherResult ? `Received: ${this.utils.printReceived(matcherResult.actual)}` : '')
-            : () =>  this.utils.matcherHint(assertionName, undefined, undefined, { isNot: this.isNot }) +
+                `Expected: ${(this as any).isNot ? 'not' : ''}${(this as any).utils.printExpected(expected)}\n` +
+                (matcherResult ? `Received: ${(this as any).utils.printReceived(matcherResult.actual)}` : '')
+            : () =>  (this as any).utils.matcherHint(assertionName, undefined, undefined, { isNot: (this as any).isNot }) +
                 '\n\n' +
                 `Locator: ${locator}\n` +
-                `Expected: ${this.utils.printExpected(expected)}\n` +
-                (matcherResult ? `Received: ${this.utils.printReceived(matcherResult.actual)}` : '');
+                `Expected: ${(this as any).utils.printExpected(expected)}\n` +
+                (matcherResult ? `Received: ${(this as any).utils.printReceived(matcherResult.actual)}` : '');
 
         return {
             message,
@@ -45,7 +45,7 @@ test.describe(`Playwright test integration`, () => {
             await goto('/', { waitUntil: 'domcontentloaded' });
             const header = $(`.navbar`);
             await header.expect().toHaveAriaLabel('Main');
-
+            await header.expect().not.toHaveAriaLabel('Many');
         })
     });
 

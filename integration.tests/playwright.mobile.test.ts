@@ -1,4 +1,4 @@
-import { BrowserInstance, expect, test, $, initDesktopOrMobile, WebElement } from '../src';
+import { BrowserInstance, expect, test, $, initDesktopOrMobile, WebElement } from '../src/index.ts';
 import { devices } from '@playwright/test';
 
 

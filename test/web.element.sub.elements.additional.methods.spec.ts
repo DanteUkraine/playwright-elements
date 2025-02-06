@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { test } from 'mocha';
-import { $getByTestId, $, WebElement, BrowserInstance, BrowserName } from '../src';
-import { localFilePath } from './utils';
+import { $getByTestId, $, WebElement, BrowserInstance, BrowserName } from '../src/index.ts';
+import { localFilePath } from './utils.ts';
 
 describe('Web Element chainable selectors', () => {
 

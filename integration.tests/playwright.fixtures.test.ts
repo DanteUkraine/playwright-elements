@@ -1,5 +1,5 @@
-import { expect, $, BrowserInstance, initDesktopOrMobile, test as originalTest } from '../src';
-import { localFilePath } from '../test/utils';
+import { expect, $, BrowserInstance, initDesktopOrMobile, test as originalTest } from '../src/index.ts';
+import { localFilePath } from '../test/utils.ts';
 import { mergeTests, test as baseTest } from '@playwright/test';
 
 type TestFixtures = { newOne: string };
