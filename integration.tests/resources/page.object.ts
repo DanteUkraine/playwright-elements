@@ -10,10 +10,10 @@ export class SettingsPage {
     }
 }
 
-export class AboutBoxElement { // Will be ignored unless custom suffix is provided.
+export class AboutBoxElement {
     info() {
         return 'About us';
     }
 }
 
-export const version = '1.0.0'; // Not a class, so it's ignored.
+export const version = '1.0.0';

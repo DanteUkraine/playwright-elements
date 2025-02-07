@@ -3,3 +3,4 @@
 .git
 lib
 node_modules
+test-results
