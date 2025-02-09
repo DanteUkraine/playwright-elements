@@ -1,6 +1,7 @@
-export { BrowserInstance, Context, BrowserName, usePage } from './browser.ts';
+export { BrowserInstance, Context, BrowserName, usePage } from './browser';
 export { WebElement, $, $getByAltText, $getByLabel, $getByPlaceholder, $getByRole, $getByTestId, $getByText,
-    $getByTitle, initDesktopOrMobile } from './web.element.js';
-export { test, expect } from './playwright.test.fixtures.js';
-export { buildPageObject } from './page.object.builder.js';
-export type { PageObject } from './page.object.builder.js';
+    $getByTitle, initDesktopOrMobile } from './web.element';
+export { test, expect } from './playwright.test.fixtures';
+export { buildPageObject } from './page.object.builder';
+export type { PageObject } from './page.object.builder';
+export { processDirectories, generateIndexFile } from './index.generator';

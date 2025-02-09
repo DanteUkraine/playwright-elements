@@ -199,7 +199,11 @@ Type-Safe Fixture Setup:
 _./fixtures.ts_
 ```ts
 import { test as baseTest, buildPageObject, PageObject } from 'playwright-elements';
+import { createIndexFile } from '../src/index';
 import * as pageObjectModule from './pages';
+
+// Generate an index files recursively in the specified folder
+generateIndexFile('./page.object');
 
 type TestFixtures = { pageObject: PageObject<typeof pageObjectModule> };
 
@@ -219,7 +223,6 @@ Usage in test:
 _./test.ts_
 ```ts
 import { test } from './fixtures'
-import * as pageObjectModule from './pages';
 
 test.describe('Invocation chain example', () => {
     
@@ -1225,6 +1228,67 @@ pageObject3.Settings  // → Instance of SettingsPage
 - Eliminates need to manually update fixtures when adding new pages
 - Maintains type safety across your entire test suite
 ___
+### Generate index file
+
+Function Overview
+
+The `generateIndexFile` function generates an `index.ts` file in a specified folder. 
+It scans the folder for `.ts` files (excluding index.ts) and creates export statements for each file. 
+This function is useful for automating the creation of centralized export files in TypeScript projects.
+
+```ts
+function generateIndexFile(folder: string, options?: Options): void
+```
+
+#### Parameters:
+- `folder` (string): The directory where the index.ts file will be created.
+- `options` (Options, optional):
+  - `cliLog` (boolean, default: false): Enables or disables logging to the console.
+  - `quotes` ( ' | ", default: ' ): Specifies whether to use single or double quotes in the generated export statements.
+
+#### Example Usage:
+The function can be used in various contexts. For example, it can be called in a 
+Playwright configuration file to dynamically generate an index.ts file before running tests.
+
+```ts
+// playwright.config.ts
+import { devices, PlaywrightTestConfig } from '@playwright/test';
+import { createIndexFile } from '../src/index';
+
+// Generate an index files recursively in the specified folder
+generateIndexFile('./page.object');
+
+const config: PlaywrightTestConfig = {
+  testDir: './test',
+  ...
+};
+
+export default config;
+
+```
+
+#### Before Generation:
+```text
+testFolder/
+├── file1.ts
+├── file2.ts
+└── nested/
+    ├── nestedFile1.ts
+```
+
+#### After Generation:
+```text
+testFolder/
+├── index.ts // root level will include "export * from './nested'";
+├── file1.ts
+├── file2.ts
+└── nested/
+    ├── index.ts
+    ├── nestedFile1.ts
+```
+
+___
+
 ## Browser Instance
 *This object represents single-tone for `Browser`, `BrowserContext` and `Page`.
 It allows avoiding pass `page` in your page object.*

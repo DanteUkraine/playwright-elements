@@ -1,6 +1,6 @@
-import { test as baseTest, expect, buildPageObject, PageObject } from '../src/index.ts';
-import * as pageObjectModule from './resources/page.object.ts';
-import { HomePage, SettingsPage } from './resources/page.object.ts';
+import { test as baseTest, expect, buildPageObject, PageObject } from '../src/index';
+import * as pageObjectModule from './resources';
+import { HomePage, SettingsPage } from './resources';
 
 type TestFixtures = { pageObject: PageObject<typeof pageObjectModule> };
 

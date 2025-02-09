@@ -9,10 +9,10 @@ import {
     $getByTitle,
     BrowserInstance,
     BrowserName
-} from '../src/index.ts';
+} from '../src';
 import { test } from 'mocha';
 import { expect } from 'chai';
-import { localFilePath } from './utils.ts'
+import { localFilePath } from './utils';
 
 
 describe(`Web element build in selectors`, function () {

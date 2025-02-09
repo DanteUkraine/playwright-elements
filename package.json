@@ -2,7 +2,6 @@
   "name": "playwright-elements",
   "version": "1.16.0",
   "description": "This is Playwright extension.",
-  "type": "module",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -13,7 +12,7 @@
     "clean": "tsc --build --clean",
     "install:deps": "npm install --registry=https://registry.npmjs.org",
     "install:browsers": "npx playwright install --force chrome chromium msedge firefox webkit --with-deps",
-    "test": "mocha",
+    "test": "ts-mocha",
     "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts",
     "prepare": "husky install",
     "lint": "npx eslint ."
@@ -47,6 +46,7 @@
     "husky": "^8.0.3",
     "mocha": "^10.2.0",
     "playwright-core": "^1.50.1",
+    "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   },

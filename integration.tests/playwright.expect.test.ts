@@ -1,5 +1,5 @@
 import { Locator } from '@playwright/test';
-import { WebElement, expect, $, test } from '../src/index.ts';
+import { WebElement, expect, $, test } from '../src/index';
 
 const customMatchers = {
     async toHaveAriaLabel(locator: Locator, expected: string, options?: { timeout?: number }) {

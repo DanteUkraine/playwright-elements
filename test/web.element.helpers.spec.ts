@@ -1,7 +1,7 @@
-import { $, BrowserInstance, BrowserName } from '../src/index.ts';
+import { $, BrowserInstance, BrowserName } from '../src';
 import { test } from 'mocha';
 import { expect } from 'chai';
-import { localFilePath } from './utils.ts'
+import { localFilePath } from './utils'
 
 
 describe(`Web element build in helpers`, function () {

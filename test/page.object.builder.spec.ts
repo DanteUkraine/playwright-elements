@@ -1,8 +1,8 @@
 import { describe, it } from 'mocha';
 import { expect } from 'chai';
-import { buildPageObject } from '../src/index.ts';
-import * as pageObjectModule from '../integration.tests/resources/page.object.ts';
-import { HomePage, SettingsPage, AboutBoxElement } from '../integration.tests/resources/page.object.ts';
+import { buildPageObject } from '../src';
+import * as pageObjectModule from '../integration.tests/resources/page.object';
+import { HomePage, SettingsPage, AboutBoxElement } from '../integration.tests/resources/page.object';
 
 describe('buildPageObject', () => {
     it('should return instances of pages using default options (suffix "Page", lowerCaseFirst true)', () => {

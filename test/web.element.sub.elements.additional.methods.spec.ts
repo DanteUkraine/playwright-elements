@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { test } from 'mocha';
-import { $getByTestId, $, WebElement, BrowserInstance, BrowserName } from '../src/index.ts';
-import { localFilePath } from './utils.ts';
+import { $getByTestId, $, WebElement, BrowserInstance, BrowserName } from '../src';
+import { localFilePath } from './utils';
 
 describe('Web Element chainable selectors', () => {
 
@@ -250,6 +250,5 @@ describe('Web Element augmentation', () => {
         expect(element).to.have.property('child');
         expect(element.child).to.have.property('innerChild');
         expect(element.narrowSelector).to.be.equal('.parent')
-
     });
 });

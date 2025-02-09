@@ -1,6 +1,6 @@
 import { Locator, LocatorScreenshotOptions, Page } from 'playwright-core';
 import cloneDeep from 'lodash.clonedeep';
-import { BrowserInstance } from './browser.ts';
+import { BrowserInstance } from './index';
 import { Expect, expect } from '@playwright/test';
 
 function extractSelector(pointer: string | WebElement): string {

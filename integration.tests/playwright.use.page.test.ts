@@ -1,4 +1,4 @@
-import { test as baseTest, $, usePage, expect } from '../src/index.ts';
+import { test as baseTest, $, usePage, expect } from '../src/index';
 import { Page } from '@playwright/test';
 
 type TestFixtures = { secondContextPage: Page, useSecondContext: <T>(callback: () => Promise<T>) => Promise<T> };

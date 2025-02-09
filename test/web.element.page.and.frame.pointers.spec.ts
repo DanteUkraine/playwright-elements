@@ -1,7 +1,7 @@
-import { $, BrowserInstance, BrowserName } from '../src/index.ts';
+import { $, BrowserInstance, BrowserName } from '../src';
 import { test } from 'mocha';
 import { expect } from 'chai';
-import { localFilePath } from './utils.ts'
+import { localFilePath } from './utils'
 
 describe(`Web element frame pointer`, function () {
 
@@ -54,5 +54,4 @@ describe(`Web element frame pointer`, function () {
         });
         expect(await body.iframe.title._.textContent()).to.equal('Playwright');
     })
-
 });

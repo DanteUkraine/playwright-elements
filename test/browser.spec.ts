@@ -1,8 +1,8 @@
-import { BrowserInstance, BrowserName } from '../src/index.ts';
+import { BrowserInstance, BrowserName } from '../src';
 import { AssertionError, expect } from 'chai';
 import { afterEach, test } from 'mocha';
 import { webkit } from 'playwright-core';
-import { localFilePath } from './utils.js'
+import { localFilePath } from './utils';
 
 
 describe('Browser Instance', function (this: Mocha.Suite) {
@@ -136,5 +136,4 @@ describe('Browser Instance getter', () => {
     test(`page should throw error`, () => {
         expect(() => BrowserInstance.currentPage).to.throw(Error, `Page was not started`);
     })
-
 })

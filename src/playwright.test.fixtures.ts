@@ -1,5 +1,5 @@
 import { test as base, Page, Response } from '@playwright/test';
-import { BrowserInstance, usePage } from './browser.ts'
+import { BrowserInstance, usePage } from './index';
 export { expect } from '@playwright/test';
 
 type WrappedFixtures = {
