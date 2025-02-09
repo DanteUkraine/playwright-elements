@@ -94,6 +94,7 @@ ___
   - [use page](#fixture-use-page)
 - [Build page object](#build-page-object)
   - [Options](#build-page-object-options-suffix-and-lowercasefirst) 
+  - [Generate index file](#generate-index-file)
 - [Browser instance](#browser-instance)
   - [Browser name](#browser-name)
   - [Start](#start)
