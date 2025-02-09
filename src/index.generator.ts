@@ -1,4 +1,4 @@
-import { existsSync, unlinkSync, readdirSync, writeFileSync, statSync } from 'fs';
+import { existsSync, rmSync, readdirSync, writeFileSync, statSync } from 'fs';
 import { join, basename } from 'path';
 
 export type Options = {
@@ -58,7 +58,7 @@ export function generateIndexFile(folder: string, options?: Options): void {
     const indexFile = join(folder, 'index.ts');
 
     if (existsSync(indexFile)) {
-        unlinkSync(indexFile);
+        rmSync(indexFile, { force: true });
     }
 
     const entries = readdirSync(folder);
