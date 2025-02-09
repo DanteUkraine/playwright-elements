@@ -4,4 +4,4 @@ export { WebElement, $, $getByAltText, $getByLabel, $getByPlaceholder, $getByRol
 export { test, expect } from './playwright.test.fixtures';
 export { buildPageObject } from './page.object.builder';
 export type { PageObject } from './page.object.builder';
-export { processDirectories, generateIndexFile } from './index.generator';
+export { generateIndexFile } from './index.generator';
