@@ -95,6 +95,8 @@ ___
 - [Build page object](#build-page-object)
   - [Options](#build-page-object-options-suffix-and-lowercasefirst) 
   - [Generate index file](#generate-index-file)
+      - [CLI Interface](#cli-interface)
+      - [Index Generator programing interface](#programing-interface)
 - [Browser instance](#browser-instance)
   - [Browser name](#browser-name)
   - [Start](#start)
@@ -1231,41 +1233,70 @@ pageObject3.Settings  // → Instance of SettingsPage
 ___
 ### Generate index file
 
-Function Overview
+#### CLI Interface
+
+The index generator is also available as a standalone CLI tool. This provides a convenient way to generate (and optionally watch) index files without modifying your code, which is especially useful in CI/CD pipelines or during test environment setup for UI tests.
+
+**CLI Usage Examples:**
+
+Generate index file once:
+```shell
+npx generate-index ./src
+```
+Generate index files with watch mode enabled:
+```shell
+npx generate-index ./src --watch true
+```
+Generate index files with console logs:
+```shell
+npx generate-index ./src --cliLog true
+```
+Specify quote style (use double quotes, default value is single quotes):
+```shell
+npx generate-index ./src --quotes '"'
+```
+___
+#### Programing interface
 
 The `generateIndexFile` function generates an `index.ts` file in a specified folder. 
 It scans the folder for `.ts` files (excluding index.ts) and creates export statements for each file. 
 This function is useful for automating the creation of centralized export files in TypeScript projects.
-
-```ts
-function generateIndexFile(folder: string, options?: Options): void
-```
 
 #### Parameters:
 - `folder` (string): The directory where the index.ts file will be created.
 - `options` (Options, optional):
   - `cliLog` (boolean, default: false): Enables or disables logging to the console.
   - `quotes` ( ' | ", default: ' ): Specifies whether to use single or double quotes in the generated export statements.
+  - `watch` (boolean, optional, default: false): starts watchers on backgraund for each subdirectory.
 
 #### Example Usage:
 The function can be used in various contexts. For example, it can be called in a 
 Playwright configuration file to dynamically generate an index.ts file before running tests.
-
 ```ts
-// playwright.config.ts
-import { devices, PlaywrightTestConfig } from '@playwright/test';
-import { createIndexFile } from '../src/index';
+import { test as baseTest, buildPageObject, PageObject, generateIndexFile } from 'playwright-elements';
+import * as pageObjectModule from './pages';
 
 // Generate an index files recursively in the specified folder
-generateIndexFile('./page.object');
+generateIndexFile('./page.object'); // one time generation
 
-const config: PlaywrightTestConfig = {
-  testDir: './test',
-  ...
-};
+type TestFixtures = { pageObject: PageObject<typeof pageObjectModule> };
 
-export default config;
+export const test = baseTest.extend({
+  page: [async ({}, use) => {
+    await use(buildPageObject(pageObjectModule));
+  }, { scope: 'test' }],
+});
+```
 
+Watch mode usage example:
+```ts
+import { generateIndexFile } from '../src/index';
+
+// Generate an index files recursively in the specified folder
+const watchers = generateIndexFile('./page.object', { watch: true });
+// you should close all watchers before process exit. 
+// Each nested directory with index file will have dedicated watcher
+watchers.closeAll();
 ```
 
 #### Before Generation:

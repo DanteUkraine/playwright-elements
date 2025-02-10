@@ -7,6 +7,9 @@
   "files": [
     "lib"
   ],
+  "bin": {
+    "generate-index": "./lib/index.generator.cli.js"
+  },
   "scripts": {
     "build": "tsc",
     "clean": "tsc --build --clean",
@@ -39,6 +42,7 @@
     "@types/lodash.clonedeep": "^4.5.9",
     "@types/mocha": "^10.0.6",
     "@types/node": "^22.13.1",
+    "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^6.18.0",
     "@typescript-eslint/parser": "^6.18.0",
     "chai": "^4.3.7",
@@ -51,7 +55,9 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "lodash.clonedeep": "^4.5.0"
+    "chokidar": "^4.0.3",
+    "lodash.clonedeep": "^4.5.0",
+    "yargs": "^17.7.2"
   },
   "peerDependencies": {
     "@playwright/test": ">=1.44.x",

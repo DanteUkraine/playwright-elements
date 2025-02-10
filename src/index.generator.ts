@@ -1,94 +1,130 @@
-import { existsSync, rmSync, readdirSync, writeFileSync, statSync } from 'fs';
+import chokidar, { FSWatcher } from 'chokidar';
+import { existsSync, readdirSync, writeFileSync, rmSync, statSync } from 'fs';
 import { join, basename } from 'path';
 
 export type Options = {
+    watch?: boolean;
     cliLog?: boolean;
-    /** Determines whether to use single (') or double (") quotes. */
     quotes?: '\'' | '"';
 };
 
+export interface WatcherManager {
+    watchers: FSWatcher[];
+    addWatcher: (watcher: FSWatcher) => void;
+    closeAll: () => Promise<void>;
+}
+
+// Factory function to create a new WatcherManager.
+function createWatcherManager(): WatcherManager {
+    const watchers: FSWatcher[] = [];
+    return {
+        watchers,
+        addWatcher: (watcher: FSWatcher) => {
+            watchers.push(watcher);
+        },
+        closeAll: async () => {
+            await Promise.all(watchers.map((w) => w.close()));
+            watchers.length = 0;
+        },
+    };
+}
+
 /**
- * Creates an `index.ts` file in the specified folder.
+ * Generates an `index.ts` file in the specified folder (and recursively in subdirectories)
+ * and, if watch mode is enabled, creates watchers in every folder.
  *
- * The function scans the supplied folder for `.ts` files (excluding any existing `index.ts`)
- * and also looks for nested subdirectories. It generates export statements for all TypeScript
- * files in the folder, then recurses into any subdirectories. If an index file is created in a
- * subdirectory, an export statement reexporting that submodule is added in the parent folder's
- * index.
+ * This implementation captures all FS watchers in a shared WatcherManager that is
+ * returned so that they can be canceled later.
  *
- * @param folder - The folder in which to generate the index file.
- * @param options - Optional settings:
- *   - cliLog?: enables logging to the console (default false)
- *   - quotes?: whether to use single (`'`) or double (`"`) quotes in the export statements (default `'`)
- *
- * @example
- * // In a Playwright configuration file (playwright.config.ts)
- * import { devices, PlaywrightTestConfig } from '@playwright/test';
- * import { createIndexFile } from '../src/indexGenerator';
- *
- * // Generate an index file in the target folder:
- * createIndexFile('./integration.tests/resources');
- *
- * const config: PlaywrightTestConfig = {
- *   testDir: './integration.tests',
- *   timeout: 30000,
- *   projects: [
- *     { name: 'Desktop Chromium', use: { ...devices['Desktop Chrome'] } },
- *   ],
- * };
- *
- * export default config;
- *
- * In either a flat or nested directory structure, one index file is generated:
- * - In a flat folder with file1.ts and file2.ts:
- *      export * from './file1';
- *      export * from './file2';
- * - In a folder with a nested directory `nested` (with its own index.ts),
- *   the parent index file will also include:
- *      export * from './nested';
+ * @param folder - The directory to generate the index file in.
+ * @param options - Options for watch mode, logging, and quote style.
+ * @param manager - (Optional) Shared watcher manager. If not provided, a new one is created.
+ * @returns A WatcherManager instance that can close all watchers.
  */
-export function generateIndexFile(folder: string, options?: Options): void {
-    const { cliLog, quotes }: Options = {
+export function generateIndexFile(
+    folder: string,
+    options?: Options,
+    manager?: WatcherManager
+): WatcherManager {
+    const { cliLog, quotes, watch } = {
+        watch: false,
         cliLog: false,
         quotes: '\'',
         ...options,
     };
 
-    if (cliLog) console.info(`Processing folder: ${folder}`);
-    const indexFile = join(folder, 'index.ts');
-
-    if (existsSync(indexFile)) {
-        rmSync(indexFile, { force: true });
+    // Use provided manager or create a new one.
+    if (!manager) {
+        manager = createWatcherManager();
     }
 
-    const entries = readdirSync(folder);
-    // .ts files (excluding index.ts)
-    const tsFiles = entries.filter(
-        (file) => file.endsWith('.ts') && file !== 'index.ts'
-    );
-
-    const subDirs = entries.filter((entry) => {
-        const entryPath = join(folder, entry);
-        return statSync(entryPath).isDirectory();
-    });
-
-    const exportsArr: string[] = tsFiles.map(
-        (file) => `export * from ${quotes}./${basename(file, '.ts')}${quotes};`
-    );
-
-    for (const subDir of subDirs) {
-        const subDirPath = join(folder, subDir);
-        generateIndexFile(subDirPath, options);
-        if (existsSync(join(subDirPath, 'index.ts'))) {
-            exportsArr.push(`export * from ${quotes}./${subDir}${quotes};`);
+    // Function to generate the index file for the current folder.
+    const generateIndex = () => {
+        if (!existsSync(folder)) {
+            if (cliLog) console.warn(`Folder ${folder} does not exist, skipping index generation.`);
+            return;
         }
+        if (cliLog) console.info(`Processing folder: ${folder}`);
+        const indexFile = join(folder, 'index.ts');
+
+        // Remove existing index.ts if it exists.
+        if (existsSync(indexFile)) {
+            rmSync(indexFile, { force: true });
+        }
+
+        // Read the current folder's contents.
+        const entries = readdirSync(folder);
+        const tsFiles = entries.filter(file => file.endsWith('.ts') && file !== 'index.ts');
+        const subDirs = entries.filter(entry => existsSync(join(folder, entry)) && statSync(join(folder, entry)).isDirectory());
+
+        // Generate export statements for .ts files.
+        const exportsArr: string[] = tsFiles.map(file => `export * from ${quotes}./${basename(file, '.ts')}${quotes};`);
+
+        // Process each subdirectory recursively (using the same manager to capture watchers).
+        for (const subDir of subDirs) {
+            const subDirPath = join(folder, subDir);
+            // Recursive index generation includes watchers.
+            generateIndexFile(subDirPath, { ...options, watch: watch }, manager);
+            if (existsSync(join(subDirPath, 'index.ts'))) {
+                exportsArr.push(`export * from ${quotes}./${subDir}${quotes};`);
+            }
+        }
+
+        if (exportsArr.length === 0) {
+            if (cliLog) console.warn(`No exportable modules found in ${folder}. Skipping index generation.`);
+            return;
+        }
+
+        // Write the collected export statements into index.ts.
+        writeFileSync(indexFile, exportsArr.join('\n'));
+        if (cliLog) console.info(`Created index file: ${indexFile}`);
+    };
+
+    generateIndex();
+
+    // If watch mode is enabled, create a watcher for the current folder.
+    if (watch) {
+        const watcher = chokidar.watch(folder, {
+            ignored: /(^|[/\\])\../, // Ignore dotfiles.
+            persistent: true,
+            ignoreInitial: true,
+        });
+
+        watcher.on('add', (filePath) => {
+            if (filePath.endsWith('.ts') && !filePath.endsWith('index.ts')) {
+                if (cliLog) console.log(`File added: ${filePath}`);
+                generateIndex();
+            }
+        });
+        watcher.on('unlink', (filePath) => {
+            if (filePath.endsWith('.ts') && !filePath.endsWith('index.ts')) {
+                if (cliLog) console.log(`File removed: ${filePath}`);
+                generateIndex();
+            }
+        });
+        // Add this watcher to our shared manager.
+        manager.addWatcher(watcher);
     }
 
-    if (exportsArr.length === 0) {
-        if (cliLog) console.warn(`No exportable modules found in ${folder}. Skipping index generation.`);
-        return;
-    }
-
-    writeFileSync(indexFile, exportsArr.join('\n'));
-    if (cliLog) console.info(`Created index file: ${indexFile}`);
+    return manager;
 }
