@@ -205,7 +205,7 @@ import { test as baseTest, buildPageObject, PageObject } from 'playwright-elemen
 import { createIndexFile } from '../src/index';
 import * as pageObjectModule from './pages';
 
-// Generate an index files recursively in the specified folder
+// Generate an index files recursively in the specified folder or use cli interface.
 generateIndexFile('./page.object');
 
 type TestFixtures = { pageObject: PageObject<typeof pageObjectModule> };
@@ -215,8 +215,8 @@ export const test = baseTest.extend({
     await use(buildPageObject(pageObjectModule));
   }, { scope: 'test' }],
 });
-
 ```
+You can generate index file via CLI [Generate index file](#generate-index-file).
 
 Elements like tables can be called in a chain with different filters to narrow down target 
 inner elements for assertions or actions.
