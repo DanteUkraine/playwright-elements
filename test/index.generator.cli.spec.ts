@@ -4,7 +4,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-describe.only('CLI Generator Tests', function () {
+describe('CLI Generator Tests', function () {
     this.timeout(10000);
 
     let tempDir: string;
@@ -29,39 +29,44 @@ describe.only('CLI Generator Tests', function () {
 
         const indexFilePath = path.join(tempDir, 'index.ts');
         expect(fs.existsSync(indexFilePath), `Expected index file "${indexFilePath}" to exist.`).to.be.true;
-        const content = fs.readFileSync(indexFilePath, 'utf-8');
+
+        const content = fs.readFileSync(indexFilePath, 'utf8');
         expect(content, 'Index file should include export for file1.ts.').to.include(`export * from './file1';`);
     });
 
     it('should update index.ts when a new .ts file is added in watch mode', async function () {
+        // Create an initial dummy TypeScript file.
         fs.writeFileSync(path.join(tempDir, 'file1.ts'), 'export class Dummy {}');
 
-        const cliProcess = spawn('node', [
-            'lib/index.generator.cli.js',
-            tempDir,
-            '--cliLog',
-            'false',
-            '--watch',
-            'true',
-            '--quotes',
-            `'`
-        ], {
-            stdio: ['ignore', 'pipe', 'pipe']
-        });
+        const cliProcess = spawn(
+            'node',
+            [
+                'lib/index.generator.cli.js',
+                tempDir,
+                '--cliLog',
+                'false',
+                '--watch',
+                'true',
+                '--quotes',
+                `'`
+            ],
+            { stdio: ['ignore', 'pipe', 'pipe'] }
+        );
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const indexFilePath = path.join(tempDir, 'index.ts');
-        expect(fs.existsSync(indexFilePath), `Expected index file "${indexFilePath}" to exist after initial generation.`).to.be.true;
-        let content = fs.readFileSync(indexFilePath, 'utf-8');
+        expect(fs.existsSync(indexFilePath), `Expected index file "${indexFilePath}" to exist after initial generation.`)
+            .to.be.true;
+        let content = fs.readFileSync(indexFilePath, 'utf8');
         expect(content, 'Initial index file should include export for file1.ts.')
             .to.include(`export * from './file1';`);
 
-        fs.writeFileSync(path.join(tempDir, 'file2.ts'), 'export class Dummy2 {}');
+        fs.writeFileSync(path.join(tempDir, 'file2.ts'), 'export class NewDummy {}');
 
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
-        content = fs.readFileSync(indexFilePath, 'utf-8');
+        content = fs.readFileSync(indexFilePath, 'utf8');
         expect(content, 'Updated index file should include export for file2.ts.')
             .to.include(`export * from './file2';`);
 
