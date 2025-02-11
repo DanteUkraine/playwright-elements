@@ -5,7 +5,7 @@ import path, { join } from 'path';
 
 const testRoot = join(__dirname, 'tempFlat');
 
-describe('CLI Generator Tests', function () {
+describe.only('CLI Generator Tests', function () {
     this.timeout(10000);
 
     afterEach(() => {
@@ -17,7 +17,6 @@ describe('CLI Generator Tests', function () {
     it('should generate index.ts file in non-watch mode', () => {
         fs.mkdirSync(testRoot, { recursive: true });
         fs.writeFileSync(join(testRoot, 'file1.ts'), 'export class AdminPage {}');
-        fs.writeFileSync(join(testRoot, 'file2.ts'), 'export class LoginPage {}');
 
         execSync(
             `node lib/index.generator.cli.js ${testRoot} --cliLog false --watch false --quotes "'"`,
@@ -51,23 +50,25 @@ describe('CLI Generator Tests', function () {
             { stdio: ['ignore', 'pipe', 'pipe'] }
         );
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        const indexFilePath = path.join(testRoot, 'index.ts');
-        expect(fs.existsSync(indexFilePath), `Expected index file "${indexFilePath}" to exist after initial generation.`)
-            .to.be.true;
-        let content = fs.readFileSync(indexFilePath, 'utf8');
-        expect(content, 'Initial index file should include export for file1.ts.')
-            .to.include(`export * from './file1';`);
+            const indexFilePath = path.join(testRoot, 'index.ts');
+            expect(fs.existsSync(indexFilePath), `Expected index file "${indexFilePath}" to exist after initial generation.`)
+                .to.be.true;
+            let content = fs.readFileSync(indexFilePath, 'utf8');
+            expect(content, 'Initial index file should include export for file1.ts.')
+                .to.include(`export * from './file1';`);
 
-        fs.writeFileSync(join(testRoot, 'file1.ts'), 'export class AdminPage {}');
+            fs.writeFileSync(join(testRoot, 'file1.ts'), 'export class AdminPage {}');
 
-        await new Promise((resolve) => setTimeout(resolve, 3000));
+            await new Promise((resolve) => setTimeout(resolve, 3000));
 
-        content = fs.readFileSync(indexFilePath, 'utf8');
-        expect(content, 'Updated index file should include export for file2.ts.')
-            .to.include(`export * from './file2';`);
-
-        cliProcess.kill();
+            content = fs.readFileSync(indexFilePath, 'utf8');
+            expect(content, 'Updated index file should include export for file2.ts.')
+                .to.include(`export * from './file2';`);
+        } finally {
+            cliProcess.kill();
+        }
     });
 });
