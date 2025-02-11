@@ -1,33 +1,30 @@
 import { expect } from 'chai';
 import { execSync, spawn } from 'child_process';
 import fs from 'fs';
-import os from 'os';
-import path from 'path';
+import path, { join } from 'path';
+
+const testRoot = join(__dirname, 'tempFlat');
 
 describe('CLI Generator Tests', function () {
     this.timeout(10000);
 
-    let tempDir: string;
-
-    beforeEach(() => {
-        tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-test-'));
-    });
-
     afterEach(() => {
-        if (fs.existsSync(tempDir)) {
-            fs.rmSync(tempDir, { recursive: true, force: true });
-        }
+      if (fs.existsSync(testRoot)) {
+        fs.rmSync(testRoot, { recursive: true, force: true });
+      }
     });
 
     it('should generate index.ts file in non-watch mode', () => {
-        fs.writeFileSync(path.join(tempDir, 'file1.ts'), 'export class Dummy {}');
+        fs.mkdirSync(testRoot, { recursive: true });
+        fs.writeFileSync(join(testRoot, 'file1.ts'), 'export class AdminPage {}');
+        fs.writeFileSync(join(testRoot, 'file2.ts'), 'export class LoginPage {}');
 
         execSync(
-            `node lib/index.generator.cli.js ${tempDir} --cliLog false --watch false --quotes "'"`,
+            `node lib/index.generator.cli.js ${testRoot} --cliLog false --watch false --quotes "'"`,
             { stdio: 'inherit' }
         );
 
-        const indexFilePath = path.join(tempDir, 'index.ts');
+        const indexFilePath = path.join(testRoot, 'index.ts');
         expect(fs.existsSync(indexFilePath), `Expected index file "${indexFilePath}" to exist.`).to.be.true;
 
         const content = fs.readFileSync(indexFilePath, 'utf8');
@@ -35,14 +32,15 @@ describe('CLI Generator Tests', function () {
     });
 
     it('should update index.ts when a new .ts file is added in watch mode', async function () {
-        // Create an initial dummy TypeScript file.
-        fs.writeFileSync(path.join(tempDir, 'file1.ts'), 'export class Dummy {}');
+        fs.mkdirSync(testRoot, { recursive: true });
+        fs.writeFileSync(join(testRoot, 'file1.ts'), 'export class AdminPage {}');
+        fs.writeFileSync(join(testRoot, 'file2.ts'), 'export class LoginPage {}');
 
         const cliProcess = spawn(
             'node',
             [
                 'lib/index.generator.cli.js',
-                tempDir,
+                testRoot,
                 '--cliLog',
                 'false',
                 '--watch',
@@ -55,14 +53,14 @@ describe('CLI Generator Tests', function () {
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        const indexFilePath = path.join(tempDir, 'index.ts');
+        const indexFilePath = path.join(testRoot, 'index.ts');
         expect(fs.existsSync(indexFilePath), `Expected index file "${indexFilePath}" to exist after initial generation.`)
             .to.be.true;
         let content = fs.readFileSync(indexFilePath, 'utf8');
         expect(content, 'Initial index file should include export for file1.ts.')
             .to.include(`export * from './file1';`);
 
-        fs.writeFileSync(path.join(tempDir, 'file2.ts'), 'export class NewDummy {}');
+        fs.writeFileSync(join(testRoot, 'file1.ts'), 'export class AdminPage {}');
 
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
