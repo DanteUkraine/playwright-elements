@@ -54,5 +54,4 @@ describe(`Web element frame pointer`, function () {
         });
         expect(await body.iframe.title._.textContent()).to.equal('Playwright');
     })
-
 });

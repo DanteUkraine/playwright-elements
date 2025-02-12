@@ -2,13 +2,12 @@
 [![Awesome](https://awesome.re/mentioned-badge.svg)](https://github.com/mxschmitt/awesome-playwright/blob/master/README.md#utils)
 
 ___
-*Playwright elements helps you to create reusable components with ability to add child elements, methods
-and call them in chain. Reduce amount of your code in page object, or even use elements without page object.*
+*Playwright elements helps you create reusable components with child elements and methods that can be called in chains. 
+It reduces the amount of code in your page objects or allows you to work without page objects entirely.*
 
-*Playwright-elements facilitates the representation of a web component's tree structure, 
-where each component can have multiple descendants, and all elements within the tree inherit the Locator API.
-Each element enables the invocation of both descendant elements and methods from the Locator API, 
-allowing to construct an invocation-chain of calls involving elements and synchronous methods.*
+*Playwright-elements makes it easy to represent a web component's tree structure, where each component can have 
+multiple descendants, and all elements within the tree inherit the Locator API. Each element can call both descendant 
+elements and methods from the Locator API, allowing you to build a chain of calls involving elements and synchronous methods.*
 
 ***Installation:*** `npm install -D playwright-elements`
 
@@ -93,6 +92,11 @@ ___
   - [goto](#goto)
   - [Init browser instance](#init-browser-instance)
   - [use page](#fixture-use-page)
+- [Build page object](#build-page-object)
+  - [Options](#build-page-object-options-suffix-and-lowercasefirst) 
+  - [Generate index file](#generate-index-file)
+      - [CLI Interface](#cli-interface)
+      - [Index Generator programing interface](#programing-interface)
 - [Browser instance](#browser-instance)
   - [Browser name](#browser-name)
   - [Start](#start)
@@ -108,34 +112,40 @@ ___
 ___
 ## Get started
 
-No need to pass instance of page into your page object.
+You don't need to pass the instance of page into your page object.
+
+_./pages/index.ts_
 ```ts
 import { $ } from 'playwright-elements';
 
-class MainPage {
+export class MainPage {
     readonly header = $('.navbar');
 }
 ```
 
-Each element which was created by **$** function returns instance of WebElement so code may look next:
+Each element created by the **$** function returns an instance of WebElement, so the code may look like this:
+
+_./pages/index.ts_
 ```ts
 import { $, WebElement } from 'playwright-elements';
 
-class MainPage {
+export class MainPage {
     readonly header: WebElement = $('.navbar');
 }
 ```
 
-**$** function is just a shortcut for **new WebElement('.navbar');**
+The **$** function is just a shortcut for **new WebElement('.navbar');**
 
-Each WebElement can have sub elements and child elements can have sub elements as well.
+Each WebElement can have sub-elements, and child elements can have sub-elements as well.
 **subElements({logo: $('.navbar__title')})** or **with({logo: $('.navbar__title')})** returns type intersection.
+
+_./pages/index.ts_
 ```ts
 import { $, WebElement } from 'playwright-elements';
 
 type Header = WebElement & { logo: WebElement }
 
-class MainPage {
+export class MainPage {
     readonly header: Header = $('.navbar')
         .with({
             logo: $('.navbar__title'),
@@ -146,12 +156,13 @@ class MainPage {
 
 Several elements deep structure:
 
+_./pages/index.ts_
 ```ts
 import { $, WebElement } from 'playwright-elements';
 
 type Table = WebElement & { thead: Webelement }
 
-class MainPage {
+export class MainPage {
     readonly table = $('table')
         .with({
             columnHeaders: $('thead td'),
@@ -165,12 +176,13 @@ class MainPage {
 
 Sub elements and custom methods:
 
+_./pages/index.ts_
 ```ts
 import { $, WebElement } from 'playwright-elements';
 
 type Table = WebElement & { thead: Webelement }
 
-class MainPage {
+export class MainPage {
     readonly table = $('table')
         .with({
             columnHeaders: $('thead td'),
@@ -185,19 +197,41 @@ class MainPage {
 }
 ```
 
-Such elements as table can be called in chain with different filters to narrow target inner 
-elements for asserts or actions. 
-Usage in test:
+Type-Safe Fixture Setup:
+
+_./fixtures.ts_
 ```ts
-import { test } from 'playwright-elements'
-import { MainPage } from 'page.object';
+import { test as baseTest, buildPageObject, PageObject } from 'playwright-elements';
+import { createIndexFile } from '../src/index';
+import * as pageObjectModule from './pages';
+
+// Generate an index files recursively in the specified folder or use cli interface.
+generateIndexFile('./page.object');
+
+type TestFixtures = { pageObject: PageObject<typeof pageObjectModule> };
+
+export const test = baseTest.extend({
+  page: [async ({}, use) => {
+    await use(buildPageObject(pageObjectModule));
+  }, { scope: 'test' }],
+});
+```
+You can generate index file via CLI [Generate index file](#generate-index-file).
+
+Elements like tables can be called in a chain with different filters to narrow down target 
+inner elements for assertions or actions.
+
+Usage in test:
+
+_./test.ts_
+```ts
+import { test } from './fixtures'
 
 test.describe('Invocation chain example', () => {
     
-    const mainPage = new MainPage(); // Pay attention that now your page can be initialized out of test of hooks.
-    test('test', async () => {
-        await mainPage.table.columnHeaders.expect().toHaveText(['ID', 'Name', 'Status']);
-        await mainPage.table.rows.hasText('Justin').cells.expect().toHaveText(['123', 'Justin', 'Single']);
+    test('test', async ({ page }) => {
+        await page.table.columnHeaders.expect().toHaveText(['ID', 'Name', 'Status']);
+        await page.table.rows.hasText('Justin').cells.expect().toHaveText(['123', 'Justin', 'Single']);
     });
     
 });
@@ -222,6 +256,7 @@ const config: PlaywrightTestConfig = {
 export default config;
 ```
 
+Pay attention that usage of `buildPageObject` method to return pages in fixture is not mandatory.
 ```ts
 import { test } from 'playwright-elements';
 import { MainPage } from 'page.object'
@@ -230,7 +265,7 @@ test.describe('Goto fixure example', () => {
 
   test('expect positive', async ({ goto }) => {
     await goto();
-    const mainPage = new MainPage();
+    const mainPage = new MainPage(); // Your page object is imdependent from page instance and from bieng returned from fixtures
     await mainPage.header.logo.expect().toBeVisible();
     await mainPage.header.logo.expect().toHaveText('Playwright');
   })
@@ -1113,8 +1148,179 @@ test('example', async ({ goto, useSecondContext }) => {
   expect(await title.textContent()).toEqual('Playwright enables reliable end-to-end testing for modern web apps.')
 });
 ```
+___
+## Build page object
+
+The buildPageObject utility automatically creates a strongly-typed page object instance from a module containing 
+multiple page classes, providing full TypeScript autocompletion support in your tests.
+
+
+Type-Safe Fixture Setup:
+```ts
+import { test as baseTest, buildPageObject, PageObject } from 'playwright-elements';
+import * as pageObjectModule from './pages';
+
+type TestFixtures = { pageObject: PageObject<typeof pageObjectModule> };
+
+const test = baseTest.extend({
+  pageObject: [async ({}, use) => {
+    await use(buildPageObject(pageObjectModule));
+  }, { scope: 'test' }],
+});
+
+```
+Page object
+```ts
+// pages/index.ts
+export class HomePage {
+  welcome() {
+    return 'Welcome to homepage';
+  }
+}
+
+export class SettingsPage {
+  getSettings() {
+    // Implementation
+  }
+}
+```
+
+Then use in your tests with full autocompletion:
+```ts
+test('navigation example', async ({ pageObject }) => {
+  // Full autocompletion for all pages and their methods
+  const welcomeMessage = pageObject.home.welcome();
+  await pageObject.settings.getSettings();
+});
+```
+
+The pageObject fixture automatically includes all exported page classes, with properties matching their lowercase names:
+pageObject.home - instance of HomePage
+pageObject.settings - instance of SettingsPage
+This approach scales automatically as you add new page objects to your test suite, 
+without requiring any changes to your test fixtures.
+
+### Build Page Object Options: suffix and lowerCaseFirst
+The new buildPageObject feature not only instantiates all exported page classes automatically but also provides 
+options to control how the keys (i.e., property names) are generated for each page object. Two important options are:
+
+```ts
+// Default behavior:
+// suffix: 'Page', lowerCaseFirst: true
+const pageObject1 = buildPageObject(pageObjectModule);
+// Resulting keys:
+pageObject1.home      // → Instance of HomePage
+pageObject1.settings  // → Instance of SettingsPage
+
+// Retain the full class name by not removing any suffix:
+const pageObject2 = buildPageObject(pageObjectModule, { suffix: '' });
+// Resulting keys:
+pageObject2.homePage      // → Instance of HomePage
+pageObject2.settingsPage  // → Instance of SettingsPage
+
+// Remove suffix as usual but preserve original casing:
+const pageObject3 = buildPageObject(pageObjectModule, { lowerCaseFirst: false });
+// Resulting keys:
+pageObject3.Home      // → Instance of HomePage
+pageObject3.Settings  // → Instance of SettingsPage
+```
+
+### Key Benefits of buildPageObject factory method.
+- Automatically creates page object instances from all exported page classes
+- Provides full TypeScript autocompletion for all page methods
+- Eliminates need to manually update fixtures when adding new pages
+- Maintains type safety across your entire test suite
+___
+### Generate index file
+
+#### CLI Interface
+
+The index generator is also available as a standalone CLI tool. This provides a convenient way to generate (and optionally watch) index files without modifying your code, which is especially useful in CI/CD pipelines or during test environment setup for UI tests.
+
+**CLI Usage Examples:**
+
+Generate index file once:
+```shell
+npx generate-index ./src
+```
+Generate index files with watch mode enabled:
+```shell
+npx generate-index ./src --watch true
+```
+Generate index files with console logs:
+```shell
+npx generate-index ./src --cliLog true
+```
+Specify quote style (use double quotes, default value is single quotes):
+```shell
+npx generate-index ./src --quotes '"'
+```
+___
+#### Programing interface
+
+The `generateIndexFile` function generates an `index.ts` file in a specified folder. 
+It scans the folder for `.ts` files (excluding index.ts) and creates export statements for each file. 
+This function is useful for automating the creation of centralized export files in TypeScript projects.
+
+#### Parameters:
+- `folder` (string): The directory where the index.ts file will be created.
+- `options` (Options, optional):
+  - `cliLog` (boolean, default: false): Enables or disables logging to the console.
+  - `quotes` ( ' | ", default: ' ): Specifies whether to use single or double quotes in the generated export statements.
+  - `watch` (boolean, optional, default: false): starts watchers on backgraund for each subdirectory.
+
+#### Example Usage:
+The function can be used in various contexts. For example, it can be called in a 
+Playwright configuration file to dynamically generate an index.ts file before running tests.
+```ts
+import { test as baseTest, buildPageObject, PageObject, generateIndexFile } from 'playwright-elements';
+import * as pageObjectModule from './pages';
+
+// Generate an index files recursively in the specified folder
+generateIndexFile('./page.object'); // one time generation
+
+type TestFixtures = { pageObject: PageObject<typeof pageObjectModule> };
+
+export const test = baseTest.extend({
+  page: [async ({}, use) => {
+    await use(buildPageObject(pageObjectModule));
+  }, { scope: 'test' }],
+});
+```
+
+Watch mode usage example:
+```ts
+import { generateIndexFile } from '../src/index';
+
+// Generate an index files recursively in the specified folder
+const watchers = generateIndexFile('./page.object', { watch: true });
+// you should close all watchers before process exit. 
+// Each nested directory with index file will have dedicated watcher
+watchers.closeAll();
+```
+
+#### Before Generation:
+```text
+testFolder/
+├── file1.ts
+├── file2.ts
+└── nested/
+    ├── nestedFile1.ts
+```
+
+#### After Generation:
+```text
+testFolder/
+├── index.ts // root level will include "export * from './nested'";
+├── file1.ts
+├── file2.ts
+└── nested/
+    ├── index.ts
+    ├── nestedFile1.ts
+```
 
 ___
+
 ## Browser Instance
 *This object represents single-tone for `Browser`, `BrowserContext` and `Page`.
 It allows avoiding pass `page` in your page object.*

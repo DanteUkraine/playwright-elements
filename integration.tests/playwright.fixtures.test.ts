@@ -1,4 +1,4 @@
-import { expect, $, BrowserInstance, initDesktopOrMobile, test as originalTest } from '../src';
+import { expect, $, BrowserInstance, initDesktopOrMobile, test as originalTest } from '../src/index';
 import { localFilePath } from '../test/utils';
 import { mergeTests, test as baseTest } from '@playwright/test';
 

@@ -1,6 +1,5 @@
-import { BrowserInstance, expect, test, $, initDesktopOrMobile, WebElement } from '../src';
+import { BrowserInstance, expect, test, $, initDesktopOrMobile, WebElement } from '../src/index';
 import { devices } from '@playwright/test';
-
 
 test.use({ ...devices['iPhone 13'] })
 

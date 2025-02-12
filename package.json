@@ -1,18 +1,21 @@
 {
   "name": "playwright-elements",
-  "version": "1.15.0",
+  "version": "1.16.0",
   "description": "This is Playwright extension.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
     "lib"
   ],
+  "bin": {
+    "generate-index": "./lib/index.generator.cli.js"
+  },
   "scripts": {
     "build": "tsc",
     "clean": "tsc --build --clean",
     "install:deps": "npm install --registry=https://registry.npmjs.org",
     "install:browsers": "npx playwright install --force chrome chromium msedge firefox webkit --with-deps",
-    "test": "mocha",
+    "test": "ts-mocha",
     "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts",
     "prepare": "husky install",
     "lint": "npx eslint ."
@@ -33,24 +36,28 @@
   },
   "homepage": "https://danteukraine.github.io/playwright-elements",
   "devDependencies": {
-    "@playwright/test": "^1.44.0",
+    "@playwright/test": "^1.50.1",
     "@types/chai": "^4.3.5",
     "@types/chai-as-promised": "^7.1.5",
     "@types/lodash.clonedeep": "^4.5.9",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.10.7",
+    "@types/node": "^22.13.1",
+    "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^6.18.0",
     "@typescript-eslint/parser": "^6.18.0",
     "chai": "^4.3.7",
     "eslint": "^8.56.0",
     "husky": "^8.0.3",
     "mocha": "^10.2.0",
-    "playwright-core": "^1.44.0",
+    "playwright-core": "^1.50.1",
+    "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.7.3"
   },
   "dependencies": {
-    "lodash.clonedeep": "^4.5.0"
+    "chokidar": "^4.0.3",
+    "lodash.clonedeep": "^4.5.0",
+    "yargs": "^17.7.2"
   },
   "peerDependencies": {
     "@playwright/test": ">=1.44.x",

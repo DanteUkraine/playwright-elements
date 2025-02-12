@@ -250,6 +250,5 @@ describe('Web Element augmentation', () => {
         expect(element).to.have.property('child');
         expect(element.child).to.have.property('innerChild');
         expect(element.narrowSelector).to.be.equal('.parent')
-
     });
 });

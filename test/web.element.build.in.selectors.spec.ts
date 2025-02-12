@@ -12,7 +12,7 @@ import {
 } from '../src';
 import { test } from 'mocha';
 import { expect } from 'chai';
-import { localFilePath } from './utils'
+import { localFilePath } from './utils';
 
 
 describe(`Web element build in selectors`, function () {

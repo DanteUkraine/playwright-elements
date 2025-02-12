@@ -1,4 +1,4 @@
-import { test as baseTest, $, usePage, expect } from '../src';
+import { test as baseTest, $, usePage, expect } from '../src/index';
 import { Page } from '@playwright/test';
 
 type TestFixtures = { secondContextPage: Page, useSecondContext: <T>(callback: () => Promise<T>) => Promise<T> };
@@ -39,7 +39,7 @@ test.describe('Playwright test integration', () => {
 
     test('usePage returns value', async ({ goto, page }) => {
         await goto('/docs/test-fixtures');
-        const text = await usePage<string>(page, async () => {
+        const text = await usePage(page, async () => {
             return testFixturesPage.title.textContent();
         });
         expect(text).toEqual('Fixtures');
@@ -47,7 +47,7 @@ test.describe('Playwright test integration', () => {
 
     test('usePage as fixture returns value', async ({ goto, page, usePage }) => {
         await goto('/docs/test-fixtures');
-        const text = await usePage<string>(page, async () => {
+        const text = await usePage(page, async () => {
             return title.textContent();
         });
         expect(text).toEqual('Fixtures');
@@ -55,7 +55,7 @@ test.describe('Playwright test integration', () => {
 
     test('usePage wrapped and goto used inside', async ({ goto, useSecondContext }) => {
         await goto();
-        const text = await useSecondContext<string>(async () => {
+        const text = await useSecondContext(async () => {
             await goto('/docs/test-fixtures');
             return title.textContent();
         });

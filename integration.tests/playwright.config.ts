@@ -1,4 +1,7 @@
 import { devices, PlaywrightTestConfig } from '@playwright/test';
+import { generateIndexFile } from '../src/index';
+
+generateIndexFile('./integration.tests/resources');
 
 const config: PlaywrightTestConfig = {
     timeout: 45_000,

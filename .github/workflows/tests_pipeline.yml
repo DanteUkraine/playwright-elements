@@ -27,6 +27,8 @@ jobs:
         run: npm ci
       - name: Install browsers
         run: npm run install:browsers
+      - name: Build
+        run: npm run build
       - name: Run tests
         run: npm test
         timeout-minutes: 5
