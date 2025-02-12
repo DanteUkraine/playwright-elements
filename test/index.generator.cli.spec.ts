@@ -5,7 +5,7 @@ import path, { join } from 'path';
 
 const testRoot = join(__dirname, 'tempFlat');
 
-describe.only('CLI Generator Tests', function () {
+describe('CLI Generator Tests', function () {
     this.timeout(10000);
 
     afterEach(() => {
