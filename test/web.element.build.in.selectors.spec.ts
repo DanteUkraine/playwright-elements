@@ -198,7 +198,7 @@ describe(`Web element build in selectors`, function () {
         const element1 = $('input[id=disabled-field]').and($('[type=checkbox]')).and('[checked]');
         const element2 = $('input[id=none]').and($('[type=checkbox]'));
         expect(await element1.isVisible()).to.be.true;
-        expect(await element1.isVisible()).to.be.false;
+        expect(await element2.isVisible()).to.be.false;
     })
 
     test('or should extend locator with optional selectors list', async () => {
