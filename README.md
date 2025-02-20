@@ -597,6 +597,20 @@ import { $getByRole, $getByTitle } from "playwright-elements";
 const button = $getByRole('button').and($getByTitle('Subscribe'));
 ```
 
+## Or
+Method `or<T extends WebElement, R extends WebElement>(this: R, element: string | T): R` helps to use optional
+selectors to select element.
+
+```ts
+import { test, $ } from "playwright-elements";
+
+const button = $('button').or($('input[type=button]'));
+
+test('or', async () => {
+  await button.expect().toBeVisible();
+})
+```
+
 ### Has
 Method `has(selector: string | WebElement)` helps to find elements with specific child.
 
@@ -769,6 +783,9 @@ another method from locator which you will not be abel find in list below please
 ### All text contents 
 `$('selector').allTextContents();` calls: [allTextContents()](https://playwright.dev/docs/api/class-locator#locator-all-text-contents).
 
+### Aria snapshot
+`$('selector').ariaSnapshot(options?);` calls [ariaSnapshot(options?)](https://playwright.dev/docs/api/class-locator#locator-aria-snapshot).
+
 ### Blur
 `$('selector').blur(options?);` calls: [blur()](https://playwright.dev/docs/api/class-locator#locator-blur).
 
@@ -875,7 +892,6 @@ another method from locator which you will not be abel find in list below please
 `$('selector').waitFor(options?);` calls: [waitFor()](https://playwright.dev/docs/api/class-locator#locator-wait-for).
 ___
 
-___
 ## Lists of WebElements
 
 Suite of methods to work with arrays of elements.
