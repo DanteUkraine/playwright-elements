@@ -665,6 +665,14 @@ export class WebElement {
     public async waitFor(options?: WaitForOptions): Promise<void> {
         await this.locator.waitFor(options);
     }
+
+    // additional methods
+
+    public async getText(options?: TextContentOptions): Promise<string> {
+        const text = await this.locator.textContent(options);
+        if (text) return text;
+        throw new Error(`Text content method returned null for selector: "${this.selector}"`);
+    }
 }
 
 enum By {

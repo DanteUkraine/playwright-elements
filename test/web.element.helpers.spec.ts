@@ -1,6 +1,6 @@
 import { $, BrowserInstance, BrowserName } from '../src';
 import { test } from 'mocha';
-import { expect } from 'chai';
+import { AssertionError, expect } from 'chai';
 import { localFilePath } from './utils'
 
 
@@ -107,6 +107,21 @@ describe(`Web element build in helpers`, function () {
         expect(await filtered.getAttribute('id')).to.be.equal('inner-visible-target2');
     })
 
+    test('get text method returns text', async () => {
+        const title = $('[data-testid=main-title]');
+        expect(await title.getText()).to.equal('Hello Playwright elements');
+    });
+
+    test('get text method throws error', async () => {
+        const title = $('img');
+        try {
+            await title.getText()
+        } catch (e) {
+            expect(e).to.have.property('message', 'Text content method returned null for selector: "img"');
+            return;
+        }
+        throw new AssertionError('Method getText should throw error.')
+    })
 
 });
 
