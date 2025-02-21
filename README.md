@@ -2,23 +2,18 @@
 [![Awesome](https://awesome.re/mentioned-badge.svg)](https://github.com/mxschmitt/awesome-playwright/blob/master/README.md#utils)
 
 ___
-*Playwright elements helps you create reusable components with child elements and methods that can be called in chains. 
-It reduces the amount of code in your page objects or allows you to work without page objects entirely.*
+*Playwright-elements allows you to create reusable components with child elements and chainable methods. 
+It minimizes boilerplate code in your page objects and even enables you to work without them entirely.*
 
-*Playwright-elements makes it easy to represent a web component's tree structure, where each component can have 
-multiple descendants, and all elements within the tree inherit the Locator API. Each element can call both descendant 
-elements and methods from the Locator API, allowing you to build a chain of calls involving elements and synchronous methods.*
+*This library makes it easy to represent the tree structure of a web component. 
+Each component can have multiple descendants, and all elements in the tree inherit the Locator API. 
+You can therefore chain calls—mixing element selectors with synchronous methods—to build expressive and concise tests.*
 
-***Installation:*** `npm install -D playwright-elements`
+***Installation:***
 
-***IMPORTANT:*** playwright elements is not standalone framework, it requires:
--  v1.5: `@playwright/test >= 1.27.x` to added to project.
--  v1.6: `@playwright/test >= 1.33.x` to added to project.
--  v1.8: `@playwright/test >= 1.34.x` to added to project.
--  v1.9: `@playwright/test >= 1.38.x` to added to project.
--  v1.10: `@playwright/test >= 1.40.x` to added to project.
--  v1.13: `@playwright/test >= 1.42.x` to added to project.
--  v1.15: `@playwright/test >= 1.44.x` to added to project.
+Run the following command to install the package:
+
+`npm install -D playwright-elements`
 
 ___
 - [Get started](#get-started)
@@ -49,9 +44,10 @@ ___
     - [Filter](#filter)
   - [Add handler](#add-handler)
   - [Remove handler](#remove-handler)
-  - [Actions](#actions) 
+  - [Actions (Ported Locator methods)](#actions) 
     - [All inner texts](#all-inner-texts)
     - [All text contents](#all-text-contents)
+    - [Aria snapshot](#aria-snapshot)
     - [Blur](#blur)
     - [Bounding box](#bounding-box)
     - [Check](#check)
@@ -112,7 +108,7 @@ ___
 ___
 ## Get started
 
-You don't need to pass the instance of page into your page object.
+You do not need to pass the page instance into your page object.
 
 _./pages/index.ts_
 ```ts
@@ -123,7 +119,7 @@ export class MainPage {
 }
 ```
 
-Each element created by the **$** function returns an instance of WebElement, so the code may look like this:
+Each element created using the **$** function returns an instance of WebElement. Your code can also be written as:
 
 _./pages/index.ts_
 ```ts
@@ -134,7 +130,7 @@ export class MainPage {
 }
 ```
 
-The **$** function is just a shortcut for **new WebElement('.navbar');**
+The **$** function is simply a shortcut for  **new WebElement('.navbar');**
 
 Each WebElement can have sub-elements, and child elements can have sub-elements as well.
 **subElements({logo: $('.navbar__title')})** or **with({logo: $('.navbar__title')})** returns type intersection.
@@ -582,8 +578,8 @@ test(`get parent`, () => {
 ## Build in selector helpers
 
 ### And 
-Method `and<T extends WebElement, R extends WebElement>(this: R, element: string | T): R` helps to use multiple
-selectors to find one element.
+
+The `and(this: R, element: string | T): R` method allows you to combine multiple selectors to refine the search for a single element.
 
 ```ts
 import { $ } from "playwright-elements";
@@ -598,8 +594,8 @@ const button = $getByRole('button').and($getByTitle('Subscribe'));
 ```
 
 ## Or
-Method `or<T extends WebElement, R extends WebElement>(this: R, element: string | T): R` helps to use optional
-selectors to select element.
+
+The `or(this: R, element: string | T): R` method enables you to specify alternative selectors for locating an element.
 
 ```ts
 import { test, $ } from "playwright-elements";
@@ -777,118 +773,118 @@ Web elements provide users with direct access to common actions from playwright 
 But in case you will need to use such methods as `evaluate`, `evaluateAll`, `locator.filtrer`, `locator.all` or any 
 another method from locator which you will not be abel find in list below please use getter [locator] or [_]
 
-### All inner texts
+#### All inner texts
 `$('selector').allInnerTexts();` calls: [allInnerTexts()](https://playwright.dev/docs/api/class-locator#locator-all-inner-texts).
 
-### All text contents 
+#### All text contents 
 `$('selector').allTextContents();` calls: [allTextContents()](https://playwright.dev/docs/api/class-locator#locator-all-text-contents).
 
-### Aria snapshot
+#### Aria snapshot
 `$('selector').ariaSnapshot(options?);` calls [ariaSnapshot(options?)](https://playwright.dev/docs/api/class-locator#locator-aria-snapshot).
 
-### Blur
+#### Blur
 `$('selector').blur(options?);` calls: [blur()](https://playwright.dev/docs/api/class-locator#locator-blur).
 
-### Bounding box
+#### Bounding box
 `$('selector').boundingBox(options?);` calls: [boundingBox()](https://playwright.dev/docs/api/class-locator#locator-bounding-box).
 
-### Check
+#### Check
 `$('selector').check(options?);` calls: [check()](https://playwright.dev/docs/api/class-locator#locator-check).
 
-### Clear
+#### Clear
 `$('selector').clear(options?);` calls: [clear()](https://playwright.dev/docs/api/class-locator#locator-clear).
 
-### Click
+#### Click
 `$('selector').click(options?);` calls: [click()](https://playwright.dev/docs/api/class-locator#locator-click).
 
-### Count
+#### Count
 `$('selector').count();` calls: [count()](https://playwright.dev/docs/api/class-locator#locator-count).
 
-### Double click
+#### Double click
 `$('selector').dblclick(options?);` calls: [dblclick()](https://playwright.dev/docs/api/class-locator#locator-dblclick).
 
-### Dispatch event
+#### Dispatch event
 `$('selector').dispatchEvent(type, eventInit?, options?);` calls: [dispatchEvent()](https://playwright.dev/docs/api/class-locator#locator-dispatch-event).
 
-### Drag to
+#### Drag to
 `$('selector').dragTo(target, options?);` calls: [dragTo()](https://playwright.dev/docs/api/class-locator#locator-drag-to).
 
-### Fill
+#### Fill
 `$('selector').fill(value, options?);` calls: [fill()](https://playwright.dev/docs/api/class-locator#locator-fill).
 
-### Focus
+#### Focus
 `$('selector').focus(options?);` calls: [focus()](https://playwright.dev/docs/api/class-locator#locator-focus).
 
-### Get attribute
+#### Get attribute
 `$('selector').getAttribute(name, options?);` calls: [getAttribute()](https://playwright.dev/docs/api/class-locator#locator-get-attribute).
 
-### Highlight
+#### Highlight
 `$('selector').highlight();` calls: [highlight()](https://playwright.dev/docs/api/class-locator#locator-highlight).
 
-### Hover
+#### Hover
 `$('selector').hover(options?);` calls: [hover()](https://playwright.dev/docs/api/class-locator#locator-hover).
 
-### Inner HTML
+#### Inner HTML
 `$('selector').innerHTML(options?);` calls: [innerHTML()](https://playwright.dev/docs/api/class-locator#locator-inner-html).
 
-### Inner text
+#### Inner text
 `$('selector').innerText(options?);` calls: [innerText()](https://playwright.dev/docs/api/class-locator#locator-inner-text).
 
-### Input value
+#### Input value
 `$('selector').inputValue(options?);` calls: [inputValue()](https://playwright.dev/docs/api/class-locator#locator-input-value).
 
-### Is checked
+#### Is checked
 `$('selector').isChecked(options?);` calls: [isChecked()](https://playwright.dev/docs/api/class-locator#locator-is-checked).
 
-### Is disabled
+#### Is disabled
 `$('selector').isDisabled(options?);` calls: [isDisabled()](https://playwright.dev/docs/api/class-locator#locator-is-disabled).
 
-### Is editable
+#### Is editable
 `$('selector').isEditable(options?);` calls: [isEditable()](https://playwright.dev/docs/api/class-locator#locator-is-editable).
 
-### Is enabled
+#### Is enabled
 `$('selector').isEnabled(options?);` calls: [isEnabled()](https://playwright.dev/docs/api/class-locator#locator-is-enabled).
 
-### Is hidden
+#### Is hidden
 `$('selector').isHidden();` calls: [isHidden()](https://playwright.dev/docs/api/class-locator#locator-is-hidden).
 
-### Is visible
+#### Is visible
 `$('selector').isVisible(options?);` calls: [isVisible()](https://playwright.dev/docs/api/class-locator#locator-is-visible).
 
-### Press
+#### Press
 `$('selector').press(key, options?);` calls: [press()](https://playwright.dev/docs/api/class-locator#locator-press).
 
-### Screenshot
+#### Screenshot
 `$('selector').screenshot(options?);` calls: [screenshot()](https://playwright.dev/docs/api/class-locator#locator-screenshot).
 
-### Scroll into view if needed
+#### Scroll into view if needed
 `$('selector').scrollIntoViewIfNeeded(options?);` calls: [scrollIntoViewIfNeeded()](https://playwright.dev/docs/api/class-locator#locator-scroll-into-view-if-needed).
 
-### Select option
+#### Select option
 `$('selector').selectOption(values, options?);` calls: [selectOption()](https://playwright.dev/docs/api/class-locator#locator-select-option).
 
-### Select text
+#### Select text
 `$('selector').selectText(options?);` calls: [selectText()](https://playwright.dev/docs/api/class-locator#locator-select-text).
 
-### Set checked
+#### Set checked
 `$('selector').setChecked(checked, options?);` calls: [setChecked()](https://playwright.dev/docs/api/class-locator#locator-set-checked).
 
-### Set input files
+#### Set input files
 `$('selector').setInputFiles(files, options?);` calls: [setInputFiles()](https://playwright.dev/docs/api/class-locator#locator-set-input-files).
 
-### Tap
+#### Tap
 `$('selector').tap(options?);` calls: [tap()](https://playwright.dev/docs/api/class-locator#locator-tap).
 
-### Text content
+#### Text content
 `$('selector').textContent(options?);` calls: [textContent()](https://playwright.dev/docs/api/class-locator#locator-text-content).
 
-### Press sequentially
+#### Press sequentially
 `$('selector').pressSequentially(text, options?);` calls: [pressSequentially()](https://playwright.dev/docs/api/class-locator#locator-press-sequentially).
 
-### Uncheck
+#### Uncheck
 `$('selector').uncheck(options?);` calls: [uncheck()](https://playwright.dev/docs/api/class-locator#locator-uncheck).
 
-### Wait for
+#### Wait for
 `$('selector').waitFor(options?);` calls: [waitFor()](https://playwright.dev/docs/api/class-locator#locator-wait-for).
 ___
 
@@ -1034,40 +1030,56 @@ export class MissingControlOverviewPage {
 ___
 
 ## Use page
-`usePage<T>(page: Page, callBack: () => Promise<T>): Promise<T>` this function allows to execute actions in specific context.
-The most common use case for this function when user needs more than one BrowserContext in test.
+The `usePage` function allows you to switch execution to a specific page context. 
+This is especially useful when your test requires interactions with more than one BrowserContext. 
+While inside the callback, all operations performed using playwright-elements will act on the provided page, 
+without interfering with the default context.
+
 
 Example:
+
 ```ts
 import { test as baseTest, $, usePage } from 'playwright-elements';
+import { Page } from '@playwright/test';
 
-type TestFixtures = { secondContextPage: Page };
-const test = baseTest.extend<TestFixtures, {}>({
-  secondContextPage: [async ({ browser }, use) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    await use(page);
-    await context.close();
-  }, { scope: 'test' }]
+type TestFixtures = {
+    secondContextPage: Page
+};
+
+const test = baseTest.extend({
+    secondContextPage: [
+        async ({ browser }, use) => {
+            const context = await browser.newContext();
+            const page = await context.newPage();
+            await use(page);
+            await context.close();
+        },
+        { scope: 'test' }
+    ]
 });
 
-test.describe('Two contexts', () => {
-  const testFixturesPage = new TestFixturesPage();
-
-  test('use two contexts', async ({ goto, secondContextPage }) => {
-    await Promise.all([goto('https://default.com'), secondContextPage.goto('https://url.com')]);
+test.describe('Working with Multiple Contexts', () => {
+  test('should operate on two different contexts', async ({ goto, secondContextPage }) => {
+    // Navigate both pages concurrently.
+    await Promise.all([
+      goto('https://default.com'),
+      secondContextPage.goto('https://url.com')
+    ]);
+    // Execute operations on the second context.
     const customContextPromise = usePage(secondContextPage, async () => {
-      // All playwright-elements in this scope will use secondContextPage.
-      $('h1').softExpect().toHaveUrl('https://url.com');
+      // All playwright-elements calls here occur in `secondContextPage`.
+      await $('h1').softExpect().toHaveUrl('https://url.com');
     });
-    // All playwright-elements in main scope will use default context started by playwright test.
+    // Execute operations on the default context.
     const defaultContextPromise = $('h1').softExpect().toHaveUrl('https://default.com');
+    // Wait for both operations to complete.
     await Promise.all([defaultContextPromise, customContextPromise]);
   });
 });
 ```
 
-Use page function can return value from callback:
+You can also return a value from the callback passed to `usePage`. 
+In the following example, we retrieve the text content of an `<h1>` element from a specified page:
 
 ```ts
     test('usePage returns value', async ({ goto, page }) => {

@@ -195,7 +195,7 @@ describe(`Web element build in selectors`, function () {
     })
 
     test('and should extend locator with additional selectors list', async () => {
-        const element1 = $('input[id=disabled-field]').and($('[type=checkbox]')).and('[checked]');
+        const element1 = $('input').and($('[id=checked]')).and('[checked]');
         const element2 = $('input[id=none]').and($('[type=checkbox]'));
         expect(await element1.isVisible()).to.be.true;
         expect(await element2.isVisible()).to.be.false;
@@ -208,7 +208,7 @@ describe(`Web element build in selectors`, function () {
         expect(await element2.isVisible()).to.be.false;
     })
 
-    test.only('area snapshot returns element html', async () => {
+    test('area snapshot returns element html', async () => {
         const element = $('[id=target]');
         expect(await element.ariaSnapshot()).to.equal('- paragraph: This is visible target');
     })
