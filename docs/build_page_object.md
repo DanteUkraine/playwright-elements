@@ -3,7 +3,7 @@ layout: default
 title: Get started
 ---
 [Go to Main Page >>](./../README.md)
-___
+
 ## Build page object
 
 The buildPageObject utility automatically creates a strongly-typed page object instance from a module containing
@@ -89,7 +89,7 @@ pageObject3.Settings  // → Instance of SettingsPage
 - Provides full TypeScript autocompletion for all page methods
 - Eliminates need to manually update fixtures when adding new pages
 - Maintains type safety across your entire test suite
-___
+
 ### Generate index file
 
 #### CLI Interface
@@ -114,7 +114,7 @@ Specify quote style (use double quotes, default value is single quotes):
 ```shell
 npx generate-index ./src --quotes '"'
 ```
-___
+
 #### Programing interface
 
 The `generateIndexFile` function generates an `index.ts` file in a specified folder.
@@ -177,5 +177,4 @@ testFolder/
     ├── index.ts
     ├── nestedFile1.ts
 ```
-___
 [Go to Main Page >>](./../README.md)

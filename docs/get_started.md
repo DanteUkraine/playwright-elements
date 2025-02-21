@@ -3,7 +3,7 @@ layout: default
 title: Get started
 ---
 [Go to Main Page >>](./../README.md)
-___
+
 ## Get started
 
 You do not need to pass the page instance into your page object.
@@ -131,7 +131,6 @@ test.describe('Invocation chain example', () => {
 });
 ```
 
-___
 ## Usage with playwright-test
 
 Playwright elements provides you with extended **test** annotation
@@ -188,5 +187,4 @@ test.describe('Playwright test integration', () => {
 })
 ```
 
-___
 [Go to Main Page >>](./../README.md)

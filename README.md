@@ -7,7 +7,7 @@ It minimizes boilerplate code in your page objects and even enables you to work 
 
 *This library makes it easy to represent the tree structure of a web component. 
 Each component can have multiple descendants, and all elements in the tree inherit the Locator API. 
-You can therefore chain calls—mixing element selectors with synchronous methods—to build expressive and concise tests.*
+You can therefore chain calls-mixing element selectors with synchronous methods-to build expressive and concise tests.*
 
 ***Installation:***
 
@@ -79,5 +79,4 @@ test('check login page', async ({ pageObject }) => {
 });
 ```
 
-___
 *[Release notes.](https://github.com/DanteUkraine/playwright-elements/releases)*

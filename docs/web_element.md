@@ -3,16 +3,14 @@ layout: default
 title: Get started
 ---
 [Go to Main Page >>](./../README.md)
-___
+
 ## Web element
 
 *WebElement class is a wrapper on playwright Locator. It was created to allow creation of complex
 web components which support multiple levels sub elements with ability to add custom methods.*
 
-___
 If you use `@playwright/test` see: [Playwright elements fixtures](#playwright-elements-fixtures).
 In case you use any another test runner see: [Browser Instance](#browser-instance).
-___
 
 - [Get by methods](#get-by-methods)
 - [Sub elements](#sub-elements)
@@ -553,7 +551,7 @@ const owerridenElement = originElement.clone({ selector: 'input[type=button]' })
 
 `getText` method is a wrapper on textContent with checks if returned value is not null and returns `string`.
 In case `textContent` returns null `getText` will throw error: `'Text content method returned null for selector: "img"'`.
-___
+
 ## Actions
 Web elements provide users with direct access to common actions from playwright [locator class](https://playwright.dev/docs/api/class-locator).
 But in case you will need to use such methods as `evaluate`, `evaluateAll`, `locator.filtrer`, `locator.all` or any
@@ -672,7 +670,6 @@ another method from locator which you will not be abel find in list below please
 
 #### Wait for
 `$('selector').waitFor(options?);` calls: [waitFor()](https://playwright.dev/docs/api/class-locator#locator-wait-for).
-___
 
 ## Lists of WebElements
 
@@ -813,5 +810,5 @@ export class MissingControlOverviewPage {
           });
 }
 ```
-___
+
 [Go to Main Page >>](./../README.md)

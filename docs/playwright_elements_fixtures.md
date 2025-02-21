@@ -3,14 +3,14 @@ layout: default
 title: Get started
 ---
 [Go to Main Page >>](./../README.md)
-___
+
 ## Playwright elements fixtures
 
 *This documentation explains how to use `playwright-elements` with `@playwright/test`.*
 
 *This lib extends default `test` annotation with tree custom fixtures: `goto`, `initBrowserInstance` and `usePage`.
 One of them `initBrowserInstance`, are auto fixture, so you do not need to call it explicitly to use.*
-___
+
 - [goto](#goto)
 - [Init browser instance](#init-browser-instance)
 - [Use page in fixture](#use-page-in-fixture)
@@ -154,5 +154,5 @@ In the following example, we retrieve the text content of an `<h1>` element from
       expect(text).toEqual('Expected title');
     });
 ```
-___
+
 [Go to Main Page >>](./../README.md)

@@ -3,7 +3,7 @@ layout: default
 title: Get started
 ---
 [Go to Main Page >>](./../README.md)
-___
+
 ## Browser Instance
 *This object represents single-tone for `Browser`, `BrowserContext` and `Page`.
 It allows avoiding pass `page` in your page object.*
@@ -270,5 +270,5 @@ async function useSwitchToTabByIndex() {
     expect(BrowserInstance.currentPage).toHaveURL('https://playwright.dev');
 }
 ```
-___
+
 [Go to Main Page >>](./../README.md)
