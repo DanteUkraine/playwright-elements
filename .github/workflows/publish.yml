@@ -14,6 +14,8 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - name: Run npm ci
         run: npm ci
+      - name: Replace md links with github pages links
+        run: npm run modify:readme
       - name: Build lib
         run: npm run build
       - name: Publish

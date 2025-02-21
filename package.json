@@ -17,6 +17,7 @@
     "install:browsers": "npx playwright install --force chrome chromium msedge firefox webkit --with-deps",
     "test": "ts-mocha",
     "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts",
+    "modify:readme": "npx ts-node prepare-readme.ts",
     "prepare": "husky install",
     "lint": "npx eslint ."
   },
