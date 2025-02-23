@@ -10,6 +10,7 @@ function extractSelector(pointer: string | WebElement): string {
 type InternalElements = { [key: string]: WebElement };
 type InternalMethods = { [keys: string]: Function }
 // Locator method options and return types
+type AriaSnapshotOptions = Parameters<Locator['ariaSnapshot']>[0];
 type BlurOptions = Parameters<Locator['blur']>[0];
 type BoundingBoxOptions = Parameters<Locator['boundingBox']>[0];
 type BoundingBoxReturnType = ReturnType<Locator['boundingBox']>;
@@ -66,6 +67,7 @@ export class WebElement {
     private _hasNotText: string | RegExp | undefined;
     private _nth: number | undefined;
     private _and: (WebElement | string) [] = [];
+    private _or: (WebElement | string) [] = [];
 
     constructor(selector: string, by?: By, options?: ByOptions | ByRoleOptions) {
         this._selector = selector;
@@ -116,6 +118,10 @@ export class WebElement {
         }
         for (const andElement of element._and) {
             locatorsChain = locatorsChain.and(andElement instanceof WebElement ?
+                andElement.locator : locatorsChainWithIframeType.locator(andElement));
+        }
+        for (const andElement of element._or) {
+            locatorsChain = locatorsChain.or(andElement instanceof WebElement ?
                 andElement.locator : locatorsChainWithIframeType.locator(andElement));
         }
         if (element._nth != undefined) locatorsChain = locatorsChain.nth(element._nth);
@@ -304,6 +310,12 @@ export class WebElement {
     public and<T extends WebElement, R extends WebElement>(this: R, element: string | T): R {
         const clone = this.clone();
         clone._and.push(element);
+        return clone;
+    }
+
+    public or<T extends WebElement, R extends WebElement>(this: R, element: string | T): R {
+        const clone = this.clone();
+        clone._or.push(element);
         return clone;
     }
 
@@ -506,6 +518,10 @@ export class WebElement {
         return this.locator.allTextContents();
     }
 
+    public async ariaSnapshot(options?: AriaSnapshotOptions): Promise<string> {
+        return this.locator.ariaSnapshot(options);
+    }
+
     public async blur(options?: BlurOptions): Promise<void> {
         await this.locator.blur(options);
     }
@@ -648,6 +664,14 @@ export class WebElement {
 
     public async waitFor(options?: WaitForOptions): Promise<void> {
         await this.locator.waitFor(options);
+    }
+
+    // additional methods
+
+    public async getText(options?: TextContentOptions): Promise<string> {
+        const text = await this.locator.textContent(options);
+        if (text) return text;
+        throw new Error(`Text content method returned null for selector: "${this.selector}"`);
     }
 }
 
