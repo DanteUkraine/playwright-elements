@@ -7,6 +7,21 @@ function extractSelector(pointer: string | WebElement): string {
     return pointer instanceof WebElement ? pointer.selector : pointer;
 }
 
+type NestedElements<T extends WebElement, A> = {
+    [K in keyof A]:
+    A[K] extends WebElement
+        ? A[K] & NestedElements<A[K], InferNestedElements<A[K]>>
+        : A[K] extends (this: any, ...args: infer Args) => infer Result
+            ? (this: T & Omit<NestedElements<T, A>, K>, ...args: Args) => Result
+            : A[K]
+};
+
+type InferNestedElements<T> = T extends { with(config: infer Config): any }
+    ? Config extends object
+        ? Config
+        : {}
+    : {};
+
 type InternalElements = { [key: string]: WebElement };
 type InternalMethods = { [keys: string]: Function }
 // Locator method options and return types
@@ -219,7 +234,7 @@ export class WebElement {
         return this as T & A;
     }
 
-    public with<T extends WebElement, A extends { [key: string]: WebElement | Function }>(this: T, augment: A): T & A {
+    public with<T extends WebElement, A >(this: T, augment: NestedElements<T, A>): T & A {
         const elements = Object.fromEntries(Object.entries(augment)
             .filter(e => e[1] instanceof WebElement)) as InternalElements;
         const functions = Object.fromEntries(Object.entries(augment)
