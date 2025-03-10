@@ -42,7 +42,12 @@ export class LoginPage {
       .with({
           usernameInput: $('input[name="username"]'),
           passwordInput: $('input[name="password"]'),
-          loginButton: $('button[type="submit"]')
+          loginButton: $('button[type="submit"]'),
+          async fillForm(userName: string, password: string) {
+              await this.usernameInput.fill(userName);
+              await this.passwordInput.fill(password);
+              await this.loginButton.click();
+          }
       });
 }
 
@@ -70,12 +75,63 @@ test/login.test.ts
 import { test } from './fixtures';
 
 test('check login page', async ({ pageObject }) => {
-    await pageObject.login.form.usernameInput.fill('UserName');
-    await pageObject.login.form.passwordnput.fill('Pass!');
-    await pageObject.login.form.loginButton.click();
+    await pageObject.login.form.fillForm('UserName', 'Pass!');
     
     await pageObject.login.header.logo.expect().toBeVisible();
     await pageObject.login.header.avatar.expect().toBeVisible();
+});
+```
+
+#### Tests with playwright-elements using component driven test style:
+
+elements.ts
+```ts
+import { $ } from 'playwright-elements';
+
+// Component can be defined outside of class and is independent from page lifecicle. 
+export const header = $('.header')
+  .with({
+    logo: $('.header-logo'),
+    avatar: $('.avatar')
+  });
+
+export const form = $('.login-form')
+  .with({
+    usernameInput: $('input[name="username"]'),
+    passwordInput: $('input[name="password"]'),
+    loginButton: $('button[type="submit"]'),
+    async fillForm(userName: string, password: string) {
+      await this.usernameInput.fill(userName);
+      await this.passwordInput.fill(password);
+      await this.loginButton.click();
+    }
+  });
+
+```
+
+test/fixtures.ts
+```ts
+import { test as baseTest } from 'playwright-elements';
+import * as elements from '../elements';
+
+type TestFixtures = { elements: typeof elements };
+
+export const test = baseTest.extend({
+    elements: [async ({}, use) => {
+        await use(elements);
+    }, { scope: 'test' }],
+});
+```
+Now enjoy component driven tests style.
+test/login.test.ts
+```ts
+import { test } from './fixtures';
+
+test('check login page', async ({ elements }) => {
+    await elements.form.fillForm('UserName', 'Pass!');
+    
+    await elements.header.logo.expect().toBeVisible();
+    await elements.header.avatar.expect().toBeVisible();
 });
 ```
 

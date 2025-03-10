@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { expectTypeOf } from 'expect-type';
 import { test } from 'mocha';
 import { $getByTestId, $, WebElement, BrowserInstance, BrowserName } from '../src';
 import { localFilePath } from './utils';
@@ -194,7 +195,7 @@ describe('Web Element augmentation', () => {
             child: $('child')
             })
             .withMethods({
-                subChild(this: WebElement & {child: WebElement}){
+                subChild(){
                     return this.child.$('subChild');
                 }
             });
@@ -218,13 +219,29 @@ describe('Web Element augmentation', () => {
                     .subElements({
                         innerComponent: $('inner-component'),
                         secondInnerComponent: $('second-inner-component')
+                            .subElements({
+                                innerElement: $('inner-element')
+                            })
                             .withMethods({
-                                checkParent(this: WebElement) {
-                                    return this.parent<{ innerComponent: WebElement }>();
+                                checkParent() {
+                                    expectTypeOf<WebElement & {
+                                        innerElement: WebElement
+                                    }>(this);
+                                    return this.parent();
                                 }
                             })
                     })
             });
+
+        expectTypeOf<WebElement & {
+            subComponent: WebElement & {
+                innerComponent: WebElement,
+                secondInnerComponent: WebElement & {
+                    checkParent: () => WebElement
+                }
+            }
+        }>(component);
+
         expect(component.subComponent.innerComponent.parent().narrowSelector).to.be.equal('sub-component');
         expect(component.subComponent.innerComponent.parent().parent().narrowSelector).to.be.equal('component');
         expect(component.subComponent.secondInnerComponent.checkParent().innerComponent.narrowSelector).to.be.equal('inner-component');
@@ -239,12 +256,38 @@ describe('Web Element augmentation', () => {
                         innerChild: $(`.innerChild`),
                         additionalMethod() {
                             // stab
+                            expectTypeOf<WebElement & {
+                                innerChild: WebElement,
+                            }>(this);
                         }
                     }),
                 additionalMethod() {
                     // stab
+                    expectTypeOf<WebElement & {
+                        child: WebElement & {
+                            innerChild: WebElement,
+                            additionalMethod: (this: WebElement & { innerChild: WebElement }) => void
+                        }
+                    }>(this);
                 }
             });
+
+        element.additionalMethod();
+        element.child.additionalMethod();
+
+        expectTypeOf<WebElement & {
+            child: WebElement & {
+                innerChild: WebElement,
+                additionalMethod: (this: WebElement & { innerChild: WebElement }) => void
+            },
+            additionalMethod: (this: WebElement & {
+                child: WebElement & {
+                    innerChild: WebElement,
+                    additionalMethod: (this: WebElement) => void
+                }
+            }) => void
+        }>(element);
+
         expect(element).has.property('additionalMethod');
         expect(element.child).to.have.property('additionalMethod');
         expect(element).to.have.property('child');

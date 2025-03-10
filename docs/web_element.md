@@ -7,18 +7,13 @@ title: Get started
 ## Web element
 
 *WebElement class is a wrapper on playwright Locator. It was created to allow creation of complex
-web components which support multiple levels sub elements with ability to add custom methods.*
-
-If you use `@playwright/test` see: [Playwright elements fixtures](#playwright-elements-fixtures).
-In case you use any another test runner see: [Browser Instance](#browser-instance).
+web components which support multiple levels sub elements with ability to add custom methods with type safe "this".*
 
 - [Get by methods](#get-by-methods)
-- [Sub elements](#sub-elements)
-- [Direct child](#direct-child)
+- [With](#with)
 - [Expect](#expect)
 - [Extended Expect](#extended-expect)
 - [Locator and underscore](#locator-and-underscore)
-- [With methods](#with-methods)
 - [Get parent](#get-parent)
 - [Build in selector helpers](#build-in-selector-helpers)
 - [And](#and)
@@ -94,11 +89,11 @@ Next methods allow easy way to create locators in complex components.
 
 Example:
 ```ts
-import { $getByTestId, $getByPlaceholder, $getByTitle, WebElement } from "playwright-elements"; 
+import { $getByTestId, $getByPlaceholder, $getByTitle } from "playwright-elements"; 
 
 class MainPage {
     readonly form = $getByTestId(`login-form`)
-        .subElements({
+        .with({
             loginField: $getByPlaceholder('Email or phonenumber'),
             passwordField: $getByPlaceholder('Password'),
             submitButton: $getByTitle('Login')
@@ -106,29 +101,18 @@ class MainPage {
 }
 ```
 
-### Sub elements
-
-*Simple child element creation*
-
-```ts
-import { $, $getByTestId } from "playwright-elements"; 
-
-class MainPage {
-    readonly header = $(`.header`);
-    readonly avatar = header.$getByTestId('user-img')
-}
-```
+### With
+This builder like method allows you to create multiple sub elements and add custom methods in one json like body.
 
 *Complex component creation:*
-
 ```ts
 import { $ } from "playwright-elements"; 
 
 class MainPage {
     readonly header = $(`.header`)
-        .subElements({
+        .with({
             userInfoSection: $(`.userInfo`)
-                .subElements({
+                .with({
                     firstName: $(`.first-name`),
                     lastName: $(`.last-name`),
                     avatar: $(`.userImage`)
@@ -136,14 +120,36 @@ class MainPage {
         })
 }
 ```
+*Additional methods support with type safe pointer "this"*
+```ts
+import { $ } from "playwright-elements"; 
 
-Allows chain selectors:
+class MainPage {
+    readonly header = $(`.header`)
+        .with({
+            humburgerButton: $(`.hButton`),
+            menu: $(`.menu`)
+                .with({
+                    item: $(`.menu-item`),
+                    async expand() {
+                      await this.locator.hover();
+                      await this.click();
+                    }
+                }),
+            async someCustomHeaderMethod() {
+              //...
+            }
+        })
+}
+```
+
+Allows selector chaining:
 ```ts
 import { $ } from "playwright-elements"; 
 
 class MainPage {
     readonly element = $getByTestId('parentTestId').$('.child')
-            .subElements({
+            .with({
               subChild: $getByTestId('subChildId').$('.subChild2'),
             });
 }
@@ -253,63 +259,6 @@ test.describe('Playwright test integration', () => {
 })
 ```
 
-### With methods
-Allows to add custom methods to web elements.
-```ts
-import { $, WebElement } from "playwright-elements"; 
-
-class MainPage {
-    readonly header = $(`.header`)
-        .subElements({
-            humburgerButton: $(`.hButton`),
-            menu: $(`.menu`)
-                .subElements({
-                    item: $(`.menu-item`)
-                        .withMethods({
-                            async hoverAndClick(this: WebElement) {
-                                await this.locator.hover();
-                                await this._.click();
-                            }
-                        })
-                })
-        })
-}
-```
-`hoverAndClick` method now can be used on item element. Please pay attention that to access web element
-default methods inside additional method declaration is used fake `this: WebElement` pointer.
-```ts
-test(`user can open documentation`, async () => {
-    const mainPage = new MainPage();
-    await mainPage.header.menu.item.withText(`Documentation`).hoverAndClick();
-})
-```
-
-### With
-This method combines `subElements` and `withMethods` in one method,
-it allows you to create sub elements and add custom methods in one body.
-
-```ts
-import { $, WebElement } from "playwright-elements"; 
-
-class MainPage {
-    readonly header = $(`.header`)
-        .with({
-            humburgerButton: $(`.hButton`),
-            menu: $(`.menu`)
-                .with({
-                    item: $(`.menu-item`),
-                    async expand(this: WebElement) {
-                      await this.locator.hover();
-                      await this._.click();
-                    }
-                }),
-            async someCustomHeaderMethod(this: WebElement) {
-              //...
-            }
-        })
-}
-```
-
 ### Get parent
 `parent<T>(this: WebElement): WebElement & T` method allows get parent and extend it's type.
 
@@ -319,7 +268,7 @@ Allows to access parent element.
 import { $, WebElement } from "playwright-elements";
 
 const header = $('.header')
-    .subElements({
+    .with({
          logo: $('.log-img'),
          logIn : $('#log-in')
     });
@@ -331,10 +280,10 @@ It allows users to access sibling elements inside custom methods.
 import { $, WebElement } from "playwright-elements";
 
 const header = $('.header')
-    .subElements({
+    .with({
          userIcon: $('#icon'), 
          logIn : $('#log-in')
-             .withMethods({
+             .with({
                   async goToLoginPage(this: WebElement) {
                       await this.parent<userIcon>().userIcon.hover();
                       await this.click();
@@ -512,7 +461,7 @@ import {$} from "playwright-elements";
 
 class MainPage {
   readonly iframe = $(`#my-frame`).contentFrame()
-          .subElements({
+          .with({
             header: $(`.header`)
           });
 }
@@ -792,7 +741,7 @@ import { Input } from "./field.element";
 export class MissingControlOverviewPage {
 
   readonly form = $(`.form`)
-          .subElements({
+          .with({
             nameField: Input.$(`.name-field`),
           });
 }
@@ -805,7 +754,7 @@ import { $field } from "./field.element";
 export class MissingControlOverviewPage {
 
   readonly form = $(`.form`)
-          .subElements({
+          .with({
             nameField: $field(`.name-field`),
           });
 }

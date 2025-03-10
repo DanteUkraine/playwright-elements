@@ -1,6 +1,6 @@
 {
   "name": "playwright-elements",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "description": "This is Playwright extension.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -37,7 +37,7 @@
   },
   "homepage": "https://danteukraine.github.io/playwright-elements",
   "devDependencies": {
-    "@playwright/test": "^1.50.1",
+    "@playwright/test": "^1.51.0",
     "@types/chai": "^4.3.5",
     "@types/chai-as-promised": "^7.1.5",
     "@types/lodash.clonedeep": "^4.5.9",
@@ -48,9 +48,9 @@
     "@typescript-eslint/parser": "^6.18.0",
     "chai": "^4.3.7",
     "eslint": "^8.56.0",
+    "expect-type": "^1.2.0",
     "husky": "^8.0.3",
     "mocha": "^10.2.0",
-    "playwright-core": "^1.50.1",
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
