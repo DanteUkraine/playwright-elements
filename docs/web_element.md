@@ -89,7 +89,7 @@ Next methods allow easy way to create locators in complex components.
 
 Example:
 ```ts
-import { $getByTestId, $getByPlaceholder, $getByTitle, WebElement } from "playwright-elements"; 
+import { $getByTestId, $getByPlaceholder, $getByTitle } from "playwright-elements"; 
 
 class MainPage {
     readonly form = $getByTestId(`login-form`)
@@ -122,7 +122,7 @@ class MainPage {
 ```
 *Additional methods support with type safe pointer "this"*
 ```ts
-import { $, WebElement } from "playwright-elements"; 
+import { $ } from "playwright-elements"; 
 
 class MainPage {
     readonly header = $(`.header`)

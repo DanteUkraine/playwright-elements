@@ -111,7 +111,7 @@ export const form = $('.login-form')
 
 test/fixtures.ts
 ```ts
-import { test as baseTest, buildPageObject, PageObject } from 'playwright-elements';
+import { test as baseTest } from 'playwright-elements';
 import * as elements from '../elements';
 
 type TestFixtures = { elements: typeof elements };
