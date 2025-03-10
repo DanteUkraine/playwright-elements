@@ -23,7 +23,13 @@ type InferNestedElements<T> = T extends { with(config: infer Config): any }
     : {};
 
 type InternalElements = { [key: string]: WebElement };
-type InternalMethods = { [keys: string]: Function }
+// type InternalMethods = { [keys: string]: Function }
+type InternalMethods<T extends WebElement, M> = {
+    [K in keyof M]:
+    M[K] extends (this: any, ...args: infer Args) => infer Result
+        ? (this: T & Omit<InternalMethods<T, M>, K>, ...args: Args) => Result
+        : M[K];
+};
 // Locator method options and return types
 type AriaSnapshotOptions = Parameters<Locator['ariaSnapshot']>[0];
 type BlurOptions = Parameters<Locator['blur']>[0];
@@ -210,7 +216,7 @@ export class WebElement {
         }
     }
 
-    public subElements<T extends WebElement, A extends InternalElements>(this: T, augment: A): T & A {
+    public subElements<T extends WebElement, A>(this: T, augment: NestedElements<T, A>): T & A {
         const elements = augment as Record<string, WebElement>;
         Object.entries(elements).forEach(([key, value]) => {
             const clone = cloneDeep(value);
@@ -225,7 +231,7 @@ export class WebElement {
         return this as T & A;
     }
 
-    public withMethods<T extends WebElement, A extends InternalMethods>(this: T, augment: A): T & A {
+    public withMethods<T extends WebElement, A>(this: T, augment: InternalMethods<T, A>): T & A {
         const methods = augment as Record<string, Function>;
         Object.keys(methods).forEach(key => {
             if (key in this) throw new Error(`Can not add method with name '${key}' because such method already exists.`);
@@ -234,11 +240,11 @@ export class WebElement {
         return this as T & A;
     }
 
-    public with<T extends WebElement, A >(this: T, augment: NestedElements<T, A>): T & A {
+    public with<T extends WebElement, A>(this: T, augment: NestedElements<T, A>): T & A {
         const elements = Object.fromEntries(Object.entries(augment)
             .filter(e => e[1] instanceof WebElement)) as InternalElements;
         const functions = Object.fromEntries(Object.entries(augment)
-            .filter(e => e[1] instanceof Function)) as InternalMethods;
+            .filter(e => e[1] instanceof Function)) as InternalMethods<T, A>;
         if (Object.keys(elements).length !== 0) this.subElements(elements);
         if (Object.keys(functions).length !== 0) this.withMethods(functions);
         return this as T & A;
