@@ -686,6 +686,21 @@ test(`filter elements example`, async () => {
     const enabledInputs = await elements.filterElements(async (e) => await e.locator.isEnabled());
 })
 ```
+
+In case you filter elements inside added method via `with` method `typeof this` will help to keep type safety:
+```ts
+$('.row').with({
+  async filterTableRows(text: string) {
+    await this.last().waitFor();
+
+    return this.filterElements(async (i: typeof this) => {
+              const attr = await i.status.getAttribute('aria-label');
+              return attr ? attr.includes(text) : false;
+        });
+  }
+});
+```
+
 ### Filter
 Method `filter<T extends WebElement, R extends WebElement>(this: T, options: { has?: string | T, hasNot?: string | T: hasText?: string, hasNotText?: string }): R`
 This method narrows existing locator according to the options, for example filters by text.

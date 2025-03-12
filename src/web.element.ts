@@ -23,7 +23,6 @@ type InferNestedElements<T> = T extends { with(config: infer Config): any }
     : {};
 
 type InternalElements = { [key: string]: WebElement };
-// type InternalMethods = { [keys: string]: Function }
 type InternalMethods<T extends WebElement, M> = {
     [K in keyof M]:
     M[K] extends (this: any, ...args: infer Args) => infer Result
