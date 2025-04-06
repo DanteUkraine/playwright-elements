@@ -722,7 +722,7 @@ import { WebElement } from 'playwright-elements';
 
 class Field extends WebElement {
     
-	public async set(this: WebElement, value: string) {
+	public async set(value: string) {
           await this.fill("");
           await this.type(value, { delay: 50 });
 	}
@@ -736,9 +736,9 @@ export function $field(selector: string): Input {
 ```ts
 import { WebElement } from "playwright-elements";
 
-export class Field extends WebElement {
+export class Input extends WebElement {
     
-	public async set(this: WebElement, value: string) {
+	public async set(value: string) {
           await this.fill("");
           await this.type(value, { delay: 50 });
 	}
