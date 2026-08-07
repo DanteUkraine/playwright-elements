@@ -315,7 +315,7 @@ export class WebElement {
                     configurable: false
                 },
                 _hasNotText: {
-                    value: options?.hasNotText ?? this._hasNotLocator,
+                    value: options?.hasNotText ?? this._hasNotText,
                     writable: true,
                     configurable: false
                 },
@@ -364,7 +364,7 @@ export class WebElement {
     }
 
     public hasText<R extends WebElement>(this: R, text: string | RegExp): R {
-        if(this._by) throw Error(`has option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
+        if(this._by) throw Error(`hasText option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
         return this.clone({
             selector: this.narrowSelector,
             hasLocator: this._hasLocator,
@@ -376,7 +376,7 @@ export class WebElement {
     }
 
     public hasNotText<R extends WebElement>(this: R, text: string | RegExp): R {
-        if(this._by) throw Error(`hasNot option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
+        if(this._by) throw Error(`hasNotText option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
         return this.clone({
             selector: this.narrowSelector,
             hasLocator: this._hasLocator,
