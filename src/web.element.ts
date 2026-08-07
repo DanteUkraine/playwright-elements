@@ -12,7 +12,7 @@ type NestedElements<T extends WebElement, A> = {
     A[K] extends WebElement
         ? A[K] & NestedElements<A[K], InferNestedElements<A[K]>>
         : A[K] extends (this: any, ...args: infer Args) => infer Result
-            ? (this: T & Omit<NestedElements<T, A>, K>, ...args: Args) => Result
+            ? (this: T & NestedElements<T, A>, ...args: Args) => Result
             : A[K]
 };
 
@@ -26,7 +26,7 @@ type InternalElements = { [key: string]: WebElement };
 type InternalMethods<T extends WebElement, M> = {
     [K in keyof M]:
     M[K] extends (this: any, ...args: infer Args) => infer Result
-        ? (this: T & Omit<InternalMethods<T, M>, K>, ...args: Args) => Result
+        ? (this: T & InternalMethods<T, M>, ...args: Args) => Result
         : M[K];
 };
 // Locator method options and return types
