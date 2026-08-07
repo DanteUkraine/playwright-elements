@@ -115,11 +115,11 @@ export class BrowserInstance {
 
     static set currentContext(context: BrowserContext | undefined) {
         if(context) this._currentContext = new Context(context);
-        else this._currentContext = context;
+        else this._currentContext = undefined;
     }
 
     static withContext(context: BrowserContext): void {
-        this.currentContext = context;
+        this._currentContext = new Context(context);
         this.currentContext.on('page', page => {
             if (this._currentPage) this.context.previousPage = this.currentPage;
             this.currentPage = page;

@@ -33,7 +33,7 @@ test.describe('Playwright test integration', () => {
             await testFixturesPage.title.softExpect().toHaveText('Fixtures');
         });
         const defaultContextPromise = mainPage.title.softExpect()
-            .toHaveText('Playwright enables reliable end-to-end testing for modern web apps.');
+            .toHaveText('Playwright enables reliable web automation for testing, scripting, and AI agents.');
         await Promise.all([defaultContextPromise, customContextPromise]);
     });
 
@@ -60,7 +60,7 @@ test.describe('Playwright test integration', () => {
             return title.textContent();
         });
         expect(text).toEqual('Fixtures');
-        expect(await title.textContent()).toEqual('Playwright enables reliable end-to-end testing for modern web apps.')
+        expect(await title.textContent()).toEqual('Playwright enables reliable web automation for testing, scripting, and AI agents.')
     });
 });
 

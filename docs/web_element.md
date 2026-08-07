@@ -155,6 +155,62 @@ class MainPage {
 }
 ```
 
+### Sub Elements
+
+The `subElements<T extends WebElement, A>(this: T, augment: NestedElements<T, A>): T & A` method provides an alternative to `with()` for adding sub-elements with type-safe augmentation.
+
+#### When to Use subElements() vs with()
+
+Both `subElements()` and `with()` achieve similar results, but there are subtle differences:
+
+- **`with()`**: More general-purpose, can add both elements AND methods
+- **`subElements()`**: Specifically for adding sub-elements with nested type inference
+
+*Basic usage:*
+```ts
+import { $, subElements, WebElement } from "playwright-elements"; 
+
+class MainPage {
+    readonly header = $(`.header`).subElements({
+        logo: $(`.logo`),
+        navigation: $(`.nav`)
+    });
+}
+```
+
+*Type-safe sub-elements:*
+```ts
+import { $, WebElement } from "playwright-elements"; 
+
+type Header = WebElement & {
+    logo: WebElement;
+    searchBar: WebElement;
+};
+
+class MainPage {
+    readonly header: Header = $(`.header`).subElements({
+        logo: $(`.logo`),
+        searchBar: $(`.search`)
+    });
+}
+```
+
+*Nested sub-elements:*
+```ts
+import { $ } from "playwright-elements"; 
+
+class MainPage {
+    readonly table = $(`table`).subElements({
+        header: $(`thead`).subElements({
+            row: $(`tr`).subElements({
+                cell: $(`th`)
+            })
+        }),
+        body: $(`tbody`)
+    });
+}
+```
+
 ### Expect
 Web element has methods `expect()` and `softExpect()` which allows access to
 [playwright assert library](https://playwright.dev/docs/test-assertions).
@@ -503,8 +559,26 @@ In case `textContent` returns null `getText` will throw error: `'Text content me
 
 ## Actions
 Web elements provide users with direct access to common actions from playwright [locator class](https://playwright.dev/docs/api/class-locator).
-But in case you will need to use such methods as `evaluate`, `evaluateAll`, `locator.filtrer`, `locator.all` or any
-another method from locator which you will not be abel find in list below please use getter [locator] or [_]
+But in case you will need to use such methods as `evaluate`, `evaluateAll`, `locator.filter`, `locator.all` or any
+another method from locator which you will not be able to find in list below please use getter [locator] or [_]
+
+### Accessing Playwright Locator Methods
+
+For methods not explicitly documented below, you can access the underlying Playwright Locator directly:
+
+```ts
+import { $ } from "playwright-elements";
+
+const element = $("selector");
+// Access Playwright Locator directly
+const locator = element.locator;
+// or using the shorthand
+const locator2 = element._;
+
+// Now you can call any Playwright Locator method
+await locator.evaluate((el) => el.clientWidth);
+await locator2.evaluateAll((els) => els.length);
+```
 
 #### All inner texts
 `$('selector').allInnerTexts();` calls: [allInnerTexts()](https://playwright.dev/docs/api/class-locator#locator-all-inner-texts).
@@ -619,6 +693,779 @@ another method from locator which you will not be abel find in list below please
 
 #### Wait for
 `$('selector').waitFor(options?);` calls: [waitFor()](https://playwright.dev/docs/api/class-locator#locator-wait-for).
+
+### Detailed Action Method Documentation
+
+Below are detailed documentation for all WebElement action methods that wrap Playwright Locator APIs.
+
+#### allInnerTexts()
+
+**Signature:**
+```ts
+async allInnerTexts(): Promise<string[]>
+```
+
+**Description:**
+Returns an array of `innerText` for all matching elements.
+
+**Returns:**
+`Promise<string[]>` - Array of inner text strings for all matching elements.
+
+**Throws:**
+- Playwright timeout error if no elements match the selector
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const listItems = $("li");
+const texts = await listItems.allInnerTexts();
+// texts: string[]
+```
+
+**Use Case:**
+Getting text content from all items in a list or table cells.
+
+**See Also:**
+- [Playwright Locator.allInnerTexts()](https://playwright.dev/docs/api/class-locator#locator-all-inner-texts)
+
+---
+
+#### allTextContents()
+
+**Signature:**
+```ts
+async allTextContents(): Promise<string[]>
+```
+
+**Description:**
+Returns an array of `textContent` for all matching elements. Unlike `allInnerTexts()`, this includes text from all descendants including `<script>` and `<style>` elements.
+
+**Returns:**
+`Promise<string[]>` - Array of text content strings for all matching elements.
+
+**Throws:**
+- Playwright timeout error if no elements match the selector
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const paragraphs = $("p");
+const contents = await paragraphs.allTextContents();
+// contents: string[]
+```
+
+**See Also:**
+- [Playwright Locator.allTextContents()](https://playwright.dev/docs/api/class-locator#locator-all-text-contents)
+
+---
+
+#### ariaSnapshot()
+
+**Signature:**
+```ts
+async ariaSnapshot(options?: AriaSnapshotOptions): Promise<string>
+```
+
+**Description:**
+Returns the ARIA snapshot of the element, which includes accessibility information.
+
+**Parameters:**
+- `options`: Optional ARIA snapshot options
+
+**Returns:**
+`Promise<string>` - ARIA snapshot string in JSON format.
+
+**Throws:**
+- Playwright timeout error if element is not found
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const button = $("button");
+const snapshot = await button.ariaSnapshot();
+// snapshot: string (JSON)
+
+const parsed = JSON.parse(snapshot);
+console.log(parsed.name); // Accessibility name
+console.log(parsed.role); // ARIA role
+```
+
+**Use Case:**
+Accessibility testing, verifying ARIA attributes and roles.
+
+**See Also:**
+- [Playwright Locator.ariaSnapshot()](https://playwright.dev/docs/api/class-locator#locator-aria-snapshot)
+
+---
+
+#### blur()
+
+**Signature:**
+```ts
+async blur(options?: FocusOptions): Promise<void>
+```
+
+**Description:**
+Removes input focus from the element. If the element is not focused, this method will wait for it to be focused and then remove focus.
+
+**Parameters:**
+- `options`: Optional focus options
+
+**Returns:**
+`Promise<void>`
+
+**Throws:**
+- Playwright timeout error if element cannot be focused or blurred
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const input = $("input");
+await input.focus();
+await input.blur(); // Removes focus
+```
+
+**Use Case:**
+Testing focus management, triggering blur events, form validation on blur.
+
+**See Also:**
+- [Playwright Locator.blur()](https://playwright.dev/docs/api/class-locator#locator-blur)
+
+---
+
+#### boundingBox()
+
+**Signature:**
+```ts
+async boundingBox(options?: BoundingBoxOptions): Promise<BoundingBox | null>
+```
+
+**Description:**
+Returns the bounding box of the element, or `null` if the element is not visible.
+
+**Parameters:**
+- `options`: Optional bounding box options
+
+**Returns:**
+`Promise<BoundingBox | null>` - Bounding box object with `x`, `y`, `width`, `height` properties, or `null` if element is not visible.
+
+**Throws:**
+- Playwright timeout error if element is not found
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const element = $(".box");
+const box = await element.boundingBox();
+
+if (box) {
+    console.log(`Element position: (${box.x}, ${box.y})`);
+    console.log(`Element size: ${box.width}x${box.height}`);
+}
+```
+
+**Use Case:**
+Calculating element positions, sizes, verifying visibility, drag and drop operations.
+
+**See Also:**
+- [Playwright Locator.boundingBox()](https://playwright.dev/docs/api/class-locator#locator-bounding-box)
+- [BoundingBox Interface](https://playwright.dev/docs/api/interfaces/class-boundingbox)
+
+---
+
+#### check()
+
+**Signature:**
+```ts
+async check(options?: CheckOptions): Promise<void>
+```
+
+**Description:**
+Checks the checkbox or radio element.
+
+**Parameters:**
+- `options`: Optional check options (force, noWaitAfter, position, trial)
+
+**Returns:**
+`Promise<void>`
+
+**Throws:**
+- Playwright timeout error if element is not found
+- Error if element is not a checkbox or radio input
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const checkbox = $("input[type='checkbox']");
+await checkbox.check();
+```
+
+**Use Case:**
+Checking checkboxes, selecting radio buttons in forms.
+
+**See Also:**
+- [Playwright Locator.check()](https://playwright.dev/docs/api/class-locator#locator-check)
+
+---
+
+#### clear()
+
+**Signature:**
+```ts
+async clear(options?: ClearOptions): Promise<void>
+```
+
+**Description:**
+Clears the input field value.
+
+**Parameters:**
+- `options`: Optional clear options
+
+**Returns:**
+`Promise<void>`
+
+**Throws:**
+- Playwright timeout error if element is not found
+- Error if element is not an input field
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const input = $("input[type='text']");
+await input.clear(); // Clears the input value
+```
+
+**Use Case:**
+Resetting form inputs, preparing input for new values.
+
+**See Also:**
+- [Playwright Locator.clear()](https://playwright.dev/docs/api/class-locator#locator-clear)
+
+---
+
+#### click()
+
+**Signature:**
+```ts
+async click(options?: ClickOptions): Promise<void>
+```
+
+**Description:**
+Clicks the element. This method first performs a `hover` over the element and then performs a `click`.
+
+**Parameters:**
+- `options`: Optional click options (button, clickCount, delay, force, modifiers, noWaitAfter, position, timeout)
+
+**Returns:**
+`Promise<void>`
+
+**Throws:**
+- Playwright timeout error if element is not found or not clickable
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const button = $("button");
+
+// Simple click
+await button.click();
+
+// Right click
+await button.click({ button: 'right' });
+
+// Double click
+await button.click({ clickCount: 2 });
+
+// Click with modifier keys
+await button.click({ modifiers: ['Ctrl'] });
+```
+
+**Use Case:**
+Clicking buttons, links, triggering click events.
+
+**See Also:**
+- [Playwright Locator.click()](https://playwright.dev/docs/api/class-locator#locator-click)
+- [ClickOptions Interface](https://playwright.dev/docs/api/interfaces/class-clickoptions)
+
+---
+
+#### count()
+
+**Signature:**
+```ts
+async count(): Promise<number>
+```
+
+**Description:**
+Returns the number of elements matching the selector.
+
+**Returns:**
+`Promise<number>` - Number of matching elements (0 or more).
+
+**Throws:**
+- Playwright timeout error if selector is invalid
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const rows = $("tr");
+const rowCount = await rows.count();
+console.log(`Table has ${rowCount} rows`);
+```
+
+**Use Case:**
+Verifying number of elements, conditional logic based on element count, loops over multiple elements.
+
+**See Also:**
+- [Playwright Locator.count()](https://playwright.dev/docs/api/class-locator#locator-count)
+
+---
+
+#### dblclick()
+
+**Signature:**
+```ts
+async dblclick(options?: ClickOptions): Promise<void>
+```
+
+**Description:**
+Double clicks the element.
+
+**Parameters:**
+- `options`: Optional click options (same as click())
+
+**Returns:**
+`Promise<void>`
+
+**Throws:**
+- Playwright timeout error if element is not found or not clickable
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const element = $(".double-click-area");
+await element.dblclick();
+```
+
+**Use Case:**
+Double-click actions, triggering double-click events.
+
+**See Also:**
+- [Playwright Locator.dblclick()](https://playwright.dev/docs/api/class-locator#locator-dblclick)
+
+---
+
+#### dispatchEvent()
+
+**Signature:**
+```ts
+async dispatchEvent(type: string, eventInit?: DispatchEventInit, options?: DispatchEventOptions): Promise<void>
+```
+
+**Description:**
+Dispatches an event on the element.
+
+**Parameters:**
+- `type`: The event type (e.g., 'click', 'input', 'change')
+- `eventInit`: Optional event initialization options
+- `options`: Optional dispatch event options
+
+**Returns:**
+`Promise<void>`
+
+**Throws:**
+- Playwright timeout error if element is not found
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const input = $("input");
+
+// Dispatch input event
+await input.dispatchEvent('input', { bubbles: true });
+
+// Dispatch custom event
+await input.dispatchEvent('custom-event', { 
+    detail: { value: 'test' } 
+});
+```
+
+**Use Case:**
+Triggering JavaScript events, testing event handlers, simulating user interactions that don't involve actual DOM changes.
+
+**See Also:**
+- [Playwright Locator.dispatchEvent()](https://playwright.dev/docs/api/class-locator#locator-dispatch-event)
+
+---
+
+#### dragTo()
+
+**Signature:**
+```ts
+async dragTo(target: Locator | WebElement, options?: DragToOptions): Promise<void>
+```
+
+**Description:**
+Drags the element to a target element or coordinates.
+
+**Parameters:**
+- `target`: Target element (Locator or WebElement) to drag to
+- `options`: Optional drag-to options (force, noWaitAfter, sourcePosition, targetPosition)
+
+**Returns:**
+`Promise<void>`
+
+**Throws:**
+- Playwright timeout error if source or target element is not found
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const source = $(".draggable");
+const target = $(".dropzone");
+
+// Drag source to target
+await source.dragTo(target);
+
+// Drag with specific positions
+await source.dragTo(target, { 
+    sourcePosition: { x: 10, y: 10 },
+    targetPosition: { x: 50, y: 50 }
+});
+```
+
+**Use Case:**
+Drag and drop operations, testing sortable lists, rearranging elements.
+
+**See Also:**
+- [Playwright Locator.dragTo()](https://playwright.dev/docs/api/class-locator#locator-drag-to)
+
+---
+
+#### fill()
+
+**Signature:**
+```ts
+async fill(value: string, options?: FillOptions): Promise<void>
+```
+
+**Description:**
+Fills the input, textarea or [contenteditable] element with the provided value. This clears the current value and types the new value.
+
+**Parameters:**
+- `value`: The text to fill into the element
+- `options`: Optional fill options (delay, noWaitAfter)
+
+**Returns:**
+`Promise<void>`
+
+**Throws:**
+- Playwright timeout error if element is not found or not fillable
+- Error if element is not an input/textarea/contenteditable
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const input = $("input[type='text']");
+
+// Fill with value
+await input.fill('Hello World');
+
+// Fill with delay between keystrokes
+await input.fill('Slow typing', { delay: 100 });
+```
+
+**Use Case:**
+Filling form inputs, entering text into fields.
+
+**See Also:**
+- [Playwright Locator.fill()](https://playwright.dev/docs/api/class-locator#locator-fill)
+
+---
+
+#### focus()
+
+**Signature:**
+```ts
+async focus(options?: FocusOptions): Promise<void>
+```
+
+**Description:**
+Focuses the element. If the element is not focusable, this method will wait for it to become focusable.
+
+**Parameters:**
+- `options`: Optional focus options
+
+**Returns:**
+`Promise<void>`
+
+**Throws:**
+- Playwright timeout error if element is not found or not focusable
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const input = $("input");
+await input.focus();
+
+// Now you can type
+await input.type('some text');
+```
+
+**Use Case:**
+Focus management, testing focus-related behaviors, preparing input for typing.
+
+**See Also:**
+- [Playwright Locator.focus()](https://playwright.dev/docs/api/class-locator#locator-focus)
+
+---
+
+#### getAttribute()
+
+**Signature:**
+```ts
+async getAttribute(name: string, options?: GetAttributeOptions): Promise<string | null>
+```
+
+**Description:**
+Returns the attribute value of the element. Returns `null` if the attribute is not present.
+
+**Parameters:**
+- `name`: The attribute name to get
+- `options`: Optional get attribute options
+
+**Returns:**
+`Promise<string | null>` - The attribute value, or `null` if not present.
+
+**Throws:**
+- Playwright timeout error if element is not found
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const link = $("a");
+const href = await link.getAttribute('href');
+// href: string | null
+
+const button = $("button");
+const disabled = await button.getAttribute('disabled');
+// disabled: string | null (note: empty string or 'disabled')
+```
+
+**Use Case:**
+Reading element attributes, verifying element state, getting custom data attributes.
+
+**See Also:**
+- [Playwright Locator.getAttribute()](https://playwright.dev/docs/api/class-locator#locator-get-attribute)
+
+---
+
+#### highlight()
+
+**Signature:**
+```ts
+async highlight(): Promise<void>
+```
+
+**Description:**
+Highlights the element by drawing a red border around it. This is useful for debugging tests.
+
+**Returns:**
+`Promise<void>`
+
+**Throws:**
+- Playwright timeout error if element is not found
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const element = $(".some-element");
+await element.highlight(); // Draws red border for debugging
+```
+
+**Use Case:**
+Debugging tests, visual verification of element location and size.
+
+**Note:**
+The highlight is temporary and disappears when the page changes or after a timeout.
+
+**See Also:**
+- [Playwright Locator.highlight()](https://playwright.dev/docs/api/class-locator#locator-highlight)
+
+---
+
+#### hover()
+
+**Signature:**
+```ts
+async hover(options?: HoverOptions): Promise<void>
+```
+
+**Description:**
+Hovers the mouse over the element.
+
+**Parameters:**
+- `options`: Optional hover options (force, noWaitAfter, position, timeout)
+
+**Returns:**
+`Promise<void>`
+
+**Throws:**
+- Playwright timeout error if element is not found or not hoverable
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const element = $(".hoverable");
+await element.hover();
+
+// Hover with specific position
+await element.hover({ position: { x: 10, y: 10 } });
+```
+
+**Use Case:**
+Triggering hover events, testing tooltips, opening dropdown menus.
+
+**See Also:**
+- [Playwright Locator.hover()](https://playwright.dev/docs/api/class-locator#locator-hover)
+
+---
+
+#### innerHTML()
+
+**Signature:**
+```ts
+async innerHTML(options?: InnerHTMLOptions): Promise<string>
+```
+
+**Description:**
+Returns the `innerHTML` of the element.
+
+**Parameters:**
+- `options`: Optional innerHTML options
+
+**Returns:**
+`Promise<string>` - The inner HTML content.
+
+**Throws:**
+- Playwright timeout error if element is not found
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const div = $("div");
+const html = await div.innerHTML();
+// html: string
+```
+
+**Use Case:**
+Verifying HTML structure, testing rich text content, checking for specific HTML patterns.
+
+**See Also:**
+- [Playwright Locator.innerHTML()](https://playwright.dev/docs/api/class-locator#locator-inner-html)
+
+---
+
+#### innerText()
+
+**Signature:**
+```ts
+async innerText(options?: InnerTextOptions): Promise<string>
+```
+
+**Description:**
+Returns the `innerText` of the element. Unlike `textContent`, `innerText` is aware of CSS and will not return text of hidden elements.
+
+**Parameters:**
+- `options`: Optional innerText options
+
+**Returns:**
+`Promise<string>` - The inner text content.
+
+**Throws:**
+- Playwright timeout error if element is not found
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const element = $(".content");
+const text = await element.innerText();
+// text: string (excludes hidden elements)
+```
+
+**Use Case:**
+Getting visible text content, verifying text display.
+
+**See Also:**
+- [Playwright Locator.innerText()](https://playwright.dev/docs/api/class-locator#locator-inner-text)
+
+---
+
+#### inputValue()
+
+**Signature:**
+```ts
+async inputValue(options?: InputValueOptions): Promise<string>
+```
+
+**Description:**
+Returns the current `value` of the input, textarea or [contenteditable] element.
+
+**Parameters:**
+- `options`: Optional input value options
+
+**Returns:**
+`Promise<string>` - The current value of the element.
+
+**Throws:**
+- Playwright timeout error if element is not found
+- Error if element is not an input/textarea/contenteditable
+
+**Example:**
+```ts
+import { $ } from "playwright-elements";
+
+const input = $("input[type='text']");
+const value = await input.inputValue();
+// value: string
+```
+
+**Use Case:**
+Verifying form input values, checking current state of inputs.
+
+**See Also:**
+- [Playwright Locator.inputValue()](https://playwright.dev/docs/api/class-locator#locator-input-value)
+
+---
+
+The remaining action methods (isChecked, isDisabled, isEditable, isEnabled, isHidden, isVisible, press, screenshot, scrollIntoViewIfNeeded, selectOption, selectText, setChecked, setInputFiles, tap, textContent, type, pressSequentially, uncheck, waitFor) follow the same pattern and are documented in the [Actions list](#actions) above with links to the Playwright documentation.
+
+Each of these methods:
+- Has the same signature as the corresponding Playwright Locator method
+- Returns the same type as Playwright
+- Throws the same errors as Playwright
+- Accepts the same options as Playwright
+
+**Note:** For the most up-to-date and complete information about each method, refer to the [Playwright Locator API documentation](https://playwright.dev/docs/api/class-locator).
 
 ## Lists of WebElements
 

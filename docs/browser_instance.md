@@ -8,6 +8,7 @@ title: Get started
 *This object represents single-tone for `Browser`, `BrowserContext` and `Page`.
 It allows avoiding pass `page` in your page object.*
 
+- [Context Class](#context-class)
 - [Browser name](#browser-name)
 - [Start](#start)
 - [Start new context](#start-new-context)
@@ -17,6 +18,150 @@ It allows avoiding pass `page` in your page object.*
 - [Builder like methods](#builder-like-methods)
 - [Switch to previous tab](#switch-to-previous-tab)
 - [Switch tab by index](#switch-tab-by-index)
+
+## Context Class
+
+The `Context` class is an internal wrapper around Playwright's `BrowserContext` that provides additional functionality for page management and mobile detection.
+
+### Purpose
+The `Context` class:
+- Wraps Playwright's `BrowserContext` with additional metadata
+- Tracks all pages created within the context
+- Manages mobile context state
+- Provides previous page tracking for tab switching
+
+### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `context` | `BrowserContext` | The underlying Playwright BrowserContext |
+| `pages` | `Page[]` | Array of all pages in this context |
+| `previousPage` | `Page` | The previously active page (for tab switching) |
+| `isMobile` | `boolean` | Whether this context is configured for mobile |
+
+### Methods
+
+#### get: BrowserContext
+Returns the underlying Playwright `BrowserContext`.
+
+```typescript
+const browserContext = BrowserInstance.context.get;
+```
+
+#### previousPage: Page (getter)
+Returns the previously active page. Throws an error if not initialized.
+
+```typescript
+const previousPage = BrowserInstance.context.previousPage;
+```
+
+#### previousPage: Page (setter)
+Sets the previous page reference.
+
+```typescript
+BrowserInstance.context.previousPage = currentPage;
+```
+
+#### isMobile: boolean (getter/setter)
+Gets or sets whether this context is configured for mobile devices.
+
+```typescript
+// Get current mobile state
+const isMobile = BrowserInstance.context.isMobile;
+
+// Set mobile state
+BrowserInstance.context.isMobile = true;
+```
+
+### Usage Example
+
+```typescript
+import { BrowserInstance, BrowserName } from "playwright-elements";
+
+async function example() {
+    // Start browser and context
+    await BrowserInstance.start(BrowserName.CHROME);
+    await BrowserInstance.startNewContext();
+    
+    // Access context information
+    const context = BrowserInstance.context;
+    
+    console.log('Is mobile:', context.isMobile);
+    console.log('Pages count:', context.pages.length);
+    
+    // Open a new page to trigger previousPage tracking
+    await BrowserInstance.startNewPage();
+    
+    // Previous page is now set
+    if (context.previousPage) {
+        console.log('Previous page URL:', context.previousPage.url());
+    }
+}
+```
+
+### Integration with BrowserInstance
+
+The `Context` class is used internally by `BrowserInstance` and is accessible via:
+
+```typescript
+// Get current context
+const currentContext = BrowserInstance.context;
+
+// Check if mobile
+const isMobile = currentContext.isMobile;
+
+// Get underlying BrowserContext
+const browserContext = currentContext.get;
+```
+
+### Event Handling
+
+When `withContext()` is called, playwright-elements automatically sets up event listeners for page creation within that context.
+
+#### Page Event Listeners
+
+The `withContext()` method (lines 121-130 in browser.ts) automatically sets up the following event handling:
+
+```typescript
+this.currentContext.on('page', page => {
+    if (this._currentPage) this.context.previousPage = this.currentPage;
+    this.currentPage = page;
+});
+```
+
+This ensures that:
+1. When a new page is created, the previous page is stored in `Context.previousPage`
+2. The new page becomes the `currentPage`
+3. Tab switching operations work correctly
+
+#### Usage Example
+
+```typescript
+import { BrowserInstance, BrowserName } from "playwright-elements";
+
+async function example() {
+    await BrowserInstance.start(BrowserName.CHROME);
+    await BrowserInstance.startNewContext();
+    
+    const firstPage = BrowserInstance.currentPage;
+    
+    // Open a new page - this triggers the event listener
+    await BrowserInstance.startNewPage();
+    
+    const secondPage = BrowserInstance.currentPage;
+    
+    // Previous page is automatically tracked
+    console.log(BrowserInstance.context.previousPage === firstPage); // true
+    
+    // Switch back to previous page
+    await BrowserInstance.switchToPreviousTab();
+    console.log(BrowserInstance.currentPage === firstPage); // true
+}
+```
+
+### See Also
+- [BrowserInstance Methods](#)
+- [Mobile Testing](#is-mobile-context)
 
 ### Browser name
 `BrowserName`  is a simple enum with browser names you can install with `npx playwright install` command.

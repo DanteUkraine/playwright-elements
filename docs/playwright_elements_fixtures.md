@@ -8,13 +8,81 @@ title: Get started
 
 *This documentation explains how to use `playwright-elements` with `@playwright/test`.*
 
-*This lib extends default `test` annotation with tree custom fixtures: `goto`, `initBrowserInstance` and `usePage`.
-One of them `initBrowserInstance`, are auto fixture, so you do not need to call it explicitly to use.*
+*This lib extends default `test` annotation with custom fixtures: `implicitNavigation`, `goto`, `initBrowserInstance` and `usePage`.
+One of them `initBrowserInstance`, is an auto fixture, so you do not need to call it explicitly to use.*
 
+- [implicitNavigation](#implicitnavigation)
 - [goto](#goto)
 - [Init browser instance](#init-browser-instance)
 - [Use page in fixture](#use-page-in-fixture)
 - [Use page](#use-page)
+
+## implicitNavigation
+
+`implicitNavigation` is an auto fixture that automatically handles navigation for certain Playwright test scenarios. It works in conjunction with the `goto` fixture to provide seamless navigation experience.
+
+### Purpose
+This fixture enables implicit navigation behavior, allowing tests to navigate automatically when certain conditions are met, without requiring explicit `goto()` calls.
+
+### Behavior
+- Automatically navigates when test starts (if baseURL is configured)
+- Integrates with Playwright's built-in navigation handling
+- Works with `initBrowserInstance` to set up the page context
+
+### Usage
+
+The `implicitNavigation` fixture is automatically available and doesn't require explicit usage in most cases:
+
+```typescript
+import { test } from "playwright-elements";
+
+test('implicit navigation example', async ({ page }) => {
+    // With baseURL configured, page will automatically navigate
+    // No explicit goto() needed in many cases
+    await $('h1').expect().toBeVisible();
+});
+```
+
+### Configuration
+
+For implicit navigation to work effectively, configure your `playwright.config.ts`:
+
+```typescript
+import { devices, PlaywrightTestConfig } from '@playwright/test';
+
+const config: PlaywrightTestConfig = {
+    use: {
+        baseURL: 'https://your-application.com',
+    }
+};
+
+export default config;
+```
+
+### Integration with Other Fixtures
+
+`implicitNavigation` works seamlessly with other playwright-elements fixtures:
+
+- **`initBrowserInstance`**: Sets up the browser context for implicit navigation
+- **`goto`**: Provides explicit navigation when needed
+- **`usePage`**: Allows page switching while maintaining navigation state
+
+### Scope
+
+This fixture has `test` scope, meaning it runs once per test and automatically cleans up after each test.
+
+### When to Use
+
+- When you want automatic navigation to baseURL
+- When testing applications with consistent navigation patterns
+- When you want to reduce boilerplate navigation code
+
+### When to Use Explicit goto()
+
+Even with `implicitNavigation`, you may still need explicit `goto()` calls for:
+- Navigating to specific routes within your application
+- Navigating to different domains
+- When you need to pass specific navigation options
 ### Goto
 
 `goto` returns [function from pure playwright](https://playwright.dev/docs/api/class-page#page-goto).

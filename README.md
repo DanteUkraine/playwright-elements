@@ -21,6 +21,9 @@ ___
 - [Playwright elements fixtures](docs/playwright_elements_fixtures.md)
 - [Build page object](docs/build_page_object.md)
 - [Browser instance](docs/browser_instance.md)
+- [Utilities](docs/utilities.md)
+- [Customization](docs/customization.md)
+- [Advanced usage](docs/advanced_usage.md)
 
 #### Tests with playwright-elements:
 
