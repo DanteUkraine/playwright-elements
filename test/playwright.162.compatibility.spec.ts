@@ -264,6 +264,7 @@ describe('Playwright 1.62+ Compatibility', function (this: Mocha.Suite) {
                 'fill', 'clear', 'selectOption', 'selectText',
                 'check', 'uncheck', 'type', 'press',
                 'dispatchEvent', 'scrollIntoViewIfNeeded',
+                'setInputFiles',
                 'waitFor', 'getAttribute', 'innerText',
                 'innerHTML', 'textContent'
             ];

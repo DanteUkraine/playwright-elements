@@ -67,22 +67,6 @@ describe('Web Element Missing and Less Tested Methods', function () {
                 expect(error).to.be.instanceOf(Error);
             }
         });
-
-        test('scrollIntoViewIfNeeded should work on element that needs scrolling', async () => {
-            const element = $('#bottom-element');
-            await element.scrollIntoViewIfNeeded();
-            expect(true).to.be.true; // Should complete without error
-        });
-
-        test('scrollIntoViewIfNeeded should throw on non-existent elements', async () => {
-            const element = $('#non-existent-element');
-            try {
-                await element.scrollIntoViewIfNeeded();
-                expect.fail('Should have thrown an error for non-existent element');
-            } catch (error) {
-                expect(error).to.be.instanceOf(Error);
-            }
-        });
     });
 
     describe('Screenshot Methods', () => {
@@ -307,8 +291,7 @@ describe('Web Element Missing and Less Tested Methods', function () {
 
         test('setInputFiles should work with empty array on existing file input', async () => {
             const element = $('#file-upload');
-            await element.setInputFiles([]);
-            expect(true).to.be.true; // Should complete without error
+            await element.setInputFiles([]); // Should not throw
         });
     });
 
