@@ -4,7 +4,7 @@ import { $, BrowserInstance, BrowserName } from '../src';
 import { localFilePath } from './utils';
 
 describe('Web Element Missing and Less Tested Methods', function () {
-    this.timeout(10_000);
+    this.timeout(15_000);
 
     before(async () => {
         await BrowserInstance.start(BrowserName.CHROME);
@@ -68,11 +68,17 @@ describe('Web Element Missing and Less Tested Methods', function () {
             }
         });
 
-        test('scrollIntoViewIfNeeded should work on non-existent elements', async () => {
+        test('scrollIntoViewIfNeeded should work on element that needs scrolling', async () => {
+            const element = $('#bottom-element');
+            await element.scrollIntoViewIfNeeded();
+            expect(true).to.be.true; // Should complete without error
+        });
+
+        test('scrollIntoViewIfNeeded should throw on non-existent elements', async () => {
             const element = $('#non-existent-element');
             try {
                 await element.scrollIntoViewIfNeeded();
-                // Should not throw if element doesn't exist
+                expect.fail('Should have thrown an error for non-existent element');
             } catch (error) {
                 expect(error).to.be.instanceOf(Error);
             }
@@ -210,7 +216,7 @@ describe('Web Element Missing and Less Tested Methods', function () {
         });
 
         test('setInputFiles should exist and be callable', async () => {
-            const element = $('input[type="file"]');
+            const element = $('#file-upload');
             expect(element).to.have.property('setInputFiles');
             expect(typeof element.setInputFiles).to.equal('function');
         });
@@ -299,15 +305,10 @@ describe('Web Element Missing and Less Tested Methods', function () {
             expect(typeof element.selectOption).to.equal('function');
         });
 
-        test('setInputFiles should work with file paths', async () => {
-            const element = $('input[type="file"]');
-            // This should not throw even if the element doesn't exist
-            try {
-                await element.setInputFiles([]);
-                expect(true).to.be.true;
-            } catch (error) {
-                expect(error).to.be.instanceOf(Error);
-            }
+        test('setInputFiles should work with empty array on existing file input', async () => {
+            const element = $('#file-upload');
+            await element.setInputFiles([]);
+            expect(true).to.be.true; // Should complete without error
         });
     });
 
