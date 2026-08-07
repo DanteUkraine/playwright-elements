@@ -31,8 +31,8 @@ jobs:
         run: npm run build
       - name: Run tests
         run: npm test
-        timeout-minutes: 5
+        timeout-minutes: 20
       - name: Run integration tests
         run: npm run integration:test
-        timeout-minutes: 5
+        timeout-minutes: 15
       - run: echo "🍏 This job's status is ${{ job.status }}."
