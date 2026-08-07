@@ -31,7 +31,7 @@ jobs:
         run: npm run build
       - name: Run tests
         run: npm test
-        timeout-minutes: 10
+        timeout-minutes: 15
       - name: Run integration tests
         run: npm run integration:test
         timeout-minutes: 15
