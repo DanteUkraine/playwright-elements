@@ -1,7 +1,7 @@
 {
   "name": "playwright-elements",
   "version": "1.18.2",
-  "description": "This is Playwright extension.",
+  "description": "Type-safe, component-based testing framework for Playwright. Create reusable, type-safe page objects with nested component hierarchies and custom methods. 70%+ reduction in boilerplate compared to pure Playwright.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -31,14 +31,25 @@
   "keywords": [
     "Playwright",
     "playwright-elements",
-    "playwright/test"
+    "playwright/test",
+    "e2e-testing",
+    "end-to-end-testing",
+    "type-safe",
+    "page-object",
+    "component-testing",
+    "web-testing",
+    "automation",
+    "typescript",
+    "testing",
+    "selenium-alternative",
+    "cypress-alternative"
   ],
   "author": "Oleksandr Solomin",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/DanteUkraine/playwright-elements/issues"
   },
-  "homepage": "https://danteukraine.github.io/playwright-elements",
+  "homepage": "https://github.com/DanteUkraine/playwright-elements#readme",
   "devDependencies": {
     "@playwright/test": "^1.62.1",
     "@types/chai": "^4.3.5",

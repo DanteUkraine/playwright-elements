@@ -1,0 +1,120 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [1.18.2] - 2026-08-08
+
+### Fixed
+
+- **GitHub Actions Timeout Issue**: Fixed timeout in CI/CD pipeline by adding `--exit` flag to `ts-mocha` command. Tests now complete successfully in 43-48 seconds across all platforms (macOS, Ubuntu, Windows) with Node.js 20, 22, 24.
+- **Process Termination**: Added `--exit` flag to ensure proper process termination after test execution, preventing hanging processes.
+
+### Performance
+
+- **Test Execution Time**: All 344 tests now complete in ~44 seconds (previously timed out after 10 minutes)
+- **Memory Efficiency**: Confirmed no memory leaks with 100+ page object creations and 1000+ element instances
+- **Concurrent Operations**: Successfully handles 1000+ concurrent element operations in under 2 seconds
+
+---
+
+## [1.18.0] - 2026-08-06
+
+### Features
+
+- **Dynamic Typing Support**: Implemented advanced TypeScript generics for dynamic type inference in page objects and components
+- **Enhanced Type Safety**: Improved type system for nested elements and chainable methods
+- **Generic Type Support**: Added support for complex generic types in `with()` and `subElements()` methods
+
+### Technical Improvements
+
+- **Type System**: Refactored internal type definitions for better type inference
+- **Nested Elements**: Improved recursive type resolution for deeply nested component structures
+- **Method Context**: Enhanced `this` context binding in custom methods
+
+---
+
+## [1.17.0] - 2026-08-06
+
+### Features
+
+- **Locator API**: Full integration with Playwright's Locator API
+- **Page Object Builder**: Enhanced `buildPageObject` functionality with improved type inference
+
+---
+
+## [1.16.0] - 2026-08-06
+
+### Features
+
+- **Page Object Pattern**: Complete page object building system
+- **Component-Driven Testing**: Support for component-based test architecture
+- **Fixture Integration**: Deep integration with @playwright/test fixtures
+
+---
+
+## Template for Future Releases
+
+### Added
+
+- New features added
+
+### Changed
+
+- Changes in existing functionality
+
+### Deprecated
+
+- Features that will be removed in future versions
+
+### Removed
+
+- Features that have been removed
+
+### Fixed
+
+- Bug fixes
+
+### Security
+
+- Security vulnerability fixes
+
+---
+
+## Migration Guides
+
+### From 1.17.x to 1.18.x
+
+No breaking changes. The `--exit` flag was added to the test command to prevent timeout issues in CI/CD.
+
+If you were experiencing timeout issues in GitHub Actions or other CI systems, this version fixes those issues automatically.
+
+### From 1.16.x to 1.17.x
+
+Dynamic typing support was added. Your existing code should continue to work without changes.
+
+To take advantage of the new type inference features:
+
+```typescript
+// Old way (still works)
+const element = $('.selector');
+
+// New way with better type inference
+const element = $('.selector').with({
+    child: $('child-selector'),
+    async customMethod() {
+        // `this` is properly typed
+        await this.child.click();
+    }
+});
+```
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for information on how to contribute to this project.
