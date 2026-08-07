@@ -19,8 +19,8 @@ jobs:
     name: ${{ matrix.platform }} - Node ${{ matrix.node }}
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
       - name: Install dependencies
@@ -31,7 +31,7 @@ jobs:
         run: npm run build
       - name: Run tests
         run: npm test
-        timeout-minutes: 20
+        timeout-minutes: 10
       - name: Run integration tests
         run: npm run integration:test
         timeout-minutes: 15
