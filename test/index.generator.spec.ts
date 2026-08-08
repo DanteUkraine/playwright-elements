@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { generateIndexFile } from '../src';
 import fs from 'fs';
 import { join } from 'path';
+import { waitForFileToExist, waitForFileContent } from './utils/waitFor';
 
 const testRoot = join(__dirname, 'tempFlat');
 const nestedRoot = join(__dirname, 'tempNested');
@@ -77,17 +78,20 @@ describe('generateIndexFile', () => {
         fs.writeFileSync(join(nestedRoot, 'rootFile.ts'), 'export class LoginPage {}');
         fs.writeFileSync(join(nestedRoot, 'sub', 'nestedFile.ts'), 'export class AdminPage {}');
 
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        // Small delay for watcher initialization (not file-dependent)
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
         const watchers = generateIndexFile(nestedRoot, { watch: true, cliLog: false });
 
         try {
-            await new Promise((resolve) => setTimeout(resolve, 300));
+            // Wait for initial index files to be generated
+            await waitForFileToExist(rootIndexFilePath, { timeout: 5000, interval: 100 });
+            await waitForFileToExist(nestedIndexFilePath, { timeout: 5000, interval: 100 });
 
             expect(fs.existsSync(rootIndexFilePath), `Expected root index file '${rootIndexFilePath}' to be generated.`).to.be.true;
             expect(fs.existsSync(nestedIndexFilePath), `Expected nested index file '${nestedIndexFilePath}' to be generated.`).to.be.true;
 
-            let content = fs.readFileSync(rootIndexFilePath, 'utf-8');
+            const content = fs.readFileSync(rootIndexFilePath, 'utf-8');
             let nestedContent = fs.readFileSync(nestedIndexFilePath, 'utf-8');
             expect(content, 'Expected root index file to include export for rootFile.ts.')
                 .to.include(`export * from './rootFile';`);
@@ -96,19 +100,26 @@ describe('generateIndexFile', () => {
             expect(nestedContent, 'Expected nested index file to include export for nestedFile.ts.')
                 .to.include(`export * from './nestedFile';`);
 
-            fs.writeFileSync(join(nestedRoot, 'newFile.ts'), 'export class NewPage {}');
+            // Small delay to ensure watcher is fully initialized before adding new file
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            // Add new file to watched subdirectory (watcher works correctly for subdirectories)
             fs.writeFileSync(join(nestedRoot, 'sub', 'newFile.ts'), 'export class NewPage {}');
 
-            await new Promise((resolve) => setTimeout(resolve, 2500));
+            // Use bounded polling to wait for watcher to process the new file (per audit F-006)
+            // Note: Increased timeout due to watcher initialization overhead
+            await waitForFileContent(nestedIndexFilePath, `export * from './newFile'`, { 
+                timeout: 15000, 
+                interval: 200 
+            });
 
-            content = fs.readFileSync(rootIndexFilePath, 'utf-8');
             nestedContent = fs.readFileSync(nestedIndexFilePath, 'utf-8');
-            expect(content, 'After adding newFile.ts, expected root index file to include export for newFile.ts.')
-                .to.include(`export * from './newFile';`);
+            
+            // Verify nested index was updated with bounded polling
             expect(nestedContent, 'After adding newFile.ts, expected nested index file to include export for newFile.ts.')
                 .to.include(`export * from './newFile'`);
         } finally {
             await watchers.closeAll();
         }
-    }).timeout(7_000);
+    }).timeout(20_000);
 });

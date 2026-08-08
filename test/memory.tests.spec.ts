@@ -27,12 +27,13 @@ describe('Memory Tests', function (this: Mocha.Suite) {
     });
 
     after(async () => {
-        try {
-            if (BrowserInstance.browser) {
+        if (BrowserInstance.browser) {
+            try {
                 await BrowserInstance.close();
+            } catch (error) {
+                console.error('Browser cleanup failed:', error);
+                throw error;
             }
-        } catch (e) {
-            // Ignore errors during cleanup
         }
     });
 
