@@ -27,7 +27,7 @@ describe('Memory Tests', function (this: Mocha.Suite) {
     });
 
     after(async () => {
-        if (BrowserInstance.browser) {
+        if ((BrowserInstance as any)._browser) {
             try {
                 await BrowserInstance.close();
             } catch (error) {

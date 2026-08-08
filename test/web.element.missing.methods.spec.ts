@@ -59,13 +59,7 @@ describe('Web Element Missing and Less Tested Methods', function () {
 
         test('scrollIntoViewIfNeeded should not throw on existing elements', async () => {
             const element = $('h1');
-            try {
-                await element.scrollIntoViewIfNeeded();
-                expect(true).to.be.true; // Should complete without error
-            } catch (error) {
-                // Some environments might not support scrolling
-                expect(error).to.be.instanceOf(Error);
-            }
+            await element.scrollIntoViewIfNeeded();
         });
     });
 
@@ -78,23 +72,14 @@ describe('Web Element Missing and Less Tested Methods', function () {
 
         test('screenshot should return Buffer on existing elements', async () => {
             const element = $('h1');
-            try {
-                const screenshot = await element.screenshot();
-                expect(Buffer.isBuffer(screenshot)).to.be.true;
-            } catch (error) {
-                // Screenshot might fail in some environments
-                expect(error).to.be.instanceOf(Error);
-            }
+            const screenshot = await element.screenshot();
+            expect(Buffer.isBuffer(screenshot)).to.be.true;
         });
 
         test('screenshot with options should work', async () => {
             const element = $('h1');
-            try {
-                const screenshot = await element.screenshot({ type: 'png' });
-                expect(Buffer.isBuffer(screenshot)).to.be.true;
-            } catch (error) {
-                expect(error).to.be.instanceOf(Error);
-            }
+            const screenshot = await element.screenshot({ type: 'png' });
+            expect(Buffer.isBuffer(screenshot)).to.be.true;
         });
     });
 
@@ -214,13 +199,8 @@ describe('Web Element Missing and Less Tested Methods', function () {
         });
 
         test('dispatchEvent should work with basic events', async () => {
-            const element = $('div');
-            try {
-                await element.dispatchEvent('click');
-                expect(true).to.be.true; // Should complete without error
-            } catch (error) {
-                expect(error).to.be.instanceOf(Error);
-            }
+            const element = $('body');
+            await element.dispatchEvent('click');
         });
 
         test('highlight should exist and be callable', async () => {
@@ -303,14 +283,9 @@ describe('Web Element Missing and Less Tested Methods', function () {
         });
 
         test('dragTo should work with another element', async () => {
-            const source = $('div');
-            const target = $('span');
-            try {
-                await source.dragTo(target);
-                expect(true).to.be.true; // Should complete without error
-            } catch (error) {
-                expect(error).to.be.instanceOf(Error);
-            }
+            const source = $('body');
+            const target = $('body');
+            await source.dragTo(target);
         });
     });
 
@@ -363,12 +338,7 @@ describe('Web Element Missing and Less Tested Methods', function () {
 
         test('waitFor should work with timeout', async () => {
             const element = $('h1'); // Use existing element
-            try {
-                await element.waitFor({ timeout: 100 });
-                expect(true).to.be.true; // Should complete
-            } catch (error) {
-                expect(error).to.be.instanceOf(Error);
-            }
+            await element.waitFor({ timeout: 100 });
         });
     });
 
@@ -387,13 +357,8 @@ describe('Web Element Missing and Less Tested Methods', function () {
 
         test('addHandler and removeHandler should work together', async () => {
             const element = $('div');
-            try {
-                await element.addHandler(async () => {});
-                await element.removeHandler();
-                expect(true).to.be.true; // Should complete
-            } catch (error) {
-                expect(error).to.be.instanceOf(Error);
-            }
+            await element.addHandler(async () => {});
+            await element.removeHandler();
         });
     });
 });

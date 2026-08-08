@@ -28,7 +28,7 @@ test.describe('Playwright test integration', () => {
     const mainPage = new MainPage();
 
     test('usePage with promise all', async ({ goto, secondContextPage }) => {
-        await Promise.all([goto(), secondContextPage.goto('https://playwright.dev/docs/test-fixtures')]);
+        await Promise.all([goto(), secondContextPage.goto('/docs/test-fixtures')]);
         const customContextPromise = usePage(secondContextPage, async () => {
             await testFixturesPage.title.softExpect().toHaveText('Fixtures');
         });

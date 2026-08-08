@@ -24,7 +24,7 @@ const config: PlaywrightTestConfig = {
     ],
     use: {
         headless: true,
-        baseURL: 'https://playwright.dev',
+        baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://playwright.dev',
         ignoreHTTPSErrors: true,
     },
 };
