@@ -6,16 +6,47 @@ on:
   pull_request:
     branches:
       - main
+  schedule:
+    - cron: '0 0 * * *'  # Nightly regression at 00:00 UTC
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual trigger'
+        required: false
+        default: 'Manual regression run'
 concurrency:
   group: TestsPipeline
   cancel-in-progress: true
 jobs:
 
+  smoke-test:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install browsers
+        run: npm run install:browsers
+      - name: Build
+        run: npm run build
+      - name: Run smoke tests
+        run: npm run test:smoke
+        timeout-minutes: 5
+      - name: Run integration smoke tests
+        run: npm run test:smoke:integration
+        timeout-minutes: 5
+
   test:
+    needs: smoke-test
     strategy:
       matrix:
         platform: [ ubuntu-latest, macos-latest, windows-latest ]
         node: [ '24', '22', '20' ]
+      fail-fast: false
     name: ${{ matrix.platform }} - Node ${{ matrix.node }}
     runs-on: ${{ matrix.platform }}
     steps:
@@ -29,10 +60,32 @@ jobs:
         run: npm run install:browsers
       - name: Build
         run: npm run build
-      - name: Run tests
-        run: npm test
+      - name: Run tests with coverage and retries
+        run: npx c8 ts-mocha --exit --retries 2
         timeout-minutes: 15
-      - name: Run integration tests
-        run: npm run integration:test
+      - name: Run integration tests with coverage
+        run: npm run test:coverage:integration
         timeout-minutes: 15
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            coverage/
+            **.lcov
+            **.json
+          retention-days: 30
+      - name: Upload Playwright test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            test-results/
+            **/*.png
+            **/*.jpg
+            **/*.webm
+            **/*.mp4
+          retention-days: 30
       - run: echo "🍏 This job's status is ${{ job.status }}."

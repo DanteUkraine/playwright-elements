@@ -308,6 +308,19 @@ npm test -- test/performance.benchmarks.spec.ts
 - Keep tests independent and isolated
 - Use meaningful test names
 - Clean up resources after tests
+- **TMS Integration**: Currently, the framework does not integrate with any Test Management System (TMS). 
+  Future integration with systems like TestRail, Xray, or Zephyr is planned. Contributions are welcome to 
+  add TMS support via test metadata, tags, or external reporting plugins.
+
+### Architecture Notes
+
+- **WebElement Class**: The current `WebElement` class (622+ lines, 72+ public methods) handles multiple responsibilities 
+  including locator construction, collections, handlers, actions, state queries, and assertions. 
+  Future refactoring is planned to decompose this into smaller, focused modules using a facade pattern.
+- **BrowserInstance Coupling**: Element resolution currently depends on static `BrowserInstance.currentPage`. 
+  A future `PageProvider` abstraction is planned to enable fixture-scoped page injection and better parallel test support.
+- **Assertion Coupling**: The core `WebElement` class exposes Playwright assertion methods (`expect()`, `softExpect()`). 
+  While maintained for backward compatibility, new code should prefer using Playwright assertions directly.
 
 ### Test Structure
 

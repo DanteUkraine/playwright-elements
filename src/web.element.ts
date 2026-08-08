@@ -187,10 +187,22 @@ export class WebElement {
         expect;
     }
 
+    /**
+     * Provides Playwright expect assertions for this element.
+     * NOTE: This couples the core class to @playwright/test assertion framework.
+     * For production use, prefer using Playwright assertions directly on locators.
+     * Maintained for backward compatibility and test convenience.
+     */
     public expect(message?: string): LocatorExpect {
         return _expect(this.locator, message) as LocatorExpect;
     }
 
+    /**
+     * Provides Playwright soft expect assertions for this element.
+     * NOTE: This couples the core class to @playwright/test assertion framework.
+     * For production use, prefer using Playwright assertions directly on locators.
+     * Maintained for backward compatibility and test convenience.
+     */
     public softExpect(message?: string): LocatorExpect {
         return _expect.soft(this.locator, message) as LocatorExpect;
     }

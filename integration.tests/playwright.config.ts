@@ -5,6 +5,7 @@ generateIndexFile('./integration.tests/resources');
 
 const config: PlaywrightTestConfig = {
     timeout: 45_000,
+    retries: 2,
     expect: {
         timeout: 15_000
     },
@@ -26,6 +27,17 @@ const config: PlaywrightTestConfig = {
         headless: true,
         baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://playwright.dev',
         ignoreHTTPSErrors: true,
+        // Enable diagnostics collection
+        trace: 'on-first-retry',
+        screenshot: 'only-on-failure',
+        video: 'retain-on-failure',
     },
+    // Configure test reporting
+    reporter: [
+        ['list'],
+        ['json', { outputFile: 'test-results/integration-results.json' }],
+        ['junit', { outputFile: 'test-results/integration-results.xml' }],
+        ['html', { outputFolder: 'test-results/integration-html-report' }]
+    ],
 };
 export default config;

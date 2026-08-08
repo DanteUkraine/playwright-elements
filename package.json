@@ -20,6 +20,8 @@
     "test:coverage": "c8 npm test",
     "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts",
     "test:coverage:integration": "npx c8 npx playwright test integration.tests --config=integration.tests/playwright.config.ts",
+    "test:smoke": "ts-mocha --exit --grep \"BrowserInstance start\\|Web Element.*exist\\|buildPageObject should return\\|should generate index\"",
+    "test:smoke:integration": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts --grep \"expect positive\"",
     "modify:readme": "npx ts-node prepare-readme.ts",
     "prepare": "husky install",
     "lint": "npx eslint ."
