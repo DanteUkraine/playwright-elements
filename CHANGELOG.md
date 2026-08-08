@@ -14,11 +14,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **GitHub Actions Timeout Issue**: Fixed timeout in CI/CD pipeline by adding `--exit` flag to `ts-mocha` command. Tests now complete successfully in 43-48 seconds across all platforms (macOS, Ubuntu, Windows) with Node.js 20, 22, 24.
 - **Process Termination**: Added `--exit` flag to ensure proper process termination after test execution, preventing hanging processes.
 
+### Security
+
+- **Critical Vulnerability Fixes**: Updated all dependencies to fix 11 security vulnerabilities:
+  - **serialize-javascript**: Fixed RCE (Remote Code Execution) vulnerability (GHSA-5c6j-r48x-rmvq) and CPU exhaustion DoS (GHSA-qj8w-gfj5-8c6v) by updating to v7.0.7
+  - **js-yaml**: Fixed prototype pollution (GHSA-mh29-5h37-fv8m) and multiple DoS vulnerabilities (GHSA-h67p-54hq-rp68, GHSA-52cp-r559-cp3m, GHSA-5p4m-2wfm-xmqj) by updating to v4.3.1
+  - **minimatch**: Fixed multiple ReDoS vulnerabilities (GHSA-3ppc-4f35-3m26, GHSA-7r86-cg39-jmmj, GHSA-23c5-xmqv-rm74) by updating to v9.0.7
+  - **diff/jsdiff**: Fixed DoS vulnerability (GHSA-73rr-hh4g-fpgx) by updating to v5.2.2
+  - **picomatch**: Fixed method injection (GHSA-3v7f-55p6-f55p) and ReDoS (GHSA-c2c7-rcm5-vvqj) by updating to v2.3.2
+  - Added npm `overrides` section to ensure transitive dependencies use secure versions
+
 ### Performance
 
 - **Test Execution Time**: All 344 tests now complete in ~44 seconds (previously timed out after 10 minutes)
 - **Memory Efficiency**: Confirmed no memory leaks with 100+ page object creations and 1000+ element instances
 - **Concurrent Operations**: Successfully handles 1000+ concurrent element operations in under 2 seconds
+
+### Dependencies
+
+- **Updated Test Framework**: mocha@11.8.0, chai@6.2.2, ts-mocha@11.1.0
+- **Updated TypeScript**: typescript@5.9.3
+- **Updated Tooling**: eslint@8.57.1, @typescript-eslint/eslint-plugin@6.21.0, @typescript-eslint/parser@6.21.0
+- **Updated Types**: @types/chai@5.2.3, @types/mocha@10.0.10, @types/node@26.2.0, @types/yargs@17.0.35
+- **Updated Utilities**: husky@9.1.7, yargs@18.1.0, expect-type@1.4.0
 
 ---
 
