@@ -1,6 +1,13 @@
-import { test as base, Page, Response } from '@playwright/test';
-import { BrowserInstance, usePage } from './index';
+import { test as base, Page, Response, expect } from '@playwright/test';
+import { BrowserInstance, usePage, WebElement } from './index';
 export { expect } from '@playwright/test';
+
+// Configure WebElement assertion provider automatically for Playwright tests
+// This decouples the core WebElement from @playwright/test while maintaining convenience
+WebElement.setExpectProvider({
+    expect: expect,
+    softExpect: expect.soft
+});
 
 type WrappedFixtures = {
     baseURL: string | undefined,

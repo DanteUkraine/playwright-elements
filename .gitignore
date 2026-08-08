@@ -5,3 +5,7 @@ lib
 node_modules
 test-results
 coverage
+
+# Vibe agent files
+.agents/
+skills-lock.json

@@ -1,5 +1,6 @@
 {
   "extension": ["ts"],
   "spec": "./**/*.spec.ts",
-  "timeout": 30000
+  "timeout": 30000,
+  "require": ["./test/mocha.setup.ts"]
 }
