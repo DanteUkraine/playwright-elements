@@ -8,7 +8,8 @@ import {
     $getByText,
     $getByTitle,
     BrowserInstance,
-    BrowserName
+    BrowserName,
+    configureWebElementExpect
 } from '../src';
 import { test } from 'mocha';
 import { expect } from 'chai';
@@ -20,6 +21,7 @@ describe(`Web element build in selectors`, function () {
     this.timeout(20_000);
 
     before(async () => {
+        configureWebElementExpect();
         await BrowserInstance.start(BrowserName.CHROME);
         await BrowserInstance.startNewPage();
         await BrowserInstance.currentPage.setDefaultTimeout(10_000);

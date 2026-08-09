@@ -1,4 +1,4 @@
-import { $, BrowserInstance, BrowserName } from '../src';
+import { $, BrowserInstance, BrowserName, configureWebElementExpect } from '../src';
 import { test } from 'mocha';
 import { AssertionError, expect } from 'chai';
 import { localFilePath } from './utils'
@@ -9,6 +9,7 @@ describe(`Web element build in helpers`, function () {
     this.timeout(10_000);
 
     before(async () => {
+        configureWebElementExpect();
         await BrowserInstance.start(BrowserName.CHROME);
         await BrowserInstance.startNewPage();
         await BrowserInstance.currentPage.goto(localFilePath);
