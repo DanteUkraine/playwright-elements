@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides a **public capability-to-automated-test coverage map** for the playwright-elements framework, fulfilling requirement **T-014** from the independent audit (P2 scope).
+This document provides a **public capability-to-automated-test coverage map** for the playwright-elements framework.
 
 Each public API capability is mapped to its corresponding automated test cases, including:
 - Test file location
@@ -599,7 +599,7 @@ Each public API capability is mapped to its corresponding automated test cases, 
 
 ---
 
-## 🔍 Test Case IDs (T-015)
+## 🔍 Test Case IDs
 
 All test cases follow a **stable naming convention**:
 
@@ -622,7 +622,7 @@ Each test has:
 3. **Test name** - Specific scenario
 4. **Line number** - For traceability
 
-### CI Integration (T-015)
+### CI Integration
 - GitHub Actions workflows publish test results
 - Test reports include:
   - Pass/fail status
@@ -632,7 +632,7 @@ Each test has:
 
 ---
 
-## 🔒 Security & Contract Tests (T-016)
+## 🔒 Security & Contract Tests
 
 ### Input Validation Contracts
 - **Capability**: Validate input parameters
@@ -729,9 +729,9 @@ When adding new capabilities:
 
 | Requirement | Status | Notes |
 |-------------|--------|-------|
-| **T-014**: Capability-to-test map | ✅ **Complete** | This document |
-| **T-015**: Stable test IDs | ✅ **Complete** | All tests have unique IDs |
-| **T-016**: Security/contract tests | ✅ **Complete** | All contracts validated |
+| Capability-to-test map | ✅ **Complete** | This document |
+| Stable test IDs | ✅ **Complete** | All tests have unique IDs |
+| Security/contract tests | ✅ **Complete** | All contracts validated |
 
 ---
 

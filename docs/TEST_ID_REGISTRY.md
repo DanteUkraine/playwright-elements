@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document implements **T-015: Adopt stable requirement/test-case IDs and publish identified CI results** from the independent audit (P2 scope).
+This document provides a comprehensive registry of all test IDs in the playwright-elements framework.
 
 Each test case in the playwright-elements framework has a **unique, stable identifier** that can be used for:
 - Traceability across CI/CD pipelines

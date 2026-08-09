@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.18.2-rc1] - 2026-08-09
+
+### ⚠️ Release Candidate
+
+This is a release candidate for v1.18.2 with critical fixes and architectural improvements. Not recommended for production use yet.
+
+### ✨ Features
+
+- **Type System Refactoring**: Extracted `By` selector types (`By`, `ByOptions`, `ByRoleOptions`, `Role`) to dedicated module `src/types/by.selectors.ts` for better maintainability and separation of concerns (T-013 partial).
+
+### 🐛 Bug Fixes
+
+- **Hardcoded URL**: Replaced hardcoded external URL with relative path in integration tests, allowing environment configuration via `PLAYWRIGHT_BASE_URL` (F-005).
+- **Variable Naming**: Fixed incorrect variable name in `or` loop (`andElement` → `orElement`) in locator building logic.
+
+### 🗑️ Removed
+
+- **Smoke Test Scripts**: Removed `test:smoke` and `test:smoke:integration` from package.json as per project requirements.
+- **CI Smoke Tests**: Removed smoke-test job and its dependencies from GitHub Actions workflow.
+- **Test Retries**: Removed `--retries 2` from test commands in both Mocha and Playwright configurations.
+
+### 📦 Configuration
+
+- **Version Update**: Updated package version to `1.18.2-rc1` for release candidate.
+
+---
+
 ## [1.18.2] - 2026-08-08
 
 ### Fixed
