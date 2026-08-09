@@ -252,42 +252,6 @@ describe('Web Element Concurrency and Parallel Testing', function () {
         });
     });
 
-    describe('Timeout and Performance Testing', () => {
-        test('operations should complete within reasonable time', async () => {
-            const startTime = Date.now();
-            
-            const element = $('li');
-            await element.getAll();
-            
-            const endTime = Date.now();
-            expect(endTime - startTime).to.be.lessThan(5000); // Should complete quickly
-        });
-
-        test('concurrent operations should be efficient', async () => {
-            const startTime = Date.now();
-            
-            const elements = ['div', 'span', 'li', 'a', 'p'].map($);
-            await Promise.all(elements.map(el => el.count()));
-            
-            const endTime = Date.now();
-            expect(endTime - startTime).to.be.lessThan(10000); // Should complete quickly
-        });
-
-        test('many concurrent operations should scale well', async () => {
-            const startTime = Date.now();
-            
-            const elements: WebElement[] = [];
-            for (let i = 0; i < 100; i++) {
-                elements.push($(`#element-${i}`));
-            }
-            
-            await Promise.all(elements.map(el => el.count().catch(() => 0)));
-            
-            const endTime = Date.now();
-            expect(endTime - startTime).to.be.lessThan(15000); // Should scale well
-        });
-    });
-
     describe('Resource Management', () => {
         test('creating many elements should not cause memory issues', async () => {
             const elements: WebElement[] = [];

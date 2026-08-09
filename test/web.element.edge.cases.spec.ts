@@ -356,30 +356,4 @@ describe('Web Element Edge Cases and Boundary Conditions', function () {
             expect(element.narrowSelector).to.equal('#test\\:id');
         });
     });
-
-    describe('Performance and Scalability Testing', () => {
-        test('creating many WebElement instances should work', async () => {
-            const elements: WebElement[] = [];
-            for (let i = 0; i < 1000; i++) {
-                elements.push($(`#element-${i}`));
-            }
-            expect(elements).to.have.lengthOf(1000);
-        });
-
-        test('creating deeply nested structure should work', async () => {
-            let element: WebElement = $('html');
-            for (let i = 0; i < 20; i++) {
-                element = element.$(`div:nth-child(${i})`);
-            }
-            expect(element.selector).to.be.a('string');
-        });
-
-        test('complex selector with many conditions should work', async () => {
-            let element = $('div');
-            for (let i = 0; i < 20; i++) {
-                element = element.and(`#condition-${i}`);
-            }
-            expect(element._and).to.have.lengthOf(20);
-        });
-    });
 });

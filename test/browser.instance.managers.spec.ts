@@ -21,36 +21,49 @@ describe('BrowserInstance - Context Manager Methods', function (this: Mocha.Suit
         
         try {
             initialPage = BrowserInstance.currentPage;
-        } catch {
+        } catch (error) {
+            console.warn('Failed to get initial page in beforeEach:', error);
             initialPage = undefined;
         }
         try {
             initialContext = BrowserInstance.currentContext;
-        } catch {
+        } catch (error) {
+            console.warn('Failed to get initial context in beforeEach:', error);
             initialContext = undefined;
         }
         try {
             initialBrowser = BrowserInstance.browser;
-        } catch {
+        } catch (error) {
+            console.warn('Failed to get initial browser in beforeEach:', error);
             initialBrowser = undefined;
         }
     });
 
     afterEach(async () => {
-        if (browser) await browser.close();
+        if (browser) {
+            try {
+                await browser.close();
+            } catch (error) {
+                console.error('Failed to close browser in afterEach:', error);
+                throw error;
+            }
+        }
         try {
             BrowserInstance.browser = initialBrowser;
-        } catch {
+        } catch (error) {
+            console.error('Failed to restore browser in afterEach:', error);
             BrowserInstance.browser = undefined;
         }
         try {
             BrowserInstance.currentContext = initialContext;
-        } catch {
+        } catch (error) {
+            console.error('Failed to restore context in afterEach:', error);
             BrowserInstance['_currentContext'] = undefined;
         }
         try {
             BrowserInstance.currentPage = initialPage;
-        } catch {
+        } catch (error) {
+            console.error('Failed to restore page in afterEach:', error);
             BrowserInstance.currentPage = undefined;
         }
     });
