@@ -36,9 +36,8 @@ test.describe(`Playwright test integration`, () => {
 
     test(`goto fixture should navigate to endpoint`, async ({ goto }) => {
         await expect(BrowserInstance.currentPage).toHaveURL('about:blank')
-        // Use absolute URL for external site to ensure response is returned
-        // baseURL is configurable via PLAYWRIGHT_BASE_URL, default is https://playwright.dev
-        await goto('https://playwright.dev/docs/test-typescript');
+        // Use relative path - baseURL is configurable via PLAYWRIGHT_BASE_URL, default is https://playwright.dev
+        await goto('/docs/test-typescript');
         // Response may be null for same-origin navigations, check URL instead
         expect(BrowserInstance.currentPage.url()).toContain('test-typescript');
     })

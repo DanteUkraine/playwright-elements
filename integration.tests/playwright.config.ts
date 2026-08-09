@@ -5,7 +5,6 @@ generateIndexFile('./integration.tests/resources');
 
 const config: PlaywrightTestConfig = {
     timeout: 45_000,
-    retries: 2,
     expect: {
         timeout: 15_000
     },

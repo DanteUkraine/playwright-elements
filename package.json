@@ -1,6 +1,6 @@
 {
   "name": "playwright-elements",
-  "version": "1.18.2",
+  "version": "1.18.2-rc1",
   "description": "Type-safe, component-based testing framework for Playwright. Create reusable, type-safe page objects with nested component hierarchies and custom methods. 70%+ reduction in boilerplate compared to pure Playwright.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -20,8 +20,6 @@
     "test:coverage": "c8 npm test",
     "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts",
     "test:coverage:integration": "npx c8 npx playwright test integration.tests --config=integration.tests/playwright.config.ts",
-    "test:smoke": "ts-mocha --exit --grep \"BrowserInstance start\\|Web Element.*exist\\|buildPageObject should return\\|should generate index\"",
-    "test:smoke:integration": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts --grep \"expect positive\"",
     "modify:readme": "npx ts-node prepare-readme.ts",
     "prepare": "husky install",
     "lint": "npx eslint ."
