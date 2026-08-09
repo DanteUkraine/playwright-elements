@@ -1,6 +1,7 @@
 import { Locator, LocatorScreenshotOptions, Page } from 'playwright-core';
 import cloneDeep from 'lodash.clonedeep';
 import { BrowserInstance } from './index';
+import { By, ByOptions, ByRoleOptions, Role } from './types/by.selectors';
 
 function extractSelector(pointer: string | WebElement): string {
     return pointer instanceof WebElement ? pointer.selector : pointer;
@@ -146,9 +147,9 @@ export class WebElement {
             locatorsChain = locatorsChain.and(andElement instanceof WebElement ?
                 andElement.locator : locatorsChainWithIframeType.locator(andElement));
         }
-        for (const andElement of element._or) {
-            locatorsChain = locatorsChain.or(andElement instanceof WebElement ?
-                andElement.locator : locatorsChainWithIframeType.locator(andElement));
+        for (const orElement of element._or) {
+            locatorsChain = locatorsChain.or(orElement instanceof WebElement ?
+                orElement.locator : locatorsChainWithIframeType.locator(orElement));
         }
         if (element._nth != undefined) locatorsChain = locatorsChain.nth(element._nth);
         return locatorsChain as Locator;
@@ -805,41 +806,8 @@ export class WebElement {
     }
 }
 
-enum By {
-    getByAltText = 'getByAltText',
-    getByLabel = 'getByLabel',
-    getByPlaceholder = 'getByPlaceholder',
-    getByRole = 'getByRole',
-    getByTestId = 'getByTestId',
-    getByText = 'getByText',
-    getByTitle = 'getByTitle'
-}
-
-type ByOptions = {
-    exact?: boolean
-}
-
-type Role = 'alert' | 'alertdialog'| 'application' | 'article' | 'banner' | 'blockquote' | 'button' | 'caption' |
-    'cell' | 'checkbox' | 'code' | 'columnheader' | 'combobox' | 'complementary' | 'contentinfo' | 'definition' |
-    'deletion' | 'dialog' | 'directory' | 'document' | 'emphasis' | 'feed' | 'figure' | 'form' | 'generic' | 'grid' |
-    'gridcell' | 'group' | 'heading' | 'img' | 'insertion' | 'link' | 'list' | 'listbox' | 'listitem' | 'log' | 'main' |
-    'marquee' | 'math' | 'meter' | 'menu' | 'menubar' | 'menuitem' | 'menuitemcheckbox' | 'menuitemradio' |
-    'navigation' | 'none' | 'note' | 'option' | 'paragraph' | 'presentation' | 'progressbar' | 'radio' | 'radiogroup' |
-    'region' | 'row' | 'rowgroup' | 'rowheader' | 'scrollbar' | 'search' | 'searchbox' | 'separator' | 'slider' |
-    'spinbutton' | 'status' | 'strong' | 'subscript' | 'superscript' | 'switch' | 'tab' | 'table' | 'tablist' |
-    'tabpanel'| 'term' | 'textbox' | 'time' | 'timer' | 'toolbar' | 'tooltip' | 'tree' | 'treegrid' | 'treeitem';
-
-type ByRoleOptions = {
-    checked?: boolean,
-    disabled?: boolean,
-    exact?: boolean,
-    expanded?: boolean,
-    includeHidden?: boolean,
-    level?: number,
-    name?: string | RegExp,
-    pressed?: boolean,
-    selected?: boolean
-}
+// Re-export By types for backward compatibility
+export { By, ByOptions, ByRoleOptions, Role } from './types/by.selectors';
 
 export function $(selector: string): WebElement {
     return new WebElement(selector);
