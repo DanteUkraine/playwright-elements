@@ -24,6 +24,8 @@ const config: PlaywrightTestConfig = {
     ],
     use: {
         headless: true,
+        // Explicit base URL set via PLAYWRIGHT_BASE_URL env var in CI
+        // Falls back to playwright.dev for local development
         baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://playwright.dev',
         ignoreHTTPSErrors: true,
         // Enable diagnostics collection

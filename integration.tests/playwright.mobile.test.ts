@@ -6,7 +6,7 @@ test.use({ ...devices['iPhone 13'] })
 test.describe(`Playwright mobile test integration`, () => {
 
     test(`isMobile flag`,() => {
-        expect(BrowserInstance.isContextMobile).toBeTruthy();
+        expect(BrowserInstance.isContextMobile).toBe(true);
     })
 
     test(`initDesktopOrMobile helper`, () => {

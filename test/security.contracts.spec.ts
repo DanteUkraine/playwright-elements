@@ -138,7 +138,12 @@ describe('Security & Contract Tests', function () {
             test('M-SEC-029: prevent prototype pollution', async () => {
                 const malicious = JSON.parse('{"__proto__": {"isAdmin": true}}');
                 const before = (Object.prototype as any).isAdmin;
-                try { await $('input').fill('test', malicious as any).catch(() => {}); } catch (e) { /* empty */ }
+                try {
+                    await $('input').fill('test', malicious as any);
+                    throw new Error('Expected rejection for prototype pollution');
+                } catch (e) {
+                    // Expected to reject due to invalid selector options
+                }
                 expect((Object.prototype as any).isAdmin).to.equal(before);
             });
         });

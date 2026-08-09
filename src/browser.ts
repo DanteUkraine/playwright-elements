@@ -70,6 +70,9 @@ export class Context {
 }
 
 export class BrowserInstance {
+    // NOTE: Static state is managed by Playwright test fixtures for isolation
+    // Direct usage outside of fixture context may cause state leakage (F-003)
+    // Prefer using the `initBrowserInstance` fixture from playwright.test.fixtures.ts
 
     public static browserName: BrowserName | undefined;
     private static _browser: Browser | undefined;

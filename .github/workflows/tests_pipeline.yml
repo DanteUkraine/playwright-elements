@@ -38,6 +38,8 @@ jobs:
         run: npm run install:browsers
       - name: Build
         run: npm run build
+      - name: Set explicit base URL for integration tests
+        run: echo "PLAYWRIGHT_BASE_URL=https://playwright.dev" >> $GITHUB_ENV
       - name: Run tests with coverage
         run: npx c8 ts-mocha --exit
         timeout-minutes: 15

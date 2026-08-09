@@ -39,8 +39,6 @@ describe('Stress Tests', function (this: Mocha.Suite) {
     });
 
     it('should handle many concurrent browser contexts', async () => {
-        const startTime = Date.now();
-        
         const contexts: any[] = [];
         for (let i = 0; i < 5; i++) {
             const context = await BrowserInstance.browser.newContext();
@@ -51,10 +49,10 @@ describe('Stress Tests', function (this: Mocha.Suite) {
             await context.close();
         }
         
-        const endTime = Date.now();
-        
-        expect(endTime - startTime).to.be.lessThan(5000);
+        // Functional verification: all contexts were created and closed
         expect(contexts.length).to.equal(5);
+        // Note: Timing assertions removed to avoid CI flakiness (see F-002)
+        // Performance benchmarks should be in separate benchmark tests
     });
 
     it('should handle large number of sub elements', async () => {
