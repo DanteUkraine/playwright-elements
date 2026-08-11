@@ -2,5 +2,6 @@
   "extension": ["ts"],
   "spec": "./**/*.spec.ts",
   "timeout": 30000,
+  "parallel": false,
   "require": ["./test/mocha.setup.ts"]
 }

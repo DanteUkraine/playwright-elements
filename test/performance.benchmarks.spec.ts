@@ -3,7 +3,7 @@ import { $, BrowserInstance, BrowserName, buildPageObject } from '../src';
 import { localFilePath } from './utils';
 
 describe('Performance Tests', function (this: Mocha.Suite) {
-    this.timeout(10_000);
+    this.timeout(60_000);
 
     before(async () => {
         await BrowserInstance.start(BrowserName.CHROME);

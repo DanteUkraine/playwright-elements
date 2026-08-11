@@ -186,7 +186,9 @@ export class BrowserInstance {
     }
 
     public static async close(): Promise<void> {
-        await this.browser.close();
+        if (this._browser) {
+            await this._browser.close();
+        }
         this._currentPage = undefined;
         this._currentContext = undefined;
         this._browser = undefined;

@@ -8,14 +8,13 @@ import { localFilePath } from './utils';
 describe('Browser Instance', function (this: Mocha.Suite) {
     this.timeout(30_000);
 
-    afterEach(async () => {
-        await BrowserInstance.close();
-    })
-
     describe('start', () => {
+        afterEach(async () => {
+            await BrowserInstance.close();
+        });
 
         const browsers = Object.values(BrowserName);
-        for (const browser of browsers) {
+        browsers.forEach((browser) => {
             test(`${browser} should start`, async () => {
                 await BrowserInstance.start(browser);
                 await BrowserInstance.startNewContext();
@@ -23,8 +22,8 @@ describe('Browser Instance', function (this: Mocha.Suite) {
                 expect(() => BrowserInstance.browser).not.to.throw();
                 expect(() => BrowserInstance.currentContext).not.to.throw();
                 expect(() => BrowserInstance.currentPage).not.to.throw();
-            })
-        }
+            });
+        });
 
         test(`new page should start context`, async () => {
             await BrowserInstance.start(BrowserName.WEBKIT);
@@ -32,7 +31,7 @@ describe('Browser Instance', function (this: Mocha.Suite) {
             expect(() => BrowserInstance.browser).not.to.throw();
             expect(() => BrowserInstance.currentContext).not.to.throw();
             expect(() => BrowserInstance.currentPage).not.to.throw();
-        })
+        });
     })
 
     describe('method', function (this: Mocha.Suite) {
@@ -40,7 +39,11 @@ describe('Browser Instance', function (this: Mocha.Suite) {
             await BrowserInstance.start(BrowserName.FIREFOX);
             await BrowserInstance.startNewPage();
             await BrowserInstance.currentPage.goto(localFilePath);
-        })
+        });
+        
+        afterEach(async () => {
+            await BrowserInstance.close();
+        });
 
         test(`switch to previous tab`, async () => {
             await BrowserInstance.startNewPage();
@@ -71,6 +74,9 @@ describe('Browser Instance', function (this: Mocha.Suite) {
     })
 
     describe('setter', () => {
+        afterEach(async () => {
+            await BrowserInstance.close();
+        });
 
         test(`page`, async () => {
             const browser = await webkit.launch();
@@ -79,7 +85,8 @@ describe('Browser Instance', function (this: Mocha.Suite) {
             expect(() => BrowserInstance.browser).not.to.throw();
             expect(() => BrowserInstance.currentContext).not.to.throw();
             expect(() => BrowserInstance.currentPage).not.to.throw();
-        })
+            await browser.close();
+        });
 
         test(`context`, async () => {
             const browser = await webkit.launch();
@@ -87,13 +94,15 @@ describe('Browser Instance', function (this: Mocha.Suite) {
             BrowserInstance.withContext(context);
             expect(() => BrowserInstance.browser).not.to.throw();
             expect(() => BrowserInstance.currentContext).not.to.throw();
-        })
+            await browser.close();
+        });
 
         test(`browser`, async () => {
             const browser = await webkit.launch();
             BrowserInstance.withBrowser(browser);
             expect(() => BrowserInstance.browser).not.to.throw();
-        })
+            await browser.close();
+        });
     })
 })
 
