@@ -7,18 +7,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v6
         with:
           node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
+      
       - name: Run npm ci
         run: npm ci
+      
       - name: Replace md links with github pages links
         run: npm run modify:readme
+      
       - name: Build lib
         run: npm run build
+      
+      - name: Determine publish tag
+        id: determine-tag
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [[ $VERSION == *-rc* ]]; then
+            echo "tag=rc" >> $GITHUB_OUTPUT
+          elif [[ $VERSION == *-alpha* ]]; then
+            echo "tag=alpha" >> $GITHUB_OUTPUT
+          elif [[ $VERSION == *-beta* ]]; then
+            echo "tag=beta" >> $GITHUB_OUTPUT
+          elif [[ $VERSION == *-next* ]]; then
+            echo "tag=next" >> $GITHUB_OUTPUT
+          else
+            echo "tag=" >> $GITHUB_OUTPUT
+          fi
+      
       - name: Publish
-        run: npm publish
+        run: |
+          TAG="${{ steps.determine-tag.outputs.tag }}"
+          if [ -n "$TAG" ]; then
+            npm publish --tag $TAG
+          else
+            npm publish
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
