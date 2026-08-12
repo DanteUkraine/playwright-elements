@@ -2,6 +2,9 @@ name: Publish Package to npm
 on:
   release:
     types: [created]
+permissions:
+  id-token: write
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -13,7 +16,7 @@ jobs:
         with:
           node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
-      
+          package-manager-cache: false
       - name: Run npm ci
         run: npm ci
       
@@ -43,9 +46,9 @@ jobs:
         run: |
           TAG="${{ steps.determine-tag.outputs.tag }}"
           if [ -n "$TAG" ]; then
-            npm publish --tag $TAG
+            npm publish --tag $TAG --provenance
           else
-            npm publish
+            npm publish --provenance
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
