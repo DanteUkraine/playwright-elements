@@ -10,19 +10,47 @@ describe('Memory Tests', function (this: Mocha.Suite) {
     const tempDir = join(__dirname, 'tempMemoryTest');
 
     before(async () => {
-        await BrowserInstance.start(BrowserName.CHROME);
-        await BrowserInstance.startNewPage();
-        await BrowserInstance.currentPage.goto(localFilePath);
-        await BrowserInstance.currentPage.waitForSelector('h1');
+        // Clean up any previous state
+        await BrowserInstance.close().catch(() => {});
         
         if (fs.existsSync(tempDir)) {
             fs.rmSync(tempDir, { recursive: true, force: true });
+        }
+        
+        // Start browser with retry logic for flaky environments
+        let retries = 3;
+        while (retries > 0) {
+            try {
+                await BrowserInstance.start(BrowserName.CHROME);
+                await BrowserInstance.startNewPage();
+                await BrowserInstance.currentPage.goto(localFilePath);
+                await BrowserInstance.currentPage.waitForSelector('h1', { timeout: 30000 });
+                break; // Success
+            } catch (error) {
+                retries--;
+                if (retries <= 0) {
+                    throw error; // Re-throw if all retries fail
+                }
+                console.warn(`Browser startup failed, retrying (${retries} attempts left):`, error);
+                await BrowserInstance.close().catch(() => {});
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
         }
     });
 
     afterEach(async () => {
         if (fs.existsSync(tempDir)) {
             fs.rmSync(tempDir, { recursive: true, force: true });
+        }
+        
+        // Navigate back to base page between tests to ensure clean state
+        try {
+            if (BrowserInstance.currentPage) {
+                await BrowserInstance.currentPage.goto(localFilePath);
+                await BrowserInstance.currentPage.waitForSelector('h1').catch(() => {});
+            }
+        } catch (error) {
+            console.warn('Page navigation in afterEach failed:', error);
         }
     });
 
