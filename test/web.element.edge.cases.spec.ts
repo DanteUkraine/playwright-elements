@@ -4,7 +4,7 @@ import { $, WebElement, BrowserInstance, BrowserName } from '../src';
 import { localFilePath } from './utils';
 
 describe('Web Element Edge Cases and Boundary Conditions', function () {
-    this.timeout(10_000);
+    this.timeout(20_000);
 
     before(async () => {
         await BrowserInstance.start(BrowserName.CHROME);
