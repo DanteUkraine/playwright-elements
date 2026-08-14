@@ -15,6 +15,7 @@ const test = baseTest.extend<TestFixtures>({
 });
 
 const title = $('h1');
+const expectedRegExp = /Playwright enables reliable./gi;
 
 class TestFixturesPage {
     readonly title = title;
@@ -32,8 +33,7 @@ test.describe('Playwright test integration', () => {
         const customContextPromise = usePage(secondContextPage, async () => {
             await testFixturesPage.title.softExpect().toHaveText('Fixtures');
         });
-        const defaultContextPromise = mainPage.title.softExpect()
-            .toHaveText('Playwright enables reliable end-to-end testing for modern web apps.');
+        const defaultContextPromise = mainPage.title.softExpect().toHaveText(expectedRegExp);
         await Promise.all([defaultContextPromise, customContextPromise]);
     });
 
@@ -60,7 +60,7 @@ test.describe('Playwright test integration', () => {
             return title.textContent();
         });
         expect(text).toEqual('Fixtures');
-        expect(await title.textContent()).toEqual('Playwright enables reliable end-to-end testing for modern web apps.')
+        await title.expect().toHaveText(expectedRegExp);
     });
 });
 

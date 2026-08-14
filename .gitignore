@@ -1,6 +1,7 @@
 .ssh
 .idea
 .git
+.agents
 lib
 node_modules
 test-results
