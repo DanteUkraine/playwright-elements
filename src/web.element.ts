@@ -41,6 +41,7 @@ type DblClickOptions = Parameters<Locator['dblclick']>[0];
 type DispatchEventInit = Parameters<Locator['dispatchEvent']>[1];
 type DispatchEventOptions = Parameters<Locator['dispatchEvent']>[2];
 type DragToOptions = Parameters<Locator['dragTo']>[1];
+type DropPayload = Parameters<Locator['drop']>[0];
 type DropOptions = Parameters<Locator['drop']>[1];
 type FillOptions = Parameters<Locator['fill']>[1];
 type FocusOptions = Parameters<Locator['focus']>[0];
@@ -579,7 +580,7 @@ export class WebElement {
         await this.locator.dragTo(target instanceof WebElement ? target.locator : target, options);
     }
 
-    public async drop(payload: Parameters<Locator['drop']>[0], options?: DropOptions): Promise<void> {
+    public async drop(payload: DropPayload, options?: DropOptions): Promise<void> {
         await this.locator.drop(payload, options);
     }
 
