@@ -282,6 +282,22 @@ test.describe('Web Element Missing and Less Tested Methods', () => {
             const target = $('body');
             await source.dragTo(target);
         });
+
+        test('drop should exist and be callable', async () => {
+            const element = $('div');
+            expect(element).toHaveProperty('drop');
+            expect(typeof element.drop).toEqual('function');
+        });
+
+        test('drop should work with empty files payload', async () => {
+            const dropzone = $('body');
+            await dropzone.drop({ files: [] });
+        });
+
+        test('drop should work with data payload', async () => {
+            const dropzone = $('body');
+            await dropzone.drop({ data: { 'text/plain': 'test data' } });
+        });
     });
 
     test.describe('Mobile and Touch Methods', () => {
