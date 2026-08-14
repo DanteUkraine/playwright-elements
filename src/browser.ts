@@ -76,7 +76,6 @@ export class BrowserInstance {
     private static _currentContext: Context | undefined;
     private static _currentPage: Page | undefined;
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     private constructor() {
     }
 

@@ -37,23 +37,25 @@
   },
   "homepage": "https://danteukraine.github.io/playwright-elements",
   "devDependencies": {
-    "@playwright/test": "^1.51.0",
-    "@types/chai": "^4.3.5",
+    "@eslint/js": "^8.57.0",
+    "globals": "^15.12.0",
+    "@playwright/test": "^1.62.1",
+    "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^7.1.5",
     "@types/lodash.clonedeep": "^4.5.9",
-    "@types/mocha": "^10.0.6",
-    "@types/node": "^22.13.1",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^26.2.0",
     "@types/yargs": "^17.0.33",
-    "@typescript-eslint/eslint-plugin": "^6.18.0",
-    "@typescript-eslint/parser": "^6.18.0",
-    "chai": "^4.3.7",
-    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^8.67.0",
+    "@typescript-eslint/parser": "^8.67.0",
+    "chai": "^6.2.2",
+    "eslint": "^10.8.1",
     "expect-type": "^1.2.0",
     "husky": "^8.0.3",
-    "mocha": "^10.2.0",
+    "mocha": "^11.8.0",
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "chokidar": "^4.0.3",
@@ -61,7 +63,7 @@
     "yargs": "^17.7.2"
   },
   "peerDependencies": {
-    "@playwright/test": ">=1.44.x",
-    "playwright-core": ">= 1.44.x"
+    "@playwright/test": ">=1.62.x",
+    "playwright-core": ">= 1.62.x"
   }
 }
