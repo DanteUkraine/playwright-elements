@@ -1,4 +1,4 @@
-import { BrowserInstance, BrowserName } from '../src';
+import { BrowserInstance, BrowserName, Context } from '../src';
 import { test, expect } from '../src';
 import { webkit } from 'playwright-core';
 import { localFilePath } from './utils';
@@ -26,21 +26,59 @@ test.describe('Browser Instance', () => {
     })
 
     test.describe('method', () => {
-        // TODO: These tests need special handling because they rely on BrowserInstance's
-        // internal page tracking (previousPage). In Playwright test framework, the page
-        // is managed by fixtures, so the previousPage tracking doesn't work the same way.
-        // These tests are skipped in the initial migration and will be addressed later.
-        
-        test.skip(`switch to previous tab`, async () => {
-            // This test requires proper previousPage tracking which needs adaptation
+        test(`switch to previous tab`, async ({ page, initBrowserInstance }) => {
+            const page2 = await page.context().newPage();
+            const initialUrl = 'about:blank';
+            await page.goto(initialUrl);
+            await page2.goto(initialUrl);
+            
+            BrowserInstance.withContext(page.context());
+            BrowserInstance.currentPage = page;
+            
+            const context = BrowserInstance.currentContext as unknown as Context;
+            (context as any)._previousPage = page;
+            (context as any)._pages = [page, page2];
+            BrowserInstance.currentPage = page2;
+            
+            await BrowserInstance.switchToPreviousTab();
+            
+            expect(BrowserInstance.currentPage).toBe(page);
+            await page.close();
+            await page2.close();
         })
 
-        test.skip(`switch tab by index`, async () => {
-            // This test requires proper page index tracking which needs adaptation
+        test(`switch tab by index`, async ({ page, initBrowserInstance }) => {
+            const page2 = await page.context().newPage();
+            const initialUrl = 'about:blank';
+            await page.goto(initialUrl);
+            await page2.goto(initialUrl);
+            
+            BrowserInstance.withContext(page.context());
+            
+            const context = BrowserInstance.currentContext as unknown as Context;
+            (context as any)._pages = [page, page2];
+            
+            await BrowserInstance.switchToTabByIndex(1);
+            
+            expect(BrowserInstance.currentPage).toBe(page2);
+            await page.close();
+            await page2.close();
         })
 
-        test.skip(`switch tab by defunct index`, async () => {
-            // This test requires proper page index tracking which needs adaptation
+        test(`switch tab by defunct index`, async ({ page, initBrowserInstance }) => {
+            const page2 = await page.context().newPage();
+            const initialUrl = 'about:blank';
+            await page.goto(initialUrl);
+            await page2.goto(initialUrl);
+            
+            BrowserInstance.withContext(page.context());
+            
+            const context = BrowserInstance.currentContext as unknown as Context;
+            (context as any)._pages = [page, page2];
+            
+            await expect(BrowserInstance.switchToTabByIndex(5)).rejects.toThrow();
+            await page.close();
+            await page2.close();
         })
     })
 
