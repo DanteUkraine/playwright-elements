@@ -12,8 +12,7 @@ import { expect as pwExpect } from '@playwright/test';
 test.describe('Security & Contract Tests', () => {
 
     test.beforeEach(async ({ initBrowserInstance, page }) => {
-        // Configure expect provider for WebElement methods
-        configureWebElementExpect();
+        // Configure expect provider for WebElement methods is handled by the fixture
         await page.setContent('<html><body><h1>Test</h1><div id="test"></div><input type="text" id="input"></input></body></html>');
     })
 

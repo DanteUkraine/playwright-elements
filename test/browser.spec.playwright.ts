@@ -1,4 +1,4 @@
-import { BrowserInstance, BrowserName, Context } from '../src';
+import { BrowserInstance, BrowserName } from '../src';
 import { test, expect } from '../src';
 import { webkit } from 'playwright-core';
 import { localFilePath } from './utils';
@@ -26,59 +26,53 @@ test.describe('Browser Instance', () => {
     })
 
     test.describe('method', () => {
-        test(`switch to previous tab`, async ({ page, initBrowserInstance }) => {
-            const page2 = await page.context().newPage();
-            const initialUrl = 'about:blank';
-            await page.goto(initialUrl);
-            await page2.goto(initialUrl);
+        test(`switch to previous tab`, async ({ page, initBrowserInstance, goto }) => {
+            await goto(localFilePath);
             
-            BrowserInstance.withContext(page.context());
-            BrowserInstance.currentPage = page;
+            const previousPage = BrowserInstance.currentPage;
+            const newPage = await BrowserInstance.startNewPage();
+            await newPage.goto('about:blank');
             
-            const context = BrowserInstance.currentContext as unknown as Context;
-            (context as any)._previousPage = page;
-            (context as any)._pages = [page, page2];
-            BrowserInstance.currentPage = page2;
+            expect(BrowserInstance.currentPage).toBe(newPage);
+            expect(BrowserInstance.currentPage.url()).toBe('about:blank');
             
             await BrowserInstance.switchToPreviousTab();
             
-            expect(BrowserInstance.currentPage).toBe(page);
-            await page.close();
-            await page2.close();
+            expect(BrowserInstance.currentPage).toBe(previousPage);
+            expect(BrowserInstance.currentPage.url()).toContain('test.html');
+            
+            await newPage.close();
         })
 
-        test(`switch tab by index`, async ({ page, initBrowserInstance }) => {
-            const page2 = await page.context().newPage();
-            const initialUrl = 'about:blank';
-            await page.goto(initialUrl);
-            await page2.goto(initialUrl);
+        test(`switch tab by index`, async ({ page, initBrowserInstance, goto }) => {
+            await goto(localFilePath);
+            const originalPage = BrowserInstance.currentPage;
             
-            BrowserInstance.withContext(page.context());
+            const newPage = await BrowserInstance.startNewPage();
+            await newPage.goto('about:blank');
             
-            const context = BrowserInstance.currentContext as unknown as Context;
-            (context as any)._pages = [page, page2];
+            expect(BrowserInstance.currentPage).toBe(newPage);
+            expect(BrowserInstance.currentPage.url()).toBe('about:blank');
             
-            await BrowserInstance.switchToTabByIndex(1);
+            await BrowserInstance.switchToTabByIndex(0);
             
-            expect(BrowserInstance.currentPage).toBe(page2);
-            await page.close();
-            await page2.close();
+            expect(BrowserInstance.currentPage).toBe(originalPage);
+            expect(BrowserInstance.currentPage.url()).toContain('test.html');
+            
+            await newPage.close();
         })
 
-        test(`switch tab by defunct index`, async ({ page, initBrowserInstance }) => {
-            const page2 = await page.context().newPage();
-            const initialUrl = 'about:blank';
-            await page.goto(initialUrl);
-            await page2.goto(initialUrl);
+        test(`switch tab by defunct index`, async ({ page, initBrowserInstance, goto }) => {
+            await goto(localFilePath);
             
-            BrowserInstance.withContext(page.context());
+            const newPage = await BrowserInstance.startNewPage();
+            await newPage.goto('about:blank');
             
-            const context = BrowserInstance.currentContext as unknown as Context;
-            (context as any)._pages = [page, page2];
+            await expect(BrowserInstance.switchToTabByIndex(5))
+                .rejects
+                .toThrow('Page was not started');
             
-            await expect(BrowserInstance.switchToTabByIndex(5)).rejects.toThrow();
-            await page.close();
-            await page2.close();
+            await newPage.close();
         })
     })
 
