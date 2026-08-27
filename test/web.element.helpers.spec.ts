@@ -116,8 +116,8 @@ describe(`Web element build in helpers`, function () {
         const title = $('img');
         try {
             await title.getText()
-        } catch (e) {
-            expect(e).to.have.property('message', 'Text content method returned null for selector: "img"');
+        } catch (error) {
+            expect(error).to.have.property('message', 'Text content method returned null for selector: "img"');
             return;
         }
         throw new AssertionError('Method getText should throw error.')

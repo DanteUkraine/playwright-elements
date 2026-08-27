@@ -154,8 +154,8 @@ test.describe('Browser Instance getter', () => {
     test(`start new context should throw error`, async () => {
         try {
             await BrowserInstance.startNewContext()
-        } catch (e) {
-            expect((e as Error).message).toBe(`Browser was not started`);
+        } catch (error) {
+            expect((error as Error).message).toBe(`Browser was not started`);
             return;
         }
         throw new Error('Error with message: "Browser was not started" should be thrown.');
@@ -164,8 +164,8 @@ test.describe('Browser Instance getter', () => {
     test(`start new page should throw error`, async () => {
         try {
             await BrowserInstance.startNewPage()
-        } catch (e) {
-            expect((e as Error).message).toBe(`Browser was not started`);
+        } catch (error) {
+            expect((error as Error).message).toBe(`Browser was not started`);
             return;
         }
         throw new Error('Error with message: "Browser was not started" should be thrown.');

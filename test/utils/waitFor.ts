@@ -19,9 +19,9 @@ export async function waitForFileToExist(
     options: WaitForFileOptions = {}
 ): Promise<void> {
     const { timeout = 5000, interval = 100 } = options;
-    const startTime = Date.now();
+    const maxIterations = Math.ceil(timeout / interval);
 
-    while (Date.now() - startTime < timeout) {
+    for (let i = 0; i < maxIterations; i++) {
         if (fs.existsSync(filePath)) {
             return;
         }
@@ -46,12 +46,12 @@ export async function waitForFileContent(
     options: WaitForFileOptions = {}
 ): Promise<string> {
     const { timeout = 5000, interval = 100 } = options;
-    const startTime = Date.now();
     const isRegex = expectedContent instanceof RegExp;
+    const maxIterations = Math.ceil(timeout / interval);
 
     let lastContent = '';
 
-    while (Date.now() - startTime < timeout) {
+    for (let i = 0; i < maxIterations; i++) {
         try {
             if (!fs.existsSync(filePath)) {
                 await new Promise((resolve) => setTimeout(resolve, interval));
@@ -68,8 +68,9 @@ export async function waitForFileContent(
             } else if (content.includes(expectedContent as string)) {
                 return content;
             }
-        } catch {
+        } catch (error) {
             // File might be temporarily locked, continue polling
+            // This is expected during file I/O operations
         }
 
         await new Promise((resolve) => setTimeout(resolve, interval));
@@ -92,7 +93,7 @@ export async function waitForFileUpdate(
     options: WaitForFileOptions = {}
 ): Promise<string> {
     const { timeout = 5000, interval = 100 } = options;
-    const startTime = Date.now();
+    const maxIterations = Math.ceil(timeout / interval);
 
     let previousContent = '';
 
@@ -101,7 +102,7 @@ export async function waitForFileUpdate(
         previousContent = fs.readFileSync(filePath, 'utf-8');
     }
 
-    while (Date.now() - startTime < timeout) {
+    for (let i = 0; i < maxIterations; i++) {
         await new Promise((resolve) => setTimeout(resolve, interval));
 
         try {
@@ -111,8 +112,9 @@ export async function waitForFileUpdate(
                     return currentContent;
                 }
             }
-        } catch {
+        } catch (error) {
             // File might be temporarily locked, continue polling
+            // This is expected during file I/O operations
         }
     }
 

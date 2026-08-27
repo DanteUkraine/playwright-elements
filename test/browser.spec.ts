@@ -61,8 +61,8 @@ describe('Browser Instance', function (this: Mocha.Suite) {
             await BrowserInstance.startNewPage();
             try {
                 await BrowserInstance.switchToTabByIndex(2)
-            } catch (e) {
-                expect(e).to.have.property('message', expectedMessage);
+            } catch (error) {
+                expect(error).to.have.property('message', expectedMessage);
                 return;
             }
             throw new AssertionError(`Error with message: "${expectedMessage}" should be thrown.`)
@@ -112,8 +112,8 @@ describe('Browser Instance getter', () => {
     test(`start new context should throw error`, async () => {
         try {
             await BrowserInstance.startNewContext()
-        } catch (e) {
-            expect(e).to.have.property('message', `Browser was not started`);
+        } catch (error) {
+            expect(error).to.have.property('message', `Browser was not started`);
             return;
         }
         throw new AssertionError('Error with message: "Browser was not started" should be thrown.')
@@ -122,8 +122,8 @@ describe('Browser Instance getter', () => {
     test(`start new page should throw error`, async () => {
         try {
             await BrowserInstance.startNewPage()
-        } catch (e) {
-            expect(e).to.have.property('message', `Browser was not started`);
+        } catch (error) {
+            expect(error).to.have.property('message', `Browser was not started`);
             return;
         }
         throw new AssertionError('Error with message: "Browser was not started" should be thrown.')

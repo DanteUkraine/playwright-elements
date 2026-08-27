@@ -162,9 +162,9 @@ test.describe('Security & Contract Tests', () => {
                 try {
                     await $('javascript:alert("XSS")').count();
                     expect(false).toBe(true); // Should have thrown an error
-                } catch (e: any) {
-                    expect(e).toBeInstanceOf(Error);
-                    const msg = e.message || '';
+                } catch (error: any) {
+                    expect(error).toBeInstanceOf(Error);
+                    const msg = error.message || '';
                     expect(msg.includes('not a valid selector') || msg.includes('invalid')).toBe(true);
                 }
             });
@@ -183,7 +183,7 @@ test.describe('Security & Contract Tests', () => {
                 const before = (Object.prototype as any).isAdmin;
                 try {
                     await $('input').fill('test', malicious as any);
-                } catch (e) {
+                } catch (error) {
                     // Expected to reject due to invalid selector options
                 }
                 expect((Object.prototype as any).isAdmin).toEqual(before);
@@ -285,7 +285,7 @@ test.describe('Security & Contract Tests', () => {
                 try { 
                     await $('#nonexistent-xyz-123').getText({ timeout: 100 } as any);
                     expect(false).toBe(true); // Should have thrown an error
-                } catch (e: any) { 
+                } catch (error: any) { 
                     expect(e).toBeDefined(); 
                 }
             });

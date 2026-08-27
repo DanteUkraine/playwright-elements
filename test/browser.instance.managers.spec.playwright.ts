@@ -67,7 +67,8 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
                 
                 try {
                     BrowserInstance.withBrowser(browser);
-                } catch (e) {
+                } catch (error) {
+                    // Expected: withBrowser should not throw when browser is already set
                     errorCaught = true;
                 }
                 
@@ -174,7 +175,8 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
                 
                 try {
                     BrowserInstance.withContext(context);
-                } catch (e) {
+                } catch (error) {
+                    // Expected: withContext should not throw when context is already set
                     errorCaught = true;
                 }
                 
@@ -253,7 +255,8 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
                 
                 try {
                     BrowserInstance.withPage(page);
-                } catch (e) {
+                } catch (error) {
+                    // Expected: withPage should not throw when page is already set
                     errorCaught = true;
                 }
                 
