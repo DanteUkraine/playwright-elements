@@ -77,7 +77,8 @@ test.describe('Web Element Edge Cases and Boundary Conditions', () => {
 
         test('has with string argument should point on element witch has specific child', async () => {
             const visibleElement = $(`#visible-target div`).has(`#right-target`);
-            expect(visibleElement.selector).toBeTruthy();
+            expect(typeof visibleElement.selector).toBe('string');
+            expect(visibleElement.selector.length).toBeGreaterThan(0);
         });
 
         test('hasText with WebElement argument should work', () => {

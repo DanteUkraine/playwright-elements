@@ -48,7 +48,8 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
 
             expect(results).toHaveLength(4);
             for (const result of results) {
-                expect(Array.isArray(result)).toBeTruthy();
+                expect(result).toBeInstanceOf(Array);
+                expect(result.length).toBeGreaterThanOrEqual(0);
             }
         });
 
@@ -131,7 +132,7 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
                 results.push(count);
             });
 
-            expect(Array.isArray(results)).toBeTruthy();
+            expect(results).toBeInstanceOf(Array);
             expect(results.length).toBeGreaterThan(0);
         });
 
@@ -162,7 +163,8 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
             });
 
             // Functional verification: results were returned
-            expect(Array.isArray(results)).toBeTruthy();
+            expect(results).toBeInstanceOf(Array);
+            expect(results.length).toBeGreaterThanOrEqual(0);
             // Note: Timing assertions removed to avoid CI flakiness
             // Performance benchmarks should be in separate benchmark tests
         });
@@ -177,8 +179,10 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
                 element2.map(el => el.narrowSelector)
             ]);
 
-            expect(Array.isArray(result1)).toBeTruthy();
-            expect(Array.isArray(result2)).toBeTruthy();
+            expect(result1).toBeInstanceOf(Array);
+            expect(result1.length).toBeGreaterThanOrEqual(0);
+            expect(result2).toBeInstanceOf(Array);
+            expect(result2.length).toBeGreaterThanOrEqual(0);
         });
     });
 
@@ -259,7 +263,8 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
 
             expect(elements).toHaveLength(3);
             for (const el of elements) {
-                expect(Array.isArray(el.parentElements)).toBeTruthy();
+                expect(el.parentElements).toBeInstanceOf(Array);
+                expect(el.parentElements.length).toBeGreaterThanOrEqual(0);
             }
         });
     });

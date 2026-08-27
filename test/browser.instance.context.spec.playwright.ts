@@ -61,7 +61,7 @@ test.describe('BrowserInstance - Context Class', () => {
                 const contextInstance = BrowserInstance['_currentContext'] as Context;
                 const pages = contextInstance.pages;
                 
-                expect(Array.isArray(pages)).toBeTruthy();
+                expect(pages).toBeInstanceOf(Array);
                 expect(pages.length).toBeGreaterThanOrEqual(1);
                 expect(pages[0]).toBeDefined();
             } finally {
@@ -88,7 +88,7 @@ test.describe('BrowserInstance - Context Class', () => {
                 const contextInstance = BrowserInstance['_currentContext'] as Context;
                 const pages = contextInstance.pages;
                 
-                expect(Array.isArray(pages)).toBeTruthy();
+                expect(pages).toBeInstanceOf(Array);
                 expect(pages.length).toBeGreaterThanOrEqual(2);
                 
                 // Clean up the extra page
