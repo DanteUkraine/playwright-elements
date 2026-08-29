@@ -1,18 +1,46 @@
 ---
 layout: default
-title: Get started
+title: Web Element
 ---
 [Go to Main Page >>](./../README.md)
 
-## Web element
+## Web Element
 
-*WebElement class is a wrapper on playwright Locator. It was created to allow creation of complex
-web components which support multiple levels sub elements with ability to add custom methods with type safe "this".*
+> **WebElement class is a wrapper on Playwright Locator**. It was created to allow creation of complex web components which support multiple levels of sub-elements with the ability to add custom methods with type-safe `this`.
+
+---
+
+## Table of Contents
 
 - [Get by methods](#get-by-methods)
 - [With](#with)
+- [Assertion Provider Configuration](#assertion-provider-configuration)
 - [Expect](#expect)
 - [Extended Expect](#extended-expect)
+- [Types](#types)
+- [Locator and underscore](#locator-and-underscore)
+- [Get parent](#get-parent)
+- [Build in selector helpers](#build-in-selector-helpers)
+- [And](#and)
+- [Or](#or)
+- [Has](#has)
+- [Has not](#has-not)
+- [Has text](#has-text)
+- [Has not text](#has-not-text)
+- [Get element by index](#get-element-by-index)
+- [Strict mode](#strict-mode)
+- [Content Frame and Owner](#content-frame-and-owner)
+- [Clone](#clone)
+- [Lists of WebElements](#lists-of-webelements)
+- [Add handler](#add-handler)
+- [Remove handler](#remove-handler)
+- [Get Text](#get-text)
+- [Actions (Ported Locator methods)](#actions)
+- [How to extend WebElement](#how-to-extend-web-element)
+
+---
+
+## Get by methods
 - [Locator and underscore](#locator-and-underscore)
 - [Get parent](#get-parent)
 - [Build in selector helpers](#build-in-selector-helpers)
@@ -155,90 +183,348 @@ class MainPage {
 }
 ```
 
+---
+
+## Assertion Provider Configuration
+
+> **⚠️ IMPORTANT:** Starting from version 1.18.3, WebElement assertions are **decoupled from @playwright/test**. You **must** configure the assertion provider before using `expect()` or `softExpect()`.
+
+### Overview
+
+This architectural change allows:
+- ✅ Use WebElement in **production code** without test dependencies
+- ✅ Support **different test frameworks** (Playwright, Mocha, Jest, etc.)
+- ✅ Implement **custom assertion libraries**
+- ✅ Better **type safety** and **cleaner architecture**
+
+### The Problem
+
+Previously, WebElement directly imported and used `@playwright/test` expect functions. This created:
+- ❌ Unnecessary dependencies in production code
+- ❌ Inability to use with other test frameworks
+- ❌ Tight coupling between core and test code
+
+### The Solution: ExpectProvider Pattern
+
+The library now uses a **provider pattern** where assertion functionality is injected at runtime.
+
+#### ExpectProvider Interface
+
+```typescript
+// Defined in src/web.element.ts
+export interface ExpectProvider {
+    expect: (locator: any, message?: string) => any;
+    softExpect: (locator: any, message?: string) => any;
+}
+```
+
+#### Configuration Methods
+
+**For Playwright Test (Automatic):**
+> No manual setup needed! Configuration happens automatically in `playwright.test.fixtures.ts`
+
+```typescript
+import { test } from 'playwright-elements';
+
+test('my test', async ({}) => {
+    // Works automatically - no configuration needed
+    await $('.element').expect().toBeVisible();
+});
+```
+
+**For Mocha (Manual Configuration):**
+```typescript
+// In test/mocha.setup.ts or before hooks
+import { configureWebElementExpect } from 'playwright-elements';
+
+// Configure once before tests run
+configureWebElementExpect();
+
+// Now all WebElement instances can use expect() and softExpect()
+test('my test', async () => {
+    await $('.element').expect().toBeVisible();
+});
+```
+
+**For Custom Frameworks:**
+```typescript
+import { WebElement } from 'playwright-elements';
+import { myCustomExpect, myCustomSoftExpect } from 'my-test-framework';
+
+// Configure once in setup
+WebElement.setExpectProvider({
+    expect: myCustomExpect,
+    softExpect: myCustomSoftExpect
+});
+
+// Now all WebElement instances use your custom expect
+await $('.element').expect().toBeVisible();
+```
+
+**For Individual Elements:**
+```typescript
+import { $, createElementAssertions } from 'playwright-elements';
+
+const element = $('.my-element');
+const { expect, softExpect } = createElementAssertions(element);
+
+await expect().toBeVisible();
+await softExpect().toHaveText('test');
+```
+
+### Important Notes
+
+⚠️ **Error if not configured:**
+```typescript
+// This will throw an error:
+await $('.element').expect().toBeVisible();
+// Error: "Assertion provider not configured. Call WebElement.setExpectProvider() in your test setup.
+//        For Playwright: WebElement.setExpectProvider({ expect, softExpect: expect.soft });"
+```
+
+✅ **Solution:** Call `configureWebElementExpect()` in your test setup, or ensure you're using Playwright Test fixtures.
+
+### Migration from Previous Versions
+
+**Before 1.18.3 (automatic, implicit):**
+```typescript
+await $('.element').expect().toBeVisible(); // Just worked
+```
+
+**After 1.18.3 (explicit configuration):**
+```typescript
+// For Playwright Test: Automatic (no changes needed)
+// For Mocha: Call configureWebElementExpect() once in setup
+configureWebElementExpect();
+await $('.element').expect().toBeVisible(); // Now works
+```
+
+### Backward Compatibility
+
+The `useExpect()` static method is **maintained for backward compatibility** but is now a **no-op** (does nothing):
+
+```typescript
+// This still works but does nothing:
+WebElement.useExpect(expect);
+
+// Use this instead:
+WebElement.setExpectProvider({ expect, softExpect: expect.soft });
+```
+
+---
+
 ### Expect
 Web element has methods `expect()` and `softExpect()` which allows access to
 [playwright assert library](https://playwright.dev/docs/test-assertions).
+
+> ⚠️ **REQUIRES CONFIGURATION:** Before using `expect()` or `softExpect()`, you must [configure the assertion provider](#assertion-provider-configuration).
+
 Please pay attention that Locator passed to native expect method under the hood
 that's why autocomplete works only for default locator matchers but pay attention that it allows you to call
 custom matchers without errors.
 
-```ts
-test(`header should contain user info`, async () => {
-    const mainPage = new MainPage();
-    await mainPage.header.userInfoSection.firstName.softExpect().toHaveText(`Bob`);
-    await mainPage.header.userInfoSection.lastName.softExpect().toHaveText(`Automation`);
-    await mainPage.header.userInfoSection.avatar.expect().toBeVisible();
-})
+#### Basic Usage
+
+```typescript
+import { $ } from 'playwright-elements';
+
+// For Playwright Test: Works automatically
+// For Mocha: Requires configureWebElementExpect() in setup
+
+const element = $('.my-element');
+
+// Standard assertion
+await element.expect().toBeVisible();
+
+// Soft assertion (doesn't fail immediately)
+await element.softExpect().toHaveText('Hello');
 ```
 
+#### Assertion Chaining
+
+All standard Playwright assertion matchers are available:
+
+```typescript
+await element.expect().toHaveValue('test');
+await element.expect().toContainText('hello');
+await element.expect().toHaveAttribute('class', 'active');
+await element.expect().toBeEnabled();
+await element.expect().toBeDisabled();
+await element.expect().toBeChecked();
+await element.expect().toBeHidden();
+await element.expect().toHaveCount(3);
+await element.expect().toHaveClass('btn-primary');
+await element.expect().toHaveId('submit-button');
+```
+
+#### Negation with `not`
+
+```typescript
+await element.expect().not.toBeVisible();
+await element.expect().not.toContainText('error');
+await element.expect().not.toHaveClass('disabled');
+```
+
+#### Soft Assertions
+
+Soft assertions collect failures and report them at the end of the test:
+
+```typescript
+test('multiple checks', async () => {
+    await $('.name').softExpect().toHaveValue('John');
+    await $('.email').softExpect().toHaveValue('john@example.com');
+    await $('.age').softExpect().toHaveValue('30');
+    
+    // All three assertions are checked, test fails if any fail
+});
+```
+
+#### Custom Messages
+
+```typescript
+await element.expect('Header should be visible').toBeVisible();
+await element.softExpect('User name should match').toHaveText('John Doe');
+```
+
+#### Type Safety
+
+The return type of `expect()` and `softExpect()` is `any` to support the full Playwright assertion chain. For better type safety with custom matchers, see [Extended Expect](#extended-expect).
+
 ### Extended Expect
-Web element allows users to use custom matchers (even if you do not reassign extended expect explicitly),
-they can be called without any errors but autocomplete features may not work.
-Related playwright docs: https://playwright.dev/docs/next/test-assertions#add-custom-matchers-using-expectextend
 
-```ts
-import { Locator } from '@playwright/test';
-import { expect, $, test } from 'playwright-elements';
+> **Note:** With the new ExpectProvider pattern (v1.18.3+), custom matchers should be configured through the provider rather than directly extending expect.
 
-expect.extend({
-    async toHaveAriaLabel(locator: Locator, expected: string, options?: { timeout?: number }) {
-       ...
+WebElement allows users to use custom matchers with the new provider pattern. For full type safety and autocompletion with custom matchers, configure them through the ExpectProvider.
+
+Related Playwright docs: https://playwright.dev/docs/next/test-assertions#add-custom-matchers-using-expectextend
+
+#### Adding Custom Matchers with ExpectProvider
+
+**Recommended approach with ExpectProvider:**
+
+```typescript
+import { WebElement, configureWebElementExpect } from 'playwright-elements';
+import { expect } from '@playwright/test';
+
+// Extend Playwright expect with custom matchers
+const customExpect = expect.extend({
+    async toHaveAriaLabel(locator: any, expected: string, options?: { timeout?: number }) {
+        const actual = await locator.getAttribute('aria-label');
+        return { 
+            pass: actual === expected,
+            message: () => `Expected aria-label to be ${expected}, but got ${actual}`
+        };
     }
 });
 
-test.describe(() => {
-    test(`use custom expect matcher example`, async ({ goto }) => {
-        await goto('/');
-        const header = $(`.navbar`);
-        await header.expect().toHaveAriaLabel('Main');
-    })
-})
+// Configure WebElement to use extended expect
+WebElement.setExpectProvider({
+    expect: customExpect,
+    softExpect: customExpect.soft
+});
+
+// Now custom matcher works with full autocompletion
+await $('.button').expect().toHaveAriaLabel('Submit');
 ```
 
-In case you have plenty of custom expect matchers, and you want to make autocomplete work you need to extend
-web element and add additional expect method:
+#### Custom WebElement with Extended Expect
 
-customWebElement.ts
-```ts
-import { WebElement, expect } from 'playwright-elements';
+If you have many custom matchers and want better autocompletion:
 
-const extendedExpect = expect.extend(customMatchers);
-class CustomWebElement extends WebElement {
-  public customExpect(message?: string) {
-    return extendedExpect(this.locator, message);
-  }
+```typescript
+// customWebElement.ts
+import { WebElement } from 'playwright-elements';
+import { expect } from '@playwright/test';
+
+const customExpect = expect.extend({
+    async toHaveAriaLabel(locator: any, expected: string) {
+        // Custom matcher implementation
+    }
+});
+
+export class CustomWebElement extends WebElement {
+    public customExpect(message?: string) {
+        return customExpect(this.locator, message);
+    }
 }
 
 export function $(selector: string): CustomWebElement {
-  return new CustomWebElement(selector);
+    return new CustomWebElement(selector);
 }
 ```
 
-someTest.test.ts
-```ts
+```typescript
+// someTest.test.ts
 import { test } from 'playwright-elements';
 import { $ } from './customWebElement';
 
-test(`custom expect matcher`, async ({ goto }) => {
-  await goto('/');
-  const header = $(`.navbar`);
-  await header.customExpect().toHaveAriaLabel('Main');
-})
+test('custom expect matcher', async ({ goto }) => {
+    await goto('/');
+    const header = $(`.navbar`);
+    await header.customExpect().toHaveAriaLabel('Main');
+});
 ```
-Now autocomplete works but in case you want explicitly define return type for customExpect method
-you can use utility type (ReturnType), this will guarantee correct autocomplete:
-```ts
-import { Locator } from '@playwright/test';
-import { WebElement, expect } from 'playwright-elements';
 
-const extendedExpect = expect.extend(customMatchers);
-class CustomWebElement extends WebElement {
-  public customExpect(message?: string): ReturnType<typeof extendedExpect<Locator>> {
-    return extendedExpect(this.locator, message);
-  }
+> **Note:** The old approach of directly calling `expect.extend()` and using WebElement's built-in expect methods will **not work** with custom matchers unless you configure the provider with your extended expect.
+
+---
+
+## Types
+
+### WebElementExpect
+
+> Type representing the result of calling `expect()` on a WebElement. Provides type-safe assertion chaining.
+
+```typescript
+export type WebElementExpect = {
+    toHaveValue: (value: string | RegExp, options?: any) => Promise<void>;
+    toBeVisible: (options?: any) => Promise<void>;
+    toContainText: (text: string | RegExp, options?: any) => Promise<void>;
+    toHaveText: (text: string | RegExp, options?: any) => Promise<void>;
+    toHaveAttribute: (name: string, value: string | RegExp, options?: any) => Promise<void>;
+    toBeEnabled: (options?: any) => Promise<void>;
+    toBeDisabled: (options?: any) => Promise<void>;
+    toBeChecked: (options?: any) => Promise<void>;
+    toBeHidden: (options?: any) => Promise<void>;
+    toHaveCount: (count: number, options?: any) => Promise<void>;
+    toHaveClass: (className: string | RegExp, options?: any) => Promise<void>;
+    toHaveId: (id: string, options?: any) => Promise<void>;
+    not: WebElementExpect;
+};
+```
+
+### WebElementSoftExpect
+
+> Type representing the result of calling `softExpect()` on a WebElement. Same structure as WebElementExpect.
+
+```typescript
+export type WebElementSoftExpect = {
+    toHaveValue: (value: string | RegExp, options?: any) => Promise<void>;
+    toBeVisible: (options?: any) => Promise<void>;
+    toContainText: (text: string | RegExp, options?: any) => Promise<void>;
+    toHaveText: (text: string | RegExp, options?: any) => Promise<void>;
+    toHaveAttribute: (name: string, value: string | RegExp, options?: any) => Promise<void>;
+    toBeEnabled: (options?: any) => Promise<void>;
+    toBeDisabled: (options?: any) => Promise<void>;
+    toBeChecked: (options?: any) => Promise<void>;
+    toBeHidden: (options?: any) => Promise<void>;
+    toHaveCount: (count: number, options?: any) => Promise<void>;
+    not: WebElementSoftExpect;
+};
+```
+
+### ExpectProvider
+
+> Interface for providing assertion functionality to WebElement. Used to decouple from specific test frameworks.
+
+```typescript
+export interface ExpectProvider {
+    expect: (locator: any, message?: string) => any;
+    softExpect: (locator: any, message?: string) => any;
 }
 ```
 
+---
 
 ### Locator and underscore
 

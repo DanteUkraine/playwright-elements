@@ -18,9 +18,13 @@ Run the following command to install the package:
 ___
 - [Get started](docs/get_started.md)
 - [Web element](docs/web_element.md)
+- [Test Support Utilities](docs/test_support.md)
 - [Playwright elements fixtures](docs/playwright_elements_fixtures.md)
 - [Build page object](docs/build_page_object.md)
 - [Browser instance](docs/browser_instance.md)
+- [Migration Guide](docs/migration_guide.md)
+- [Architecture Overview](docs/architecture.md)
+- [Frequently Asked Questions](docs/faq.md)
 
 #### Tests with playwright-elements:
 
@@ -77,6 +81,8 @@ import { test } from './fixtures';
 test('check login page', async ({ pageObject }) => {
     await pageObject.login.form.fillForm('UserName', 'Pass!');
     
+    // Note: expect() and softExpect() work automatically with Playwright Test
+    // due to automatic provider configuration in playwright.test.fixtures.ts
     await pageObject.login.header.logo.expect().toBeVisible();
     await pageObject.login.header.avatar.expect().toBeVisible();
 });
@@ -130,6 +136,8 @@ import { test } from './fixtures';
 test('check login page', async ({ elements }) => {
     await elements.form.fillForm('UserName', 'Pass!');
     
+    // Note: expect() and softExpect() work automatically with Playwright Test
+    // due to automatic provider configuration in playwright.test.fixtures.ts
     await elements.header.logo.expect().toBeVisible();
     await elements.header.avatar.expect().toBeVisible();
 });
