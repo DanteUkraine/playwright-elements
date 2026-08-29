@@ -1,7 +1,16 @@
 import { Locator, LocatorScreenshotOptions, Page } from 'playwright-core';
 import cloneDeep from 'lodash.clonedeep';
 import { BrowserInstance } from './index';
-import { Expect, expect } from '@playwright/test';
+
+// Assertion provider type for decoupling from test frameworks
+export interface ExpectProvider {
+    expect: (locator: any, message?: string) => any;
+    softExpect: (locator: any, message?: string) => any;
+}
+
+// Static provider for assertion support - can be set by test support modules
+// This decouples the core WebElement class from @playwright/test
+let _expectProvider: ExpectProvider | null = null;
 
 function extractSelector(pointer: string | WebElement): string {
     return pointer instanceof WebElement ? pointer.selector : pointer;
@@ -70,9 +79,6 @@ type PressSequentiallyOptions = Parameters<Locator['pressSequentially']>[1];
 type UncheckOptions = Parameters<Locator['uncheck']>[0];
 type WaitForOptions = Parameters<Locator['waitFor']>[0];
 type AddLocatorHandlerOptions = Parameters<Page['addLocatorHandler']>[2];
-
-const _expect = expect as Expect<{[key: string]: (...args: any[]) => Promise<void>}>;
-type LocatorExpect = ReturnType<typeof _expect<Locator>>;
 
 export class WebElement {
 
@@ -185,16 +191,78 @@ export class WebElement {
         return this.locator;
     }
 
-    public static useExpect<T>(expect: Expect<T>) {
-        expect;
+    /**
+     * Configures the assertion provider for WebElement.expect() and softExpect()
+     * This allows different test frameworks to provide their own expect implementations.
+     * 
+     * @param provider - An object with expect and softExpect methods
+     * @example
+     * ```typescript
+     * import { expect } from '@playwright/test';
+     * import { WebElement } from 'playwright-elements';
+     * 
+     * // Configure Playwright expect for all WebElement instances
+     * WebElement.setExpectProvider({
+     *     expect: expect,
+     *     softExpect: expect.soft
+     * });
+     * 
+     * // Now you can use:
+     * await myElement.expect().toHaveValue('test');
+     * ```
+     */
+    public static setExpectProvider(provider: ExpectProvider): void {
+        _expectProvider = provider;
     }
 
-    public expect(message?: string): LocatorExpect {
-        return _expect(this.locator, message) as LocatorExpect;
+    /**
+     * Static method to allow custom expect implementation injection.
+     * This is maintained for backward compatibility with existing code.
+     * 
+     * @deprecated Use setExpectProvider() instead for better type safety.
+     * @param expect - Legacy expect function (ignored, use setExpectProvider)
+     */
+    public static useExpect(_expect: any) {
+        // No-op: maintained for backward compatibility
+        // Use setExpectProvider() for proper configuration
     }
 
-    public softExpect(message?: string): LocatorExpect {
-        return _expect.soft(this.locator, message) as LocatorExpect;
+    /**
+     * Provides assertion support for this element.
+     * Uses the configured ExpectProvider to create assertion chains.
+     * 
+     * @param message - Optional message for the assertion
+     * @returns Playwright assertion chain for the element's locator
+     * @throws Error if ExpectProvider is not configured
+     */
+    public expect(message?: string): any {
+        if (!_expectProvider) {
+            throw new Error(
+                'Assertion provider not configured. Call WebElement.setExpectProvider() in your test setup. ' +
+                'For Playwright: WebElement.setExpectProvider({ expect, softExpect: expect.soft });'
+            );
+        }
+        return _expectProvider.expect(this.locator, message);
+    }
+
+    /**
+     * Provides soft assertion support for this element.
+     * Soft assertions do not fail the test immediately. Instead, they are collected
+     * and reported at the end of the test. This is useful for validating multiple
+     * conditions without stopping at the first failure.
+     * 
+     * @param message - Optional message for the assertion
+     * @returns Playwright soft assertion chain for the element's locator
+     * @throws Error if ExpectProvider is not configured
+     */
+    public softExpect(message?: string): any {
+        if (!_expectProvider) {
+            throw new Error(
+                'Assertion provider not configured. Call WebElement.setExpectProvider() in your test setup. ' +
+                'For Playwright: WebElement.setExpectProvider({ expect, softExpect: expect.soft });'
+            );
+        }
+        return _expectProvider.softExpect(this.locator, message);
     }
 
     // augmentation
