@@ -286,7 +286,7 @@ test.describe('Security & Contract Tests', () => {
                     await $('#nonexistent-xyz-123').getText({ timeout: 100 } as any);
                     expect(false).toBe(true); // Should have thrown an error
                 } catch (error: any) { 
-                    expect(e).toBeDefined(); 
+                    expect(error).toBeDefined(); 
                 }
             });
             test('M-SEC-047: duplicated method throws clear error', async ({ initBrowserInstance }) => {

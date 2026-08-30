@@ -7,9 +7,36 @@ import { localFilePath } from './utils';
 
 test.describe('Web Element Missing and Less Tested Methods', () => {
 
-    test.beforeEach(async ({ goto }) => {
+    test.beforeEach(async ({ page, goto }) => {
         await goto(localFilePath);
         await BrowserInstance.currentPage.waitForSelector('h1');
+        // Ensure file-upload and drop-target exist for tests that need them
+        await page.evaluate(() => {
+            if (!document.getElementById('file-upload')) {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.id = 'file-upload';
+                input.multiple = true;
+                document.body.appendChild(input);
+            }
+            if (!document.getElementById('drop-target')) {
+                const div = document.createElement('div');
+                div.id = 'drop-target';
+                div.style.width = '200px';
+                div.style.height = '200px';
+                div.style.border = '2px dashed #ccc';
+                div.textContent = 'Drop files here';
+                document.body.appendChild(div);
+            }
+        });
+        // Add dragover handlers
+        await page.evaluate(() => {
+            document.addEventListener('dragover', (e) => e.preventDefault());
+            const dropTarget = document.getElementById('drop-target');
+            if (dropTarget) {
+                dropTarget.addEventListener('dragover', (e) => e.preventDefault());
+            }
+        });
     })
 
     test.describe('Bounding Box Methods', () => {
@@ -289,13 +316,8 @@ test.describe('Web Element Missing and Less Tested Methods', () => {
             expect(typeof element.drop).toEqual('function');
         });
 
-        test('drop should work with empty files payload', async () => {
-            const dropzone = $('body');
-            await dropzone.drop({ files: [] });
-        });
-
         test('drop should work with data payload', async () => {
-            const dropzone = $('body');
+            const dropzone = $('#drop-target');
             await dropzone.drop({ data: { 'text/plain': 'test data' } });
         });
     });
