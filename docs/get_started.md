@@ -54,7 +54,7 @@ _./pages/index.ts_
 ```ts
 import { $, WebElement } from 'playwright-elements';
 
-type Table = WebElement & { thead: Webelement }
+type Table = WebElement & { thead: WebElement }
 
 export class MainPage {
     readonly table = $('table')
@@ -74,7 +74,7 @@ _./pages/index.ts_
 ```ts
 import { $, WebElement } from 'playwright-elements';
 
-type Table = WebElement & { thead: Webelement }
+type Table = WebElement & { thead: WebElement }
 
 export class MainPage {
     readonly table = $('table')
@@ -158,7 +158,7 @@ test.describe('Goto fixure example', () => {
 
   test('expect positive', async ({ goto }) => {
     await goto();
-    const mainPage = new MainPage(); // Your page object is imdependent from page instance and from bieng returned from fixtures
+    const mainPage = new MainPage(); // Your page object is independent from page instance and from being returned from fixtures
     await mainPage.header.logo.expect().toBeVisible();
     await mainPage.header.logo.expect().toHaveText('Playwright');
   })

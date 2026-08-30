@@ -1,11 +1,11 @@
 ---
 layout: default
-title: Get started
+title: Browser Instance
 ---
 [Go to Main Page >>](./../README.md)
 
 ## Browser Instance
-*This object represents single-tone for `Browser`, `BrowserContext` and `Page`.
+*This object represents singleton for `Browser`, `BrowserContext` and `Page`.
 It allows avoiding pass `page` in your page object.*
 
 - [Browser name](#browser-name)
@@ -40,7 +40,7 @@ and remembers it, see [Getters and setters](#getters-and-setters).
 
 Args:
 - [BrowserName](#browser-name) enum with possible browser names.
-- [LunchOptions](https://playwright.dev/docs/api/class-browsertype#browser-type-launch) is a playwright type.
+- [LaunchOptions](https://playwright.dev/docs/api/class-browsertype#browser-type-launch) is a Playwright type.
 
 Returns: [Browser](https://playwright.dev/docs/api/class-browser)
 
@@ -49,7 +49,7 @@ Example:
 import { BrowserName, BrowserInstance } from "playwright-elements";
 
 async function useStart() {
-    await BrowserInstance.start(BrowserName.CHROME, {headless: fasle});
+    await BrowserInstance.start(BrowserName.CHROME, {headless: false});
 }
 ```
 ### Start new context
@@ -67,7 +67,7 @@ import { BrowserName, BrowserInstance } from "playwright-elements";
 import { devices } from 'playwright-core';
 
 async function useStartNewContext() {
-    await BrowserInstance.start(BrowserName.CHROME, { headless: fasle });
+    await BrowserInstance.start(BrowserName.CHROME, { headless: false });
     await BrowserInstance.startNewContext({ ...devices['iPhone 13'] }); 
 }
 ```
@@ -87,7 +87,7 @@ import { BrowserName, BrowserInstance } from "playwright-elements";
 import { devices } from 'playwright-core';
 
 async function useStartNewPage() {
-    await BrowserInstance.start(BrowserName.CHROME, { headless: fasle });
+    await BrowserInstance.start(BrowserName.CHROME, { headless: false });
     await BrowserInstance.startNewContext({ ...devices['iPhone 13'] });
     await BrowserInstance.startNewPage();
 }
@@ -98,7 +98,7 @@ import { BrowserName, BrowserInstance } from "playwright-elements";
 import { devices } from 'playwright-core';
 
 async function useStartNewPage() {
-    await BrowserInstance.start(BrowserName.CHROME, { headless: fasle });
+    await BrowserInstance.start(BrowserName.CHROME, { headless: false });
     await BrowserInstance.startNewPage({ ...devices['iPhone 13'] });
 }
 ```
@@ -111,14 +111,14 @@ import { BrowserName, BrowserInstance } from "playwright-elements";
 import { devices } from 'playwright-core';
 
 async function useClose() {
-    await BrowserInstance.start(BrowserName.CHROME, { headless: fasle });
+    await BrowserInstance.start(BrowserName.CHROME, { headless: false });
     await BrowserInstance.startNewPage({ ...devices['iPhone 13'] });
     await BrowserInstance.close();
 }
 ```
 ### Getters and setters
 
-`get currentPage(): Pag` returns instance of [Page](https://playwright.dev/docs/api/class-page)
+`get currentPage(): Page` returns instance of [Page](https://playwright.dev/docs/api/class-page)
 
 `set currentPage(page: Page | undefined)` sets instance of page or undefined if you need to remove pointer.
 
@@ -135,10 +135,10 @@ Examples:
 *Getters:*
 ```ts
 import { BrowserName, BrowserInstance } from "playwright-elements";
-import { devices, Browser, BrowserContext, Page, BrowserContext } from 'playwright-core';
+import { devices, Browser, BrowserContext, Page } from 'playwright-core';
 
 async function useGetters() {
-    await BrowserInstance.start(BrowserName.CHROME, {headless: fasle});
+    await BrowserInstance.start(BrowserName.CHROME, {headless: false});
     await BrowserInstance.startNewPage({...devices['iPhone 13']});
     const browser: Browser = BrowserInstance.browser;
     const context: BrowserContext = BrowserInstance.currentContext;

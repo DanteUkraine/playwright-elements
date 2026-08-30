@@ -1,3 +1,9 @@
+---
+layout: default
+title: Test IDs Module
+---
+[Go to Main Page >>](./../README.md)
+
 # Test IDs Module
 
 The Test IDs module provides a type-safe system for generating and managing test IDs in your Playwright tests. This system enables:
@@ -10,7 +16,7 @@ The Test IDs module provides a type-safe system for generating and managing test
 
 ## Installation
 
-The Test IDs module is included with playwright-elements v1.19.0+. No additional installation is required.
+The Test IDs module is included with playwright-elements v1.19.0 and later. No additional installation is required.
 
 ```bash
 npm install playwright-elements@^1.19.0

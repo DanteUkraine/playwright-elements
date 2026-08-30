@@ -731,7 +731,7 @@ class MainPage {
 test(`find error by text`, async () => {
   const mainPage = new MainPage();
   await mainPage.errors.first().expect().toHaveText("Incorrect First name");
-  await mainPage.errors.last().expect().toHaveText("Incorrect paasword");
+  await mainPage.errors.last().expect().toHaveText("Incorrect password");
 })
 ```
 
@@ -754,7 +754,7 @@ class MainPage {
 
 test(`find error by text`, async () => {
   const mainPage = new MainPage();
-  await mainPage.iframe.header.expec().toBeVisible();
+  await mainPage.iframe.header.expect().toBeVisible();
   await mainPage.iframe.owner(); // will use locator instead of frame locator.
 })
 ```
