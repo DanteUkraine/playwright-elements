@@ -1,12 +1,13 @@
 import { BrowserInstance, expect, test, $, initDesktopOrMobile, WebElement } from '../src/index';
 import { devices } from '@playwright/test';
+import { expectMobileContext } from '../test/utils/mobile.validators';
 
 test.use({ ...devices['iPhone 13'] })
 
 test.describe(`Playwright mobile test integration`, () => {
 
-    test(`isMobile flag`,() => {
-        expect(BrowserInstance.isContextMobile).toBeTruthy();
+    test(`isMobile flag and mobile behavior`, async () => {
+        await expectMobileContext(BrowserInstance.currentPage, { expectedDevice: 'iPhone' });
     })
 
     test(`initDesktopOrMobile helper`, () => {

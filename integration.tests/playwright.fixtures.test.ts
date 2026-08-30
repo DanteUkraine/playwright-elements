@@ -1,5 +1,7 @@
 import { expect, $, BrowserInstance, initDesktopOrMobile, test as originalTest } from '../src/index';
 import { localFilePath } from '../test/utils';
+import { expectDesktopContext } from '../test/utils/mobile.validators';
+import { expectSuccessfulResponse } from '../test/utils/response.validators';
 import { mergeTests, test as baseTest } from '@playwright/test';
 
 type TestFixtures = { newOne: string };
@@ -37,7 +39,8 @@ test.describe(`Playwright test integration`, () => {
     test(`goto fixture should navigate to endpoint`, async ({ goto }) => {
         await expect(BrowserInstance.currentPage).toHaveURL('about:blank')
         const res = await goto('/docs/test-typescript');
-        expect(res?.ok()).toBeTruthy();
+        await expectSuccessfulResponse(res, 200);
+        await expect(BrowserInstance.currentPage).toHaveURL(/test-typescript/);
     })
 
     test(`BrowserInstance.currentPage should switch tab automatically`, async ({ goto }) => {
@@ -46,8 +49,8 @@ test.describe(`Playwright test integration`, () => {
         await expect.poll(() => BrowserInstance.currentPage.url()).toEqual('https://playwright.dev/');
     })
 
-    test(`isMobile flag`, () => {
-        expect(BrowserInstance.isContextMobile).toBeFalsy();
+    test(`isMobile flag and desktop behavior`, async () => {
+        await expectDesktopContext(BrowserInstance.currentPage);
     })
 
     test(`initDesktopOrMobile helper`, () => {

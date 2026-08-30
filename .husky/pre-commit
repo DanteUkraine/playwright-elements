@@ -1,4 +1,8 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+# Run ESLint
 npm run lint
+
+# Check for vacuous assertions in test files
+./scripts/check-vacuous-assertions.sh
