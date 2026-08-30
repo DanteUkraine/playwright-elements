@@ -546,9 +546,11 @@ test.describe('Playwright test integration', () => {
 ```
 
 ### Get parent
-`parent<T>(this: WebElement): WebElement & T` method allows get parent and extend it's type.
+`parent<T>(this: WebElement): WebElement & T` method allows you to get the parent element and extend its type.
 
-Allows to access parent element.
+Allows access to parent element from a child element.
+
+> **Important:** The `parent()` method returns `undefined` when the element has no parent (i.e., it's a root-level element). The return type `WebElement & T` is a simplification for convenience. In practice, you should use optional chaining or check for undefined:
 
 ```ts
 import { $, WebElement } from "playwright-elements";
@@ -571,22 +573,29 @@ const header = $('.header')
          logIn : $('#log-in')
              .with({
                   async goToLoginPage(this: WebElement) {
-                      await this.parent<userIcon>().userIcon.hover();
+                      await this.parent<typeof header>().userIcon.hover();
                       await this.click();
                   } 
              })
     });
 ```
-Despite strict return type `parent<T>(this: WebElement): WebElement & T`
-when element has not parent it returns `undefined`.
-It allows avoid optional chaining each time you need call anything from parent
-but still implement if condition.
+**Checking for undefined parent:**
 ```ts
 import { $, WebElement } from "playwright-elements";
 
 test(`get parent`, () => {
   const header = $('.header');
-  header.parent; // undefined
+  // Use optional chaining for safe access
+  header.parent?.someMethod();
+  
+  // Or check explicitly
+  const parent = header.parent;
+  if (parent) {
+    await parent.someMethod();
+  }
+  
+  // Without parent, returns undefined
+  expect(header.parent).toBeUndefined();
 })
 ```
 
@@ -625,6 +634,8 @@ test('or', async () => {
 ### Has
 Method `has(selector: string | WebElement)` helps to find elements with specific child.
 
+> **Important:** The `has()`, `hasNot()`, `hasText()`, and `hasNotText()` methods **cannot be used with Playwright's `getBy*` selectors** (i.e., elements created with `$getByAltText`, `$getByLabel`, `$getByRole`, etc.). These filtering methods only work with CSS selectors created via `$()` or `new WebElement()`. If you attempt to use them with a `getBy*` element, you will get an error: `"has option can not be used with ${ByMethod}, it can be used only with $ or new WebElement('#id') syntax."`
+
 *Based on selector:*
 ```ts
 import { $ } from "playwright-elements";
@@ -638,13 +649,15 @@ class MainPage {
 import { $ } from "playwright-elements";
 
 class MainPage {
-    private readonly enabledEnputs = $(`input.enabled`);
-    readonly fieldRows = $(`.field-row`).has(enabledEnputs);
+    private readonly enabledInputs = $(`input.enabled`);
+    readonly fieldRows = $(`.field-row`).has(enabledInputs);
 }
 ```
 
 ### Has not
 Method `hasNot(selector: string | WebElement)` helps to find elements without specific child.
+
+> **Important:** See the note under [Has](#has) - this method also cannot be used with Playwright's `getBy*` selectors.
 
 *Based on selector:*
 ```ts
@@ -659,13 +672,15 @@ class MainPage {
 import { $ } from "playwright-elements";
 
 class MainPage {
-    private readonly enabledEnputs = $(`input.disabled`);
-    readonly fieldRows = $(`.field-row`).hasNot(enabledEnputs);
+    private readonly disabledInputs = $(`input.disabled`);
+    readonly fieldRows = $(`.field-row`).hasNot(disabledInputs);
 }
 ```
 
 ### Has text
 Method `hasText(text: string | RegExp)` helps to find elements with specific text or child with text.
+
+> **Important:** See the note under [Has](#has) - this method also cannot be used with Playwright's `getBy*` selectors.
 *Based on text:*
 ```ts
 import { $ } from "playwright-elements";
@@ -685,6 +700,8 @@ class MainPage {
 
 ### Has not text
 Method `hasNotText(text: string | RegExp)` helps to find elements without specific text or child with text.
+
+> **Important:** See the note under [Has](#has) - this method also cannot be used with Playwright's `getBy*` selectors.
 *Based on text:*
 ```ts
 import { $ } from "playwright-elements";
@@ -773,7 +790,7 @@ nth?: number
 import { $ } from 'playwright-elements';
 
 const originElement = $('.button').hasText('Submit').hasNotText('Ok');
-const owerridenElement = originElement.clone({ selector: 'input[type=button]' }); // will still hasText=Submit and haasNotTet=Ok but will use another selector.
+const overriddenElement = originElement.clone({ selector: 'input[type=button]' }); // will still hasText=Submit and hasNotText='Ok' but will use another selector.
 ```
 
 ### Add handler

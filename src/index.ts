@@ -4,7 +4,8 @@ export { WebElement, $, $getByAltText, $getByLabel, $getByPlaceholder, $getByRol
 export { test, expect } from './playwright.test.fixtures';
 export { buildPageObject } from './page.object.builder';
 export type { PageObject } from './page.object.builder';
-export { generateIndexFile } from './index.generator';
+export { generateIndexFile, WatcherManager } from './index.generator';
+export type { Options as GenerateIndexFileOptions } from './index.generator';
 // Test support - assertion extensions for WebElement
 export { createElementAssertions, extendWebElementWithAssertions, configureWebElementExpect } from './test.support';
 export type { WebElementExpect, WebElementSoftExpect } from './test.support';

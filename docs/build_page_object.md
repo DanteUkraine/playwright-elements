@@ -126,7 +126,39 @@ This function is useful for automating the creation of centralized export files 
 - `options` (Options, optional):
     - `cliLog` (boolean, default: false): Enables or disables logging to the console.
     - `quotes` ( ' | ", default: ' ): Specifies whether to use single or double quotes in the generated export statements.
-    - `watch` (boolean, optional, default: false): starts watchers on backgraund for each subdirectory.
+    - `watch` (boolean, optional, default: false): starts watchers in the background for each subdirectory.
+- `manager` (WatcherManager, optional): Shared watcher manager for collecting multiple watchers.
+
+#### Returns:
+Returns a `WatcherManager` instance that can be used to manage file watchers when watch mode is enabled.
+
+#### WatcherManager API
+
+When using watch mode, `generateIndexFile` returns a `WatcherManager` instance with the following interface:
+
+```typescript
+interface WatcherManager {
+    /** Array of active file watchers */
+    watchers: FSWatcher[];
+    
+    /** Add a watcher to the manager */
+    addWatcher: (watcher: FSWatcher) => void;
+    
+    /** Close all watchers and clear the array */
+    closeAll: () => Promise<void>;
+}
+```
+
+**Example: Managing watchers in long-running applications**
+```ts
+import { generateIndexFile, WatcherManager } from 'playwright-elements';
+
+// Create a shared watcher manager
+const manager: WatcherManager = generateIndexFile('./src', { watch: true });
+
+// Later, when your application needs to shut down:
+await manager.closeAll();
+```
 
 #### Example Usage:
 The function can be used in various contexts. For example, it can be called in a
@@ -147,14 +179,14 @@ export const test = baseTest.extend({
 });
 ```
 
-Watch mode usage example:
+**Watch mode usage example:**
 ```ts
-import { generateIndexFile } from '../src/index';
+import { generateIndexFile } from 'playwright-elements';
 
 // Generate an index files recursively in the specified folder
 const watchers = generateIndexFile('./page.object', { watch: true });
-// you should close all watchers before process exit. 
-// Each nested directory with index file will have dedicated watcher
+// You should close all watchers before process exit.
+// Each nested directory with index file will have a dedicated watcher
 watchers.closeAll();
 ```
 

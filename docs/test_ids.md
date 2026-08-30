@@ -162,6 +162,18 @@ if (isIdFactory(myFactory)) {
 
 Creates a WebElement that matches an element with an exact `data-testid` value.
 
+> **Why CSS Selector Instead of `getByTestId`?**
+> 
+> Unlike Playwright's native `page.getByTestId()`, the `$byTestId()` function creates a CSS attribute selector (`[data-testid="..."]`) rather than using Playwright's built-in test ID locator. This design decision was made for the following reasons:
+> 
+> 1. **Selector String Compatibility**: Some tests pass an element's `.selector` string into `page.locator()`. If `$getByTestId('foo')` returned the bare ID `'foo'`, then `page.locator('foo')` would incorrectly match a `<foo>` HTML tag instead of the intended `[data-testid="foo"]` attribute.
+> 
+> 2. **Consistency**: The CSS form `'[data-testid="foo"]'` resolves correctly when passed to `page.locator()` and maintains consistency with other selector types.
+> 
+> 3. **Interoperability**: CSS selectors work seamlessly across all Playwright methods and can be easily composed with other selectors.
+> 
+> Note: The exact-match semantics are identical to Playwright's `getByTestId`.
+
 ```typescript
 import { $byTestId, sid } from 'playwright-elements';
 
@@ -330,7 +342,7 @@ test('navigation works', async ({ page }) => {
   await navigation.logo.expect().toBeVisible();
   
   // Check all navigation items
-  const items = await navigation.allItems.elements();
+  const items = await navigation.allItems.getAll();
   expect(items).toHaveLength(2);
   
   // Click on dashboard

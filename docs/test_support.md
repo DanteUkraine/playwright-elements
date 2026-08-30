@@ -254,6 +254,17 @@ try {
 }
 ```
 
+**Error Message Reference**
+
+When the assertion provider is not configured, calling `expect()` or `softExpect()` will throw the following error:
+
+```
+Error: Assertion provider not configured. Call WebElement.setExpectProvider() in your test setup. 
+For Playwright: WebElement.setExpectProvider({ expect, softExpect: expect.soft });
+```
+
+This error helps you quickly identify and fix configuration issues.
+
 ### 5. Framework-Specific Setup Files
 
 For different test frameworks, use these setup patterns:

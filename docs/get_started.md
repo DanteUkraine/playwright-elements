@@ -95,8 +95,7 @@ Type-Safe Fixture Setup:
 
 _./fixtures.ts_
 ```ts
-import { test as baseTest, buildPageObject, PageObject } from 'playwright-elements';
-import { createIndexFile } from '../src/index';
+import { test as baseTest, buildPageObject, PageObject, generateIndexFile } from 'playwright-elements';
 import * as pageObjectModule from './pages';
 
 // Generate an index files recursively in the specified folder or use cli interface.
@@ -105,7 +104,7 @@ generateIndexFile('./page.object');
 type TestFixtures = { pageObject: PageObject<typeof pageObjectModule> };
 
 export const test = baseTest.extend({
-  page: [async ({}, use) => {
+  pageObject: [async ({}, use) => {
     await use(buildPageObject(pageObjectModule));
   }, { scope: 'test' }],
 });

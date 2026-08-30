@@ -130,6 +130,12 @@ async function useClose() {
 
 `set browser(browser: Browser | undefined)` sets instance of browser or undefined if you need to remove pointer.
 
+`get previousPage(): Page` returns the previous page that was active before the current page was opened. This is useful for switching back to a previous tab.
+
+`set previousPage(page: Page | undefined)` sets the previous page pointer, or undefined to clear it.
+
+> **Note:** The previousPage is automatically tracked when using `startNewPage()` or when a new page is opened via Playwright's context events. It is used by `switchToPreviousTab()` to navigate back.
+
 Examples:
 
 *Getters:*
