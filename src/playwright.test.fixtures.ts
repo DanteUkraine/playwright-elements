@@ -1,4 +1,4 @@
-import { test as base, Page, Response, expect } from '@playwright/test';
+import { test as base, Page, Response, expect, BrowserContext } from '@playwright/test';
 import { BrowserInstance, usePage, WebElement } from './index';
 export { expect } from '@playwright/test';
 
@@ -9,17 +9,11 @@ WebElement.setExpectProvider({
     softExpect: expect.soft
 });
 
-type WrappedFixtures = {
-    baseURL: string | undefined,
-    isMobile?: boolean;
-    page: Page
-}
-
 type GoToOptions = {
     referer?: string | undefined,
     timeout?: number | undefined,
     waitUntil?: 'load' | 'domcontentloaded' | 'networkidle' | 'commit' | undefined
-}
+};
 
 export const test = base.extend<{
     implicitNavigation: void,
@@ -34,9 +28,11 @@ export const test = base.extend<{
         { scope: 'test' },
     ],
     initBrowserInstance: [
-        async ({ isMobile, page }: WrappedFixtures, use: () => Promise<void>) => {
+        async ({ page, context }: { page: Page; context: BrowserContext }, use: () => Promise<void>) => {
             BrowserInstance.withPage(page);
-            BrowserInstance.isContextMobile = Boolean(isMobile);
+            // Get isMobile from Playwright context options (using internal API as it's the only way)
+            const options = (context as any)._options || {};
+            BrowserInstance.isContextMobile = Boolean(options.isMobile);
             await use();
             BrowserInstance.currentPage = undefined;
             BrowserInstance.currentContext = undefined;

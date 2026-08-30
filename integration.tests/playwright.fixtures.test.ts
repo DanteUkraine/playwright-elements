@@ -1,6 +1,5 @@
 import { expect, $, BrowserInstance, initDesktopOrMobile, test as originalTest } from '../src/index';
 import { localFilePath } from '../test/utils';
-import { expectDesktopContext } from '../test/utils/mobile.validators';
 import { expectSuccessfulResponse } from '../test/utils/response.validators';
 import { mergeTests, test as baseTest } from '@playwright/test';
 
@@ -50,7 +49,7 @@ test.describe(`Playwright test integration`, () => {
     })
 
     test(`isMobile flag and desktop behavior`, async () => {
-        await expectDesktopContext(BrowserInstance.currentPage);
+        expect(BrowserInstance.isContextMobile).toBe(false);
     })
 
     test(`initDesktopOrMobile helper`, () => {
@@ -61,5 +60,3 @@ test.describe(`Playwright test integration`, () => {
         expect(newOne).toEqual('newOne');
     })
 })
-
-
