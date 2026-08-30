@@ -8,3 +8,20 @@ export { generateIndexFile } from './index.generator';
 // Test support - assertion extensions for WebElement
 export { createElementAssertions, extendWebElementWithAssertions, configureWebElementExpect } from './test.support';
 export type { WebElementExpect, WebElementSoftExpect } from './test.support';
+
+// Test IDs - type-safe test ID generation and selectors
+export {
+  TestId,
+  IdFactory,
+  sid,
+  factory,
+  bareFactory,
+  testIdProps,
+  isIdFactory,
+} from './testIds/builder';
+export {
+  $byTestId,
+  $byTestIdPrefix,
+  $byTestIdContaining,
+  $byTestIdEndingWith,
+} from './testIds/selectors';

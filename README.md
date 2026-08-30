@@ -19,6 +19,7 @@ ___
 - [Get started](docs/get_started.md)
 - [Web element](docs/web_element.md)
 - [Test Support Utilities](docs/test_support.md)
+- [Test IDs Module](docs/test_ids.md)
 - [Playwright elements fixtures](docs/playwright_elements_fixtures.md)
 - [Build page object](docs/build_page_object.md)
 - [Browser instance](docs/browser_instance.md)
@@ -86,6 +87,53 @@ test('check login page', async ({ pageObject }) => {
     await pageObject.login.header.logo.expect().toBeVisible();
     await pageObject.login.header.avatar.expect().toBeVisible();
 });
+
+#### Type-Safe Test IDs with playwright-elements:
+
+For even better type safety, use the Test IDs module (v1.19.0+):
+
+testIds.ts
+```ts
+import { factory, sid } from 'playwright-elements';
+
+export const ids = {
+  login: {
+    usernameInput: sid<'login.username'>('username-input'),
+    passwordInput: sid<'login.password'>('password-input'),
+    submitButton: sid<'login.submit'>('submit-button'),
+  },
+  header: {
+    logo: sid<'header.logo'>('header-logo'),
+  },
+} as const;
+```
+
+pages/loginPage.ts
+```ts
+import { $byTestId } from 'playwright-elements';
+import { ids } from '../testIds';
+
+export class LoginPage {
+  readonly usernameInput = $byTestId(ids.login.usernameInput);
+  readonly passwordInput = $byTestId(ids.login.passwordInput);
+  readonly submitButton = $byTestId(ids.login.submitButton);
+  readonly logo = $byTestId(ids.header.logo);
+}
+```
+
+components/MyComponent.tsx
+```tsx
+import { testIdProps } from 'playwright-elements';
+import { ids } from '../testIds';
+
+export function MyComponent() {
+  return (
+    <input {...testIdProps(ids.login.usernameInput)} />
+  );
+}
+```
+
+See [Test IDs Module](docs/test_ids.md) for complete documentation.
 ```
 
 #### Tests with playwright-elements using component driven test style:
