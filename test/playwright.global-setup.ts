@@ -1,5 +1,3 @@
-import { chromium } from '@playwright/test';
-
 // Global setup for Playwright unit tests
 // This replaces the mocha setup
 

@@ -1,5 +1,5 @@
 import { test, expect, BrowserInstance } from '../src';
-import { Page, Browser, BrowserContext, webkit } from 'playwright-core';
+import { webkit } from 'playwright-core';
 
 // Migrated from mocha/chai to @playwright/test
 // Note: These tests manually manage browser lifecycle and don't use fixtures
@@ -67,7 +67,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
                 
                 try {
                     BrowserInstance.withBrowser(browser);
-                } catch (error) {
+                } catch {
                     // Expected: withBrowser should not throw when browser is already set
                     errorCaught = true;
                 }
@@ -175,7 +175,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
                 
                 try {
                     BrowserInstance.withContext(context);
-                } catch (error) {
+                } catch {
                     // Expected: withContext should not throw when context is already set
                     errorCaught = true;
                 }
@@ -255,7 +255,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
                 
                 try {
                     BrowserInstance.withPage(page);
-                } catch (error) {
+                } catch {
                     // Expected: withPage should not throw when page is already set
                     errorCaught = true;
                 }
@@ -394,7 +394,6 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
         test('should preserve context when switching pages', async () => {
             const browser = await webkit.launch();
             const context = await browser.newContext();
-            const page1 = await context.newPage();
             const page2 = await context.newPage();
             
             try {

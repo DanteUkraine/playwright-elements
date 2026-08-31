@@ -68,7 +68,7 @@ export async function waitForFileContent(
             } else if (content.includes(expectedContent as string)) {
                 return content;
             }
-        } catch (error) {
+        } catch {
             // File might be temporarily locked, continue polling
             // This is expected during file I/O operations
         }
@@ -112,7 +112,7 @@ export async function waitForFileUpdate(
                     return currentContent;
                 }
             }
-        } catch (error) {
+        } catch {
             // File might be temporarily locked, continue polling
             // This is expected during file I/O operations
         }

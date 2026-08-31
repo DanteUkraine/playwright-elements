@@ -22,34 +22,26 @@ export default defineConfig({
       },
     },
   ],
-  
-  // Test directories for unit tests
+
   testDir: './test',
-  // Match both migrated playwright tests and keep mocha tests for now
   testMatch: '**/*.spec.playwright.ts',
   testIgnore: '**/integration.tests/**',
   
-  // Run tests sequentially (matches mocha parallel: false)
   fullyParallel: false,
-  workers: 1,
   
-  // Timeout settings (matches mocha timeout)
   timeout: 30000,
   expect: {
     timeout: 5000,
   },
   
-  // Reporter
   reporter: [
     ['list'],
     ['html', { open: 'never' }],
   ],
   
-  // Global setup
   globalSetup: './test/playwright.global-setup.ts',
   globalTeardown: './test/playwright.global-teardown.ts',
   
-  // Build and cache
   use: {
     trace: 'retain-on-failure',
   },

@@ -41,6 +41,7 @@ test.describe(`Playwright test integration`, () => {
 
         expect.extend(customMatchers);
 
+        // eslint-disable-next-line playwright/expect-expect
         test(`custom expect matcher`, async ({ goto }) => {
             await goto('/', { waitUntil: 'domcontentloaded' });
             const header = $(`.navbar`);
@@ -54,6 +55,7 @@ test.describe(`Playwright test integration`, () => {
         const extendedExpect = expect.extend(customMatchers);
         class CustomWebElement extends WebElement {
             public customExpect(message?: string): ReturnType<typeof extendedExpect<Locator>> {
+                // eslint-disable-next-line playwright/valid-expect
                 return extendedExpect(this.locator, message);
             }
         }
@@ -65,7 +67,9 @@ test.describe(`Playwright test integration`, () => {
         test(`custom expect matcher`, async ({ goto }) => {
             await goto('/', { waitUntil: 'domcontentloaded' });
             const header = $(`.navbar`);
-            await header.customExpect().toHaveAriaLabel('Main');
+            const customExp = header.customExpect();
+            await customExp.toHaveAriaLabel('Main');
+            expect(customExp).toBeDefined();
         })
     })
 

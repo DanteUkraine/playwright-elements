@@ -1,4 +1,4 @@
-import { BrowserInstance, BrowserName } from '../src';
+import { BrowserInstance } from '../src';
 import { test, expect } from '../src';
 import { webkit } from 'playwright-core';
 import { localFilePath } from './utils';
@@ -13,7 +13,7 @@ test.describe('Browser Instance', () => {
         // In Playwright test, browser is automatically managed
         // We test that BrowserInstance can work with the provided page
 
-        test('should work with default browser', async ({ page, initBrowserInstance }) => {
+        test('should work with default browser', async () => {
             // BrowserInstance is initialized by the fixture
             expect(() => BrowserInstance.browser).not.toThrow();
             expect(() => BrowserInstance.currentContext).not.toThrow();
@@ -26,7 +26,7 @@ test.describe('Browser Instance', () => {
     })
 
     test.describe('method', () => {
-        test(`switch to previous tab`, async ({ page, initBrowserInstance, goto }) => {
+        test(`switch to previous tab`, async ({ goto }) => {
             await goto(localFilePath);
             
             const previousPage = BrowserInstance.currentPage;
@@ -44,7 +44,7 @@ test.describe('Browser Instance', () => {
             await newPage.close();
         })
 
-        test(`switch tab by index`, async ({ page, initBrowserInstance, goto }) => {
+        test(`switch tab by index`, async ({ goto }) => {
             await goto(localFilePath);
             const originalPage = BrowserInstance.currentPage;
             
@@ -62,7 +62,7 @@ test.describe('Browser Instance', () => {
             await newPage.close();
         })
 
-        test(`switch tab by defunct index`, async ({ page, initBrowserInstance, goto }) => {
+        test(`switch tab by defunct index`, async ({ goto }) => {
             await goto(localFilePath);
             
             const newPage = await BrowserInstance.startNewPage();
@@ -152,23 +152,15 @@ test.describe('Browser Instance getter', () => {
     })
 
     test(`start new context should throw error`, async () => {
-        try {
-            await BrowserInstance.startNewContext()
-        } catch (error) {
-            expect((error as Error).message).toBe(`Browser was not started`);
-            return;
-        }
-        throw new Error('Error with message: "Browser was not started" should be thrown.');
+        await expect(BrowserInstance.startNewContext())
+            .rejects
+            .toThrow('Browser was not started');
     })
 
     test(`start new page should throw error`, async () => {
-        try {
-            await BrowserInstance.startNewPage()
-        } catch (error) {
-            expect((error as Error).message).toBe(`Browser was not started`);
-            return;
-        }
-        throw new Error('Error with message: "Browser was not started" should be thrown.');
+        await expect(BrowserInstance.startNewPage())
+            .rejects
+            .toThrow('Browser was not started');
     })
 
     test(`context should throw error`, () => {

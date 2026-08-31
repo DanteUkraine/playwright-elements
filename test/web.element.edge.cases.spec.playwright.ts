@@ -1,6 +1,6 @@
 import { expect } from '../src';
 import { test } from '../src';
-import { $, WebElement, BrowserInstance, BrowserName } from '../src';
+import { $, WebElement, BrowserInstance } from '../src';
 import { localFilePath } from './utils';
 
 // Migrated from mocha/chai to @playwright/test

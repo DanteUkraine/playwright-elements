@@ -222,7 +222,10 @@ export class WebElement {
      * @deprecated Use setExpectProvider() instead for better type safety.
      * @param expect - Legacy expect function (ignored, use setExpectProvider)
      */
-    public static useExpect(_expect: any) {
+    /**
+     * @deprecated Use setExpectProvider() instead for better type safety.
+     */
+    public static useExpect() {
         // No-op: maintained for backward compatibility
         // Use setExpectProvider() for proper configuration
     }

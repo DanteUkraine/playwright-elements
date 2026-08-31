@@ -13,6 +13,7 @@ export const test = mergeTests(originalTest, additionalFixtures);
 
 test.describe(`Playwright test integration`, () => {
 
+    // eslint-disable-next-line playwright/expect-expect
     test(`expect positive`, async ({ goto }) => {
         await goto();
         const header = $(`.navbar`)

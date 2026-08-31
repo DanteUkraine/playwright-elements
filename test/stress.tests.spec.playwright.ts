@@ -5,16 +5,16 @@ import { localFilePath } from './utils';
 
 test.describe('Stress Tests', () => {
 
-    test.beforeEach(async ({ initBrowserInstance, page, goto }) => {
+    test.beforeEach(async ({ page, goto }) => {
         await goto(localFilePath);
-        await page.waitForSelector('h1', { timeout: 30000 });
+        await page.locator('h1').waitFor({ timeout: 30000 });
     })
 
-    test.afterEach(async ({ initBrowserInstance }) => {
+    test.afterEach(async () => {
         // BrowserInstance cleanup is handled automatically by the fixture
     })
 
-    test('should handle deeply nested page objects (10+ levels)', async ({ initBrowserInstance }) => {
+    test('should handle deeply nested page objects (10+ levels)', async () => {
         const { $ } = await import('../src');
         let element = $('div');
         for (let i = 0; i < 10; i++) {
@@ -25,7 +25,7 @@ test.describe('Stress Tests', () => {
         expect(element.selector.split('>>').length).toEqual(11);
     });
 
-    test('should work with very long selector chains', async ({ initBrowserInstance }) => {
+    test('should work with very long selector chains', async () => {
         const { $ } = await import('../src');
         let element = $('div');
         const chainLength = 20; // Reduced from 50 to avoid Map size limit
@@ -38,27 +38,26 @@ test.describe('Stress Tests', () => {
         expect(element.selector.split('>>').length).toEqual(chainLength + 1);
     });
 
-    test('should handle many concurrent browser contexts', async ({ initBrowserInstance }) => {
+    test('should handle many concurrent browser contexts', async () => {
         const { BrowserInstance } = await import('../src');
         const contexts: any[] = [];
-        try {
-            for (let i = 0; i < 5; i++) {
-                const context = await (BrowserInstance as any).browser.newContext().catch(() => null);
-                if (context) contexts.push(context);
-            }
-            
-            for (const context of contexts) {
-                await context.close().catch(() => {});
-            }
-        } finally {
-            // Functional verification: all contexts were created and closed
-            expect(contexts.length).toEqual(5);
-            // Note: Timing assertions removed to avoid CI flakiness
-            // Performance benchmarks should be in separate benchmark tests
+        
+        const allContexts = await Promise.all(
+            Array(5).fill(null).map(() => (BrowserInstance as any).browser.newContext().catch(() => null))
+        );
+        contexts.push(...allContexts.filter((c): c is any => c !== null));
+        
+        for (const context of contexts) {
+            await context.close().catch(() => {});
         }
+        
+        // Functional verification: all contexts were created and closed
+        expect(contexts.length).toEqual(5);
+        // Note: Timing assertions removed to avoid CI flakiness
+        // Performance benchmarks should be in separate benchmark tests
     });
 
-    test('should handle large number of sub elements', async ({ initBrowserInstance }) => {
+    test('should handle large number of sub elements', async () => {
         const { $ } = await import('../src');
         const parent = $('div');
         const subElements: Record<string, any> = {};
@@ -74,7 +73,7 @@ test.describe('Stress Tests', () => {
         }
     });
 
-    test('should handle complex nested with() structures', async ({ initBrowserInstance }) => {
+    test('should handle complex nested with() structures', async () => {
         const { $ } = await import('../src');
         const element = $('div')
             .with({

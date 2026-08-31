@@ -5,46 +5,44 @@ import { localFilePath } from './utils';
 
 test.describe(`Web element frame pointer`, () => {
 
-    test.beforeEach(async ({ initBrowserInstance, page, goto }) => {
+    test.beforeEach(async ({ page, goto }) => {
         await goto(localFilePath);
-        await page.waitForSelector('h1');
+        await page.locator('h1').waitFor();
     })
 
-    test.afterEach(async ({ initBrowserInstance }) => {
+    test.afterEach(async () => {
         // BrowserInstance cleanup is handled automatically by the fixture
     })
 
-    test(`contentFrame make WebElement to be used as frameLocator`,  async ({ initBrowserInstance }) => {
+    test(`contentFrame make WebElement to be used as frameLocator`,  async () => {
         const { $ } = await import('../src');
         const iframe = $(`iframe`).contentFrame()
             .subElements({
                 title: $(`.navbar__title`).first()
             });
-        expect(await iframe.title._.textContent()).toEqual('Playwright');
+        await expect(iframe.title.locator).toHaveText('Playwright');
     })
 
-    test(`asFrame make WebElement to be used as frameLocator in chain`,  async ({ initBrowserInstance }) => {
+    test(`asFrame make WebElement to be used as frameLocator in chain`,  async () => {
         const { $ } = await import('../src');
-        expect(await $(`iframe`).contentFrame().$(`.navbar__title`).first()._.textContent())
-            .toEqual('Playwright');
+        await expect($(`iframe`).contentFrame().$(`.navbar__title`).first().locator).toHaveText('Playwright');
     })
 
-    test(`asFrame make WebElement to be used as frameLocator in chain after another element`,  async ({ initBrowserInstance }) => {
+    test(`asFrame make WebElement to be used as frameLocator in chain after another element`,  async () => {
         const { $ } = await import('../src');
-        expect(await $('body').$(`iframe`).contentFrame().$(`.navbar__title`).first()._.textContent())
-            .toEqual('Playwright');
+        await expect($('body').$(`iframe`).contentFrame().$(`.navbar__title`).first().locator).toHaveText('Playwright');
     })
 
-    test(`asFrame make WebElement to be used as frameLocator in chain and sub elements`,  async ({ initBrowserInstance }) => {
+    test(`asFrame make WebElement to be used as frameLocator in chain and sub elements`,  async () => {
         const { $ } = await import('../src');
         const iframe = $('body').$(`iframe`).contentFrame()
             .subElements({
                 title: $(`.navbar__title`).first()
             });
-        expect(await iframe.title._.textContent()).toEqual('Playwright');
+        await expect(iframe.title.locator).toHaveText('Playwright');
     })
 
-    test(`asFrame make WebElement to be used as frameLocator in sub elements on second nested level`,  async ({ initBrowserInstance }) => {
+    test(`asFrame make WebElement to be used as frameLocator in sub elements on second nested level`,  async () => {
         const { $ } = await import('../src');
         const body = $('body').subElements({
             iframe: $(`iframe`).contentFrame()
@@ -52,6 +50,6 @@ test.describe(`Web element frame pointer`, () => {
                     title: $(`.navbar__title`).first()
                 })
         });
-        expect(await body.iframe.title._.textContent()).toEqual('Playwright');
+        await expect(body.iframe.title.locator).toHaveText('Playwright');
     })
 })

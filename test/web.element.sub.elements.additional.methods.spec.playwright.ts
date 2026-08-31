@@ -11,7 +11,7 @@ test.describe('Web Element chainable selectors', () => {
 
         test.beforeEach(async ({ goto, page }) => {
             await goto(localFilePath);
-            await page.waitForSelector('h1');
+            await page.locator('h1').waitFor();
         })
 
         test.describe('element clone and override', () => {
@@ -39,7 +39,7 @@ test.describe('Web Element chainable selectors', () => {
                             innerChild: $(`[id]`)
                         })
                 })
-            expect(await element.child.first().innerChild.getAttribute('id')).toBe(`missed`);
+            await expect(element.child.first().innerChild.locator).toHaveAttribute('id', `missed`);
         });
 
         test('should point on last element', async () => {
@@ -50,7 +50,7 @@ test.describe('Web Element chainable selectors', () => {
                             innerChild: $(`[id]`)
                         })
                 })
-            expect(await element.child.last().innerChild.getAttribute('id')).toBe(`wrong-target2`);
+            await expect(element.child.last().innerChild.locator).toHaveAttribute('id', `wrong-target2`);
         });
 
     })
