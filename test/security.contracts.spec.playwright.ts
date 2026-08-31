@@ -3,11 +3,9 @@
  * Explicit security and package-contract tests for critical boundaries
  */
 
-import { test, expect } from '../src';
+import { test, expect, WebElement } from '../src';
 import { configureWebElementExpect } from '../src';
 import { expect as pwExpect } from '@playwright/test';
-
-// Migrated from mocha/chai to @playwright/test
 
 test.describe('Security & Contract Tests', () => {
 

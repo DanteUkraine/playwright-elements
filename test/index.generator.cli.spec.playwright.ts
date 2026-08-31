@@ -2,7 +2,7 @@ import { test, expect } from '../src';
 import { execSync, spawn } from 'child_process';
 import fs from 'fs';
 import path, { join } from 'path';
-import { waitForFileContent, waitForFileToExist } from './utils/waitFor';
+import { waitForFileContent, waitForFileToExist } from '@test.utils';
 
 const testRoot = join(__dirname, 'tempFlat');
 

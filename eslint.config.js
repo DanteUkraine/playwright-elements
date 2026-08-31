@@ -17,7 +17,7 @@ export default [
     ],
   },
   {
-    files: ['test/**/*.spec.playwright.ts'],
+    files: ['test/**/*.ts', 'test/**/*.spec.playwright.ts'],
     languageOptions: {
       globals: {
         ...globals.node,

@@ -16,14 +16,13 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
-    "baseUrl": "./",
-    "paths": {
-      "@test.utils": ["test/utils"]
-    },
     "types": ["node"],
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
-  }
+  },
+  "include": [
+    "src/**/*"
+  ]
 }

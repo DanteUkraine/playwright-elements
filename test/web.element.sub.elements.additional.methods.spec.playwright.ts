@@ -3,8 +3,6 @@ import { expectTypeOf } from 'expect-type';
 import { $getByTestId, $, WebElement } from '../src';
 import { localFilePath } from './utils';
 
-// Migrated from mocha/chai to @playwright/test
-
 test.describe('Web Element chainable selectors', () => {
 
     test.describe('by index', () => {
