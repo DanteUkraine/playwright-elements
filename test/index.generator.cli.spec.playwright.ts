@@ -19,7 +19,7 @@ test.describe('CLI Generator Tests', () => {
         fs.writeFileSync(join(testRoot, 'file1.ts'), 'export class AdminPage {}');
 
         execSync(
-            `node lib/src/index.generator.cli.js ${testRoot} --cliLog false --watch false --quotes "'"`,
+            `node lib/index.generator.cli.js ${testRoot} --cliLog false --watch false --quotes "'"`,
             { stdio: 'inherit' }
         );
 
@@ -38,7 +38,7 @@ test.describe('CLI Generator Tests', () => {
         const cliProcess = spawn(
             'node',
             [
-                'lib/src/index.generator.cli.js',
+                'lib/index.generator.cli.js',
                 testRoot,
                 '--cliLog',
                 'false',
