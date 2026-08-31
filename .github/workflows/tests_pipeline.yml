@@ -30,7 +30,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: Run tests
-        run: npm test:unit
+        run: npm run test:unit
         timeout-minutes: 10
       - name: Run integration tests
         run: npm run integration:test
