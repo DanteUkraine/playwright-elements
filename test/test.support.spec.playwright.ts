@@ -10,11 +10,6 @@ import {
 } from '../src';
 import { localFilePath } from './utils';
 
-// Test Support Utilities Tests - H-002
-// This file tests the Test Support module for assertion provider pattern (v1.18.3+)
-// Covers: configureWebElementExpect, createElementAssertions, extendWebElementWithAssertions
-//         WebElementExpect, WebElementSoftExpect
-
 test.describe('Test Support Utilities', () => {
 
     test.describe('configureWebElementExpect()', () => {

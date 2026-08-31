@@ -13,11 +13,6 @@ import {
 } from '../src';
 import { localFilePath } from './utils';
 
-// Test IDs Module Tests - H-001
-// This file tests the Test IDs module introduced in v1.19.0
-// Covers: TestId, IdFactory, sid, factory, bareFactory, testIdProps, isIdFactory
-//         $byTestId, $byTestIdPrefix, $byTestIdContaining, $byTestIdEndingWith
-
 test.describe('Test IDs Module', () => {
 
     test.describe('sid() - Static ID Builder', () => {

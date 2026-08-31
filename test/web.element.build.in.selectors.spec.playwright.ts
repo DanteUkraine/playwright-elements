@@ -11,7 +11,6 @@ import {
 import { test, expect } from '../src';
 import { localFilePath } from './utils';
 
-// Migrated from mocha/chai to @playwright/test
 
 test.describe(`Web element build in selectors`, () => {
 

@@ -3,7 +3,6 @@ import { test } from '../src';
 import { $, BrowserInstance } from '../src';
 import { localFilePath } from './utils';
 
-// Migrated from mocha/chai to @playwright/test
 
 test.describe('Web Element Missing and Less Tested Methods', () => {
 

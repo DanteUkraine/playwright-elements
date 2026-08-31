@@ -3,7 +3,6 @@ import { test } from '../src';
 import { $, $getByAltText, $getByLabel, $getByPlaceholder, $getByRole, $getByTestId, $getByText, $getByTitle, BrowserInstance } from '../src';
 import { localFilePath } from './utils';
 
-// Migrated from mocha/chai to @playwright/test
 
 test.describe('Web Element Error Handling and Negative Testing', () => {
 

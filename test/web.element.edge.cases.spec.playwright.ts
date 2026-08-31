@@ -3,7 +3,6 @@ import { test } from '../src';
 import { $, WebElement, BrowserInstance } from '../src';
 import { localFilePath } from './utils';
 
-// Migrated from mocha/chai to @playwright/test
 
 test.describe('Web Element Edge Cases and Boundary Conditions', () => {
 

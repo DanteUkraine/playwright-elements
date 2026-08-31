@@ -106,5 +106,4 @@ export function configureWebElementExpect(): void {
     WebElement.setExpectProvider(provider);
 }
 
-// Re-export types for external usage
 export type { Locator } from 'playwright-core';

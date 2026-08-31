@@ -2,14 +2,11 @@ import { Locator, LocatorScreenshotOptions, Page } from 'playwright-core';
 import cloneDeep from 'lodash.clonedeep';
 import { BrowserInstance } from './index';
 
-// Assertion provider type for decoupling from test frameworks
 export interface ExpectProvider {
     expect: (locator: any, message?: string) => any;
     softExpect: (locator: any, message?: string) => any;
 }
 
-// Static provider for assertion support - can be set by test support modules
-// This decouples the core WebElement class from @playwright/test
 let _expectProvider: ExpectProvider | null = null;
 
 function extractSelector(pointer: string | WebElement): string {
@@ -38,7 +35,6 @@ type InternalMethods<T extends WebElement, M> = {
         ? (this: T & Omit<InternalMethods<T, M>, K>, ...args: Args) => Result
         : M[K];
 };
-// Locator method options and return types
 type AriaSnapshotOptions = Parameters<Locator['ariaSnapshot']>[0];
 type BlurOptions = Parameters<Locator['blur']>[0];
 type BoundingBoxOptions = Parameters<Locator['boundingBox']>[0];
@@ -102,8 +98,6 @@ export class WebElement {
         this._by = by;
         this._byOptions = options;
     }
-
-    // page and frame pointers
 
     private selectLocatorMethod(element: string | WebElement | undefined): Locator | undefined {
         if (!element) return undefined;
@@ -268,7 +262,6 @@ export class WebElement {
         return _expectProvider.softExpect(this.locator, message);
     }
 
-    // augmentation
     private recursiveParentSelectorInjection<T extends WebElement, E>(this: T, element: E) {
         const entries = Object.entries(element as Record<string, unknown>)
             .filter(([key, value]) => {
@@ -322,7 +315,6 @@ export class WebElement {
         return this as T & A;
     }
 
-    // getters setters
     get narrowSelector(): string {
         return this._selector;
     }
@@ -355,8 +347,6 @@ export class WebElement {
     private addParentSelector(parent: WebElement): void {
         this._parents.unshift(parent);
     }
-
-    // chainable web element creation
 
     public clone<T extends WebElement>(this: T, options?: {
         selector?: string
@@ -540,8 +530,6 @@ export class WebElement {
         return this.nth(-1);
     }
 
-    // arrays of elements
-
     public async getAll<T extends WebElement>(this: T): Promise<T[]> {
         const elements: T[] = [];
         const amount = await this.count();
@@ -600,8 +588,6 @@ export class WebElement {
         }
         return matchedElements;
     }
-
-    // Locator methods
 
     public async allInnerTexts(): Promise<Array<string>> {
         return this.locator.allInnerTexts();
@@ -762,8 +748,6 @@ export class WebElement {
     public async waitFor(options?: WaitForOptions): Promise<void> {
         await this.locator.waitFor(options);
     }
-
-    // additional methods
 
     public async getText(options?: TextContentOptions): Promise<string> {
         const text = await this.locator.textContent(options);

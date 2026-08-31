@@ -2,7 +2,6 @@ import { test, expect } from '../src';
 import { localFilePath } from './utils';
 import { $, buildPageObject } from '../src';
 
-// Migrated from mocha/chai to @playwright/test
 // Note: These are functional tests, wall-clock timing removed to avoid CI flakiness
 
 test.describe('Performance Tests', () => {
@@ -64,7 +63,6 @@ test.describe('Performance Tests', () => {
         expect(element.selector).toBeDefined();
     });
 
-    // Moved from web.element.concurrency.spec.ts
     test('should complete getAll operations', async () => {
         // Functional test (removed wall-clock timing)
         const element = $('li');
@@ -91,7 +89,6 @@ test.describe('Performance Tests', () => {
         expect(results.length).toBe(100);
     });
 
-    // Moved from web.element.edge.cases.spec.ts
     test('should create many WebElement instances', async () => {
         // Functional test (removed wall-clock timing)
         const elements: any[] = [];

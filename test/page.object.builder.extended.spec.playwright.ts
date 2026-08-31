@@ -2,8 +2,6 @@ import { test, expect } from '../src';
 import { buildPageObject } from '../src';
 import * as pageObjectModule from '../integration.tests/resources/page.object';
 
-// Migrated from mocha/chai to @playwright/test
-// This file doesn't need browser as it's testing buildPageObject function only
 
 test.describe('buildPageObject - Extended Tests', () => {
 

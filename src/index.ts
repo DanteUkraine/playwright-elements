@@ -8,11 +8,9 @@ export type { PageObject } from './page.object.builder';
 export { generateIndexFile } from './index.generator';
 export type { WatcherManager } from './index.generator';
 export type { Options as GenerateIndexFileOptions } from './index.generator';
-// Test support - assertion extensions for WebElement
 export { createElementAssertions, extendWebElementWithAssertions, configureWebElementExpect } from './test.support';
 export type { WebElementExpect, WebElementSoftExpect } from './test.support';
 
-// Test IDs - type-safe test ID generation and selectors
 export type {
   TestId,
   IdFactory,

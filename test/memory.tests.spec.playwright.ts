@@ -4,13 +4,12 @@ import fs from 'fs';
 import { join } from 'path';
 import { buildPageObject, generateIndexFile } from '../src';
 
-// Migrated from mocha/chai to @playwright/test
 
 test.describe('Memory Tests', () => {
     const tempDir = join(__dirname, 'tempMemoryTest');
 
     test.beforeEach(async ({ page, goto }) => {
-        // Clean up temp directory
+
         if (fs.existsSync(tempDir)) {
             fs.rmSync(tempDir, { recursive: true, force: true });
         }
@@ -20,7 +19,7 @@ test.describe('Memory Tests', () => {
     })
 
     test.afterEach(async () => {
-        // Clean up temp directory
+
         if (fs.existsSync(tempDir)) {
             fs.rmSync(tempDir, { recursive: true, force: true });
         }
@@ -94,7 +93,7 @@ test.describe('Memory Tests', () => {
         
         expect(fs.existsSync(join(tempDir, 'index.ts'))).toBe(true);
         
-        // Clean up
+
         fs.rmSync(tempDir, { recursive: true, force: true });
         
         expect(fs.existsSync(tempDir)).toBe(false);

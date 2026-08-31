@@ -14,7 +14,6 @@ export interface WatcherManager {
     closeAll: () => Promise<void>;
 }
 
-// Factory function to create a new WatcherManager.
 function createWatcherManager(): WatcherManager {
     const watchers: FSWatcher[] = [];
     return {
