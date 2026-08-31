@@ -2,9 +2,9 @@ import { test, expect } from '../src';
 import { execSync, spawn } from 'child_process';
 import fs from 'fs';
 import path, { join } from 'path';
-import { waitForFileContent, waitForFileToExist } from '@test.utils';
+import { waitForFileContent, waitForFileToExist } from './utils/waitFor';
 
-const testRoot = join(__dirname, 'tempFlat');
+const testRoot = join(__dirname, 'tempCli');
 
 test.describe('CLI Generator Tests', () => {
 
@@ -19,7 +19,7 @@ test.describe('CLI Generator Tests', () => {
         fs.writeFileSync(join(testRoot, 'file1.ts'), 'export class AdminPage {}');
 
         execSync(
-            `node lib/index.generator.cli.js ${testRoot} --cliLog false --watch false --quotes "'"`,
+            `node lib/src/index.generator.cli.js ${testRoot} --cliLog false --watch false --quotes "'"`,
             { stdio: 'inherit' }
         );
 
@@ -38,7 +38,7 @@ test.describe('CLI Generator Tests', () => {
         const cliProcess = spawn(
             'node',
             [
-                'lib/index.generator.cli.js',
+                'lib/src/index.generator.cli.js',
                 testRoot,
                 '--cliLog',
                 'false',

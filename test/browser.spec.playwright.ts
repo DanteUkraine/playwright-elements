@@ -1,7 +1,7 @@
 import { BrowserInstance } from '../src';
 import { test, expect } from '../src';
 import { webkit } from 'playwright-core';
-import { localFilePath } from '@test.utils';
+import { localFilePath } from './utils';
 
 // Migrated from mocha/chai to @playwright/test
 // Note: Browser lifecycle is managed by Playwright test framework via fixtures

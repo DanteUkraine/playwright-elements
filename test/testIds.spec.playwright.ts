@@ -242,7 +242,7 @@ test.describe('Test IDs Module', () => {
             expect(element.selector).toBe('[data-testid^=test]');
         });
 
-        test('should match elements starting with prefix', async () => {
+        test('should match elements starting with prefix', async ({ page }) => {
             // Add elements with test-div* IDs
             await page.evaluate(() => {
                 const div = document.createElement('div');

@@ -4,9 +4,6 @@ import fs from 'fs';
 import { join } from 'path';
 import { waitForFileToExist, waitForFileContent } from './utils/waitFor';
 
-// Migrated from mocha/chai to @playwright/test
-// This file tests file system operations, doesn't need browser
-
 const testRoot = join(__dirname, 'tempFlat');
 const nestedRoot = join(__dirname, 'tempNested');
 
