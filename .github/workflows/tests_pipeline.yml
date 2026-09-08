@@ -29,7 +29,29 @@ jobs:
         run: npm run install:browsers
       - name: Build
         run: npm run build
-      - name: Run tests
+        timeout-minutes: 5
+      - name: Run type tests
+        run: npm run test:types
+        timeout-minutes: 5
+      - name: Run CI guard checks
+        run: npm run ci:check-all
+        timeout-minutes: 5
+      - name: Run regression tests
+        run: npm run test:regression
+        timeout-minutes: 5
+      - name: Run type runtime tests
+        run: npm run test:types-runtime
+        timeout-minutes: 5
+      - name: Run selector tests
+        run: npm run test:selectors
+        timeout-minutes: 5
+      - name: Run validation tests
+        run: npm run test:validation
+        timeout-minutes: 5
+      - name: Run collision tests
+        run: npm run test:collisions
+        timeout-minutes: 5
+      - name: Run existing unit tests
         run: npm run test:unit
         timeout-minutes: 10
       - name: Run integration tests
