@@ -1,6 +1,17 @@
 import { Locator, LocatorScreenshotOptions, Page } from 'playwright-core';
 import cloneDeep from 'lodash.clonedeep';
-import { BrowserInstance } from './index';
+import { BrowserInstance } from './browser';
+
+// Default expectation types when no provider is configured
+// This will be augmented by test-specific modules (e.g., playwright.test.fixtures)
+export interface WebElementAssertions {
+    expect: any;
+    softExpect: any;
+}
+
+// Return types for expect() and softExpect() methods
+export type ExpectReturn = WebElementAssertions['expect'];
+export type SoftExpectReturn = WebElementAssertions['softExpect'];
 
 export interface ExpectProvider {
     expect: (locator: any, message?: string) => any;
@@ -18,7 +29,7 @@ type NestedElements<T extends WebElement, A> = {
     A[K] extends WebElement
         ? A[K] & NestedElements<A[K], InferNestedElements<A[K]>>
         : A[K] extends (this: any, ...args: infer Args) => infer Result
-            ? (this: T & Omit<NestedElements<T, A>, K>, ...args: Args) => Result
+            ? (this: T & A, ...args: Args) => Result
             : A[K]
 };
 
@@ -32,7 +43,7 @@ type InternalElements = { [key: string]: WebElement };
 type InternalMethods<T extends WebElement, M> = {
     [K in keyof M]:
     M[K] extends (this: any, ...args: infer Args) => infer Result
-        ? (this: T & Omit<InternalMethods<T, M>, K>, ...args: Args) => Result
+        ? (this: T & M, ...args: Args) => Result
         : M[K];
 };
 type AriaSnapshotOptions = Parameters<Locator['ariaSnapshot']>[0];
@@ -213,15 +224,16 @@ export class WebElement {
      * Static method to allow custom expect implementation injection.
      * This is maintained for backward compatibility with existing code.
      * 
-     * @deprecated Use setExpectProvider() instead for better type safety.
-     * @param expect - Legacy expect function (ignored, use setExpectProvider)
+     * @deprecated Use setExpectProvider() instead for better type safety. 
+     * Kept working for 1.x compatibility.
+     * @param expect - Optional expect provider for backward compatibility
      */
-    /**
-     * @deprecated Use setExpectProvider() instead for better type safety.
-     */
-    public static useExpect() {
-        // No-op: maintained for backward compatibility
-        // Use setExpectProvider() for proper configuration
+    public static useExpect(expect?: { (locator: unknown, message?: string): unknown; soft: (locator: unknown, message?: string) => unknown }): void {
+        if (expect) {
+            WebElement.setExpectProvider({ expect, softExpect: expect.soft });
+            return;
+        }
+        // no argument: previous behaviour, nothing to configure
     }
 
     /**
@@ -232,7 +244,7 @@ export class WebElement {
      * @returns Playwright assertion chain for the element's locator
      * @throws Error if ExpectProvider is not configured
      */
-    public expect(message?: string): any {
+    public expect(message?: string): ExpectReturn {
         if (!_expectProvider) {
             throw new Error(
                 'Assertion provider not configured. Call WebElement.setExpectProvider() in your test setup. ' +
@@ -252,7 +264,7 @@ export class WebElement {
      * @returns Playwright soft assertion chain for the element's locator
      * @throws Error if ExpectProvider is not configured
      */
-    public softExpect(message?: string): any {
+    public softExpect(message?: string): SoftExpectReturn {
         if (!_expectProvider) {
             throw new Error(
                 'Assertion provider not configured. Call WebElement.setExpectProvider() in your test setup. ' +

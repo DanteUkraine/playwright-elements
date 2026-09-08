@@ -16,16 +16,16 @@ Run the following command to install the package:
 `npm install -D playwright-elements`
 
 ___
-- [Get started](docs/get_started.md)
-- [Web element](docs/web_element.md)
-- [Test Support Utilities](docs/test_support.md)
-- [Test IDs Module](docs/test_ids.md)
-- [Playwright elements fixtures](docs/playwright_elements_fixtures.md)
-- [Build page object](docs/build_page_object.md)
-- [Browser instance](docs/browser_instance.md)
-- [Migration Guide](docs/migration_guide.md)
-- [Architecture Overview](docs/architecture.md)
-- [Frequently Asked Questions](docs/faq.md)
+- [Get started](https://danteukraine.github.io/playwright-elements/docs/get_started.html)
+- [Web element](https://danteukraine.github.io/playwright-elements/docs/web_element.html)
+- [Test Support Utilities](https://danteukraine.github.io/playwright-elements/docs/test_support.html)
+- [Test IDs Module](https://danteukraine.github.io/playwright-elements/docs/test_ids.html)
+- [Playwright elements fixtures](https://danteukraine.github.io/playwright-elements/docs/playwright_elements_fixtures.html)
+- [Build page object](https://danteukraine.github.io/playwright-elements/docs/build_page_object.html)
+- [Browser instance](https://danteukraine.github.io/playwright-elements/docs/browser_instance.html)
+- [Migration Guide](https://danteukraine.github.io/playwright-elements/docs/migration_guide.html)
+- [Architecture Overview](https://danteukraine.github.io/playwright-elements/docs/architecture.html)
+- [Frequently Asked Questions](https://danteukraine.github.io/playwright-elements/docs/faq.html)
 
 #### Tests with playwright-elements:
 
@@ -87,6 +87,7 @@ test('check login page', async ({ pageObject }) => {
     await pageObject.login.header.logo.expect().toBeVisible();
     await pageObject.login.header.avatar.expect().toBeVisible();
 });
+```
 
 #### Type-Safe Test IDs with playwright-elements:
 
@@ -133,8 +134,7 @@ export function MyComponent() {
 }
 ```
 
-See [Test IDs Module](docs/test_ids.md) for complete documentation.
-```
+See [Test IDs Module](https://danteukraine.github.io/playwright-elements/docs/test_ids.html) for complete documentation.
 
 #### Tests with playwright-elements using component driven test style:
 

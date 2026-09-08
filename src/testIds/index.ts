@@ -15,3 +15,5 @@
 
 export * from './builder';
 export * from './selectors';
+// Re-export for convenience (these are already exported via * but being explicit)
+export { unsafeId, ns, assertNoPrefixCollisions } from './builder';

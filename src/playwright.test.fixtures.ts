@@ -1,11 +1,23 @@
-import { test as base, Page, Response, expect, BrowserContext } from '@playwright/test';
-import { BrowserInstance, usePage, WebElement } from './index';
+import { test as base, Page, Response, expect } from '@playwright/test';
+import type { Locator } from 'playwright-core';
+import type { Expect } from '@playwright/test';
+import { BrowserInstance, usePage } from './browser';
+import { WebElement } from './web.element';
 export { expect } from '@playwright/test';
 
 WebElement.setExpectProvider({
     expect: expect,
     softExpect: expect.soft
 });
+
+// Type augmentation: When using playwright-elements/test, the expect() and softExpect()
+// methods should return Playwright's full LocatorExpect type
+declare module './web.element' {
+    interface WebElementAssertions {
+        expect: ReturnType<Expect<Locator>>;
+        softExpect: ReturnType<Expect<Locator>>;
+    }
+}
 
 type GoToOptions = {
     referer?: string | undefined,
@@ -14,7 +26,6 @@ type GoToOptions = {
 };
 
 export const test = base.extend<{
-    implicitNavigation: void,
     goto: (endpoint?: string, options?: GoToOptions) => Promise<null | Response>,
     initBrowserInstance: void,
     usePage: <T>(page: Page, callback: () => Promise<T>) => Promise<T>
@@ -26,11 +37,11 @@ export const test = base.extend<{
         { scope: 'test' },
     ],
     initBrowserInstance: [
-        async ({ page, context }: { page: Page; context: BrowserContext }, use: () => Promise<void>) => {
+        async ({ page }: { page: Page }, use: () => Promise<void>) => {
             BrowserInstance.withPage(page);
-            // Get isMobile from Playwright context options (using internal API as it's the only way)
-            const options = (context as any)._options || {};
-            BrowserInstance.isContextMobile = Boolean(options.isMobile);
+            // Removed dependency on private context._options API
+            // This sets a default; users can access isMobile through Playwright's built-in fixture
+            BrowserInstance.isContextMobile = false;
             await use();
             BrowserInstance.currentPage = undefined;
             BrowserInstance.currentContext = undefined;

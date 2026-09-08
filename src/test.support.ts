@@ -79,18 +79,21 @@ export function createElementAssertions(element: WebElement): {
 }
 
 /**
- * Configures WebElement to use Playwright's expect for assertion chaining.
- * This must be called in your test setup before using element.expect() or element.softExpect().
+ * Registers @playwright/test's `expect` as the assertion provider.
+ * 
+ * You do NOT need this with Playwright Test: importing `test` from
+ * 'playwright-elements' already registers it. Call this only when you
+ * use WebElement outside the Playwright runner — BrowserInstance in a
+ * mocha/vitest/node script — where the fixtures module never loads.
  * 
  * This function decouples the core WebElement class from @playwright/test by using
  * a provider pattern. The WebElement class itself has no dependency on @playwright/test.
  * 
  * @example
  * ```typescript
- * // In your test setup file (e.g., before hooks)
+ * // In your test setup file (e.g., before hooks) for non-Playwright runners
  * import { configureWebElementExpect } from 'playwright-elements';
  * 
- * // For Playwright Test
  * configureWebElementExpect();
  * 
  * // Now all WebElement instances can use:

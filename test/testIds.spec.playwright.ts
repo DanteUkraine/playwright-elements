@@ -42,9 +42,8 @@ test.describe('Test IDs Module', () => {
             expect(id).toBe('user-profile');
         });
 
-        test('should return empty string for all null/undefined/empty parts', () => {
-            const id = sid(null, undefined, '');
-            expect(id).toBe('');
+        test('should throw error for all null/undefined/empty parts', () => {
+            expect(() => sid(null, undefined, '')).toThrow('[playwright-elements] sid() needs at least one part');
         });
 
         test('should create typed TestId', () => {
@@ -234,20 +233,24 @@ test.describe('Test IDs Module', () => {
         test('should create WebElement with prefix selector', () => {
             const ruleRow = factory<'rules.row'>('test');
             const element = $byTestIdPrefix(ruleRow);
-            expect(element.selector).toBe('[data-testid^=test]');
+            expect(element.selector).toBe('[data-testid^="test-"]');
         });
 
-        test('should match elements starting with prefix', async ({ page }) => {
-            // Add elements with test-div* IDs
+        test('should match elements starting with prefix and delimiter', async ({ page }) => {
+            // Add elements with test-div-* IDs (note the - delimiter)
             await page.evaluate(() => {
                 const div = document.createElement('div');
                 div.setAttribute('data-testid', 'test-div-1');
                 document.body.appendChild(div);
+                const div2 = document.createElement('div');
+                div2.setAttribute('data-testid', 'test-div-2');
+                document.body.appendChild(div2);
             });
             
             const ruleRow = factory('test-div');
             const element = $byTestIdPrefix(ruleRow);
-            await expect(element.locator).toHaveCount(2); // test-div and test-div-1
+            // Should only match elements with the prefix + delimiter, not static 'test-div'
+            await expect(element.locator).toHaveCount(2); // test-div-1 and test-div-2
         });
 
         test('should throw error for factory with empty prefix', () => {

@@ -3,9 +3,6 @@ import {
     WebElement,
     configureWebElementExpect,
     createElementAssertions,
-    extendWebElementWithAssertions,
-    WebElementExpect,
-    WebElementSoftExpect,
     $,
 } from '../src';
 import { localFilePath } from './utils';
@@ -138,20 +135,6 @@ test.describe('Test Support Utilities', () => {
             // Should allow chaining - verify the function is callable and returns expect
             expect(typeof customElementExpect).toBe('function');
             await customElementExpect().toBeVisible();
-        });
-
-    });
-
-    test.describe('extendWebElementWithAssertions()', () => {
-
-        test('should be callable without errors', () => {
-            // This function is primarily a placeholder for explicit loading
-            expect(() => extendWebElementWithAssertions()).not.toThrow();
-        });
-
-        test('should return undefined', () => {
-            const result = extendWebElementWithAssertions();
-            expect(result).toBeUndefined();
         });
 
     });

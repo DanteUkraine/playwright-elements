@@ -1,12 +1,25 @@
 {
   "name": "playwright-elements",
-  "version": "1.19.0-rc1",
+  "version": "1.19.0-rc2",
   "description": "This is Playwright extension.",
+  "type": "commonjs",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "typings": "lib/index.d.ts",
   "files": [
     "lib"
   ],
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./testids": {
+      "types": "./lib/testIds/builder.d.ts",
+      "default": "./lib/testIds/builder.js"
+    },
+    "./package.json": "./package.json"
+  },
   "bin": {
     "generate-index": "./lib/index.generator.cli.js"
   },

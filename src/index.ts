@@ -8,8 +8,7 @@ export type { PageObject } from './page.object.builder';
 export { generateIndexFile } from './index.generator';
 export type { WatcherManager } from './index.generator';
 export type { Options as GenerateIndexFileOptions } from './index.generator';
-export { createElementAssertions, extendWebElementWithAssertions, configureWebElementExpect } from './test.support';
-export type { WebElementExpect, WebElementSoftExpect } from './test.support';
+export { createElementAssertions, configureWebElementExpect } from './test.support';
 
 export type {
   TestId,
@@ -21,6 +20,9 @@ export {
   bareFactory,
   testIdProps,
   isIdFactory,
+  unsafeId,
+  ns,
+  assertNoPrefixCollisions,
 } from './testIds/builder';
 export {
   $byTestId,
