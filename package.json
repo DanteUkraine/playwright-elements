@@ -34,7 +34,17 @@
     "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts",
     "modify:readme": "npx ts-node prepare-readme.ts",
     "prepare": "husky install",
-    "lint": "npx eslint ."
+    "lint": "npx eslint .",
+    "ci:check-entry-points": "cd test/ci && ./check-entry-points.sh",
+    "ci:check-subpath-purity": "cd test/ci && ./check-subpath-purity.sh",
+    "ci:check-readme-fences": "cd test/ci && ./check-readme-fences.sh",
+    "ci:check-all": "npm run ci:check-entry-points && npm run ci:check-subpath-purity && npm run ci:check-readme-fences",
+    "test:types": "npx tsc --noEmit -p tsconfig.types.json",
+    "test:regression": "npx playwright test test/regression --config=playwright.unit.config.ts",
+    "test:types-runtime": "npx playwright test test/types --config=playwright.unit.config.ts",
+    "test:selectors": "npx playwright test test/selectors --config=playwright.unit.config.ts",
+    "test:validation": "npx playwright test test/validation --config=playwright.unit.config.ts",
+    "test:collisions": "npx playwright test test/collisions --config=playwright.unit.config.ts"
   },
   "repository": {
     "type": "git",
