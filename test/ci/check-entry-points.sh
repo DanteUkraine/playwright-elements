@@ -1,9 +1,9 @@
 #!/bin/bash
-# Finding #01: Verify all published entry points load without circular dependency crashes
+# Entry Point Stability Check
 # 
 # This script checks that every published entry point in the package can be loaded
 # as the FIRST module in a fresh process, which is how they would be used by consumers.
-# In 1.19.0-rc1, 4 of 9 entry points would crash when loaded first due to circular dependencies.
+# Previously, 4 of 9 entry points would crash when loaded first due to circular dependencies.
 
 set -e
 
@@ -11,7 +11,7 @@ set -e
 cd "$(dirname "$0")/../.."
 
 echo "=========================================="
-echo "Entry Point Stability Check - Finding #01"
+echo "Entry Point Stability Check"
 echo "=========================================="
 echo ""
 
@@ -54,7 +54,7 @@ echo "=========================================="
 if [ "$FAILED" -gt 0 ]; then
   echo ""
   echo "❌ FAILED: Some entry points crashed"
-  echo "This indicates a circular dependency issue (Finding #01)"
+  echo "This indicates a circular dependency issue"
   exit 1
 fi
 

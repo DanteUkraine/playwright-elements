@@ -1,5 +1,5 @@
 /**
- * TestId Brand Invariance Tests - Finding #12
+ * TestId Brand Invariance Tests
  * 
  * These tests verify that the TestId brand is properly invariant, preventing
  * unwanted widening and ensuring type safety for test ID types.
@@ -12,7 +12,7 @@ import { expectTypeOf } from 'expect-type';
 import { test } from '../../src/playwright.test.fixtures';
 import { TestId, sid, factory, ns, bareFactory } from '../../src';
 
-test.describe('TestId Brand Invariance - Finding #12', () => {
+test.describe('TestId Brand Invariance', () => {
   test('sid() should create properly typed TestId', () => {
     const buttonId: TestId<'button'> = sid('submit-button');
     const containerId: TestId<'container'> = sid('main-container');

@@ -1,5 +1,5 @@
 /**
- * Prefix Collision Prevention Tests - Finding #05, #15
+ * Prefix Collision Prevention Tests
  * 
  * These tests verify that:
  * - $byTestIdPrefix with factory() does not match static IDs with same prefix
@@ -8,11 +8,11 @@
  */
 
 import { test, expect } from '../../src/playwright.test.fixtures';
-import { $byTestIdPrefix, factory, sid, assertNoPrefixCollisions } from '../../src';
+import { $byTestIdPrefix, factory, sid, assertNoPrefixCollisions, bareFactory } from '../../src';
 
-test.describe('Prefix Collision Prevention - Finding #05, #15', () => {
+test.describe('Prefix Collision Prevention', () => {
   test('factory IDs should not match static IDs with same prefix', async ({ page }) => {
-    // This is the exact scenario from the findings report
+    // This is the exact scenario from the prefix collision prevention tests
     await page.setContent(`
       <div data-testid="idx-consents">Static Container</div>
       <div data-testid="idx-consent-acme">Factory Item 1</div>

@@ -1,5 +1,5 @@
 /**
- * Sibling Method Calls in .with() - Finding #10
+ * Sibling Method Calls in .with()
  * 
  * These tests verify that two sibling methods in one .with() can call each other
  * without TypeScript errors. This was previously broken due to the Omit<..., K> type
@@ -11,9 +11,9 @@
 import { test, expect } from '../../src/playwright.test.fixtures';
 import { $, WebElement } from '../../src';
 
-test.describe('Sibling Method Calls in .with() - Finding #10', () => {
+test.describe('Sibling Method Calls in .with()', () => {
   test('methods should be able to call each other', () => {
-    // This is the exact case from the findings report
+    // This verifies sibling methods can call each other
     const form = $('#f').with({
       input: $('input'),
       field: function(name: string) { 

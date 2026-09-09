@@ -36,7 +36,7 @@ test.describe('Entry Point Stability', () => {
   });
 
   test('should load all entry points first in their own processes', () => {
-    // This simulates the guard suggested in the findings:
+    // This simulates loading entry points first in fresh processes:
     // for f in $(cd lib && find . -name '*.js' ! -name '*.cli.js'); do
     //   node -e "require('./lib/${f}')" || { echo "FAILS FIRST: $f"; exit 1; }
     // done

@@ -1,5 +1,5 @@
 /**
- * Input Validation Tests - Finding #16
+ * Input Validation Tests
  * 
  * These tests verify that sid() and factory() properly validate their inputs
  * and throw descriptive errors for empty, null, or invalid values.
@@ -11,7 +11,7 @@
 import { test, expect } from '../../src/playwright.test.fixtures';
 import { sid, factory, bareFactory } from '../../src/testIds/builder';
 
-test.describe('Input Validation - Finding #16', () => {
+test.describe('Input Validation', () => {
   test.describe('sid() validation', () => {
     test('should throw for empty arguments', () => {
       expect(() => sid()).toThrow('[playwright-elements] sid() needs at least one part');

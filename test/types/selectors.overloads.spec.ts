@@ -1,5 +1,5 @@
 /**
- * Selector Overload Tests - Finding #13
+ * Selector String Overloads
  * 
  * These tests verify that $byTestId and testIdProps no longer accept bare strings,
  * enforcing type safety through the TestId branded type.
@@ -10,7 +10,7 @@
 import { test, expect } from '../../src/playwright.test.fixtures';
 import { $byTestId, testIdProps, sid, unsafeId } from '../../src';
 
-test.describe('Selector String Overloads - Finding #13', () => {
+test.describe('Selector String Overloads', () => {
   test('byTestId should accept TestId from sid()', () => {
     const testId = sid('test-id');
     const element = $byTestId(testId);

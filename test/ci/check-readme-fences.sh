@@ -1,8 +1,8 @@
 #!/bin/bash
-# Finding #17: Verify README fences are properly paired
+# README Fence Pairing Check
 # 
 # This script checks that all code fences in the README are properly paired.
-# In 1.19.0-rc1, a missing closing fence caused the entire Test IDs section
+# Previously, a missing closing fence caused the entire Test IDs section
 # to render with inverted formatting (headings as code, examples as prose).
 
 set -e
@@ -11,7 +11,7 @@ set -e
 cd "$(dirname "$0")/../.."
 
 echo "=========================================="
-echo "README Fence Pairing Check - Finding #17"
+echo "README Fence Pairing Check"
 echo "=========================================="
 echo ""
 
@@ -35,7 +35,6 @@ echo "✅ Fence counts match"
 echo ""
 
 # Now check for the specific bug: language-tagged fences appearing where closing fences should be
-# This uses the awk script from the findings report
 echo "Checking fence pairing integrity..."
 
 # Use a simpler approach - create a temporary awk script file
@@ -82,11 +81,11 @@ fi
 echo "✅ All fences are properly paired"
 echo ""
 
-# Additional check: verify specific lines mentioned in the findings
+# Additional check: verify specific lines
 # Line 79 should have a closing fence after login.test.ts
 # Line 137 should not have an orphaned bare fence
 
-echo "Checking specific lines from the findings..."
+echo "Checking specific lines..."
 
 # Check line 79 (login.test.ts opening fence)
 LINE_79=$(sed -n '79p' README.md)

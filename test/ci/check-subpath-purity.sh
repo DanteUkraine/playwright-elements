@@ -1,9 +1,9 @@
 #!/bin/bash
-# Finding #06: Verify testids subpath loads only 1 module (itself)
+# Subpath Purity Check
 # 
 # This script checks that the testIds/builder subpath is truly dependency-free,
 # which is essential for using it in production code (e.g., React components).
-# In 1.19.0-rc1, there was no dependency-free entry point for testIds.
+# Previously, there was no dependency-free entry point for testIds.
 
 set -e
 
@@ -11,7 +11,7 @@ set -e
 cd "$(dirname "$0")/../.."
 
 echo "=========================================="
-echo "Subpath Purity Check - Finding #06"
+echo "Subpath Purity Check"
 echo "=========================================="
 echo ""
 
@@ -31,7 +31,7 @@ echo "  Modules loaded: ${MODULES_LOADED}"
 if [ "$MODULES_LOADED" -ne 1 ]; then
   echo ""
   echo "❌ FAILED: testids subpath loaded ${MODULES_LOADED} modules (expected 1)"
-  echo "This indicates the subpath has dependencies (Finding #06)"
+  echo "This indicates the subpath has dependencies"
   
   # Show which modules were loaded
   echo ""

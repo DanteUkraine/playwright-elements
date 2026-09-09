@@ -4,14 +4,14 @@
  * These tests use TypeScript's type-checking to ensure type safety.
  * The file should pass type-checking with --noEmit.
  * 
- * Tests cover findings: #12 (TestId brand), #13 (string overloads)
+ * Tests cover: TestId brand, selector string overloads
  */
 
 import { $byTestId, testIdProps, sid, unsafeId, factory, bareFactory } from '../../src';
 import type { TestId } from '../../src';
 
 // ============================================================================
-// Finding #13: Test that $byTestId and testIdProps reject bare strings
+// Test that $byTestId and testIdProps reject bare strings
 // ============================================================================
 
 // These should be type errors but we can't use @ts-expect-error in a way
@@ -28,7 +28,7 @@ $byTestId(unsafeId('third-party-id'));
 testIdProps(unsafeId('external-id'));
 
 // ============================================================================
-// Finding #12: Test that TestId brands work correctly
+// Test that TestId brands work correctly
 // ============================================================================
 
 // Create typed TestIds

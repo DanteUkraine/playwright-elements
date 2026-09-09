@@ -1,5 +1,5 @@
 /**
- * CSS Selector Edge Cases - Finding #04
+ * CSS Selector Edge Cases
  * 
  * These tests verify that selectors properly handle problematic characters
  * in test IDs. The issue was that $byTestIdPrefix emitted unquoted values,
@@ -11,8 +11,8 @@
 import { test, expect } from '../../src/playwright.test.fixtures';
 import { $byTestId, $byTestIdPrefix, $byTestIdContaining, $byTestIdEndingWith, factory, sid } from '../../src';
 
-test.describe('CSS Selector Edge Cases - Finding #04', () => {
-  // Problematic IDs from the findings report
+test.describe('CSS Selector Edge Cases', () => {
+  // Problematic IDs with special characters
   const problematicIds = [
     'a.b',         // Dot - common in namespaced IDs
     'a:b',         // Colon
