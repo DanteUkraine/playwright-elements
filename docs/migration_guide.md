@@ -23,7 +23,7 @@ Version 1.18.3 introduced a **breaking change** in how WebElement assertions wor
 | Direct import of `@playwright/test` expect | No direct dependency on test framework |
 | `expect()` worked out of the box | Requires provider configuration |
 | Tight coupling with Playwright | Framework-agnostic architecture |
-| `useExpect()` method for custom expect | `setExpectProvider()` for provider injection |
+| `useExpect()` method for custom expect | `setExpectProvider()` for provider injection (useExpect restored in 1.19.0-rc2) |
 
 ---
 
@@ -213,15 +213,20 @@ await $('.element').expect().toHaveCustomValue('test');
 
 ### `useExpect()` Method
 
-The `useExpect()` static method is **maintained for backward compatibility** but is now a **no-op** (does nothing):
+The `useExpect()` static method was restored in v1.19.0-rc2 and now accepts an optional expect provider parameter for backward compatibility:
 
 ```typescript
-// This still works but does nothing:
+// With parameter - delegates to setExpectProvider:
 WebElement.useExpect(expect);
 
-// Use this instead:
+// Without parameter - does nothing (backward compatible with 1.x):
+WebElement.useExpect();
+
+// Recommended approach - use setExpectProvider directly:
 WebElement.setExpectProvider({ expect, softExpect: expect.soft });
 ```
+
+**Note:** For new code, prefer `setExpectProvider()` for clarity. `useExpect()` is maintained for backward compatibility.
 
 ---
 

@@ -17,6 +17,8 @@ The test support module (`src/test.support.ts`) contains helper functions for wo
 - Support type-safe assertion chaining
 - Provide framework-agnostic assertion support
 
+**✅ Automatic Configuration for Playwright Test:** When using `playwright-elements` test fixtures, assertion support is configured automatically. No manual setup is required!
+
 ---
 
 ## Table of Contents
@@ -24,10 +26,6 @@ The test support module (`src/test.support.ts`) contains helper functions for wo
 - [Functions](#functions)
   - [configureWebElementExpect()](#configurewebelementexpect)
   - [createElementAssertions()](#createelementassertions)
-  - [extendWebElementWithAssertions()](#extendwebelementwithassertions)
-- [Types](#types)
-  - [WebElementExpect](#webelementexpect)
-  - [WebElementSoftExpect](#webelementsoftexpect)
 - [Best Practices](#best-practices)
 
 ---
@@ -38,9 +36,9 @@ The test support module (`src/test.support.ts`) contains helper functions for wo
 
 **Signature:** `configureWebElementExpect(): void`
 
-**Description:** Configures WebElement to use Playwright's expect for assertion chaining. This must be called before using `element.expect()` or `element.softExpect()`.
+**Description:** Configures WebElement to use Playwright's expect for assertion chaining. **For Playwright Test users, this is called automatically** via the test fixtures. Only manual setup is required for other frameworks like Mocha or Jest.
 
-**Use Case:** Test setup (before hooks, setup files)
+**Use Case:** Test setup (before hooks, setup files) - *Required for Mocha, Jest, and custom frameworks only*
 
 **Example:**
 ```typescript
@@ -88,89 +86,7 @@ await softExpect().toHaveText('Submit');
 
 ---
 
-### extendWebElementWithAssertions()
 
-**Signature:** `extendWebElementWithAssertions(): void`
-
-**Description:** Extension method placeholder for explicit assertion support loading. The actual extension happens through the WebElement class itself when the provider is configured.
-
-**Use Case:** Explicitly load assertion support (though not strictly necessary with the provider pattern)
-
-**Example:**
-```typescript
-import { extendWebElementWithAssertions } from 'playwright-elements';
-
-// Explicitly load assertion support
-extendWebElementWithAssertions();
-```
-
-> **Note:** This function primarily exists to explicitly load assertion support. With the provider pattern, the actual extension happens automatically when you configure the provider.
-
----
-
-## Types
-
-### WebElementExpect
-
-> Type representing the result of calling `expect()` on a WebElement. Provides type-safe assertion chaining for Playwright assertion methods.
-
-```typescript
-export type WebElementExpect = {
-    toHaveValue: (value: string | RegExp, options?: any) => Promise<void>;
-    toBeVisible: (options?: any) => Promise<void>;
-    toContainText: (text: string | RegExp, options?: any) => Promise<void>;
-    toHaveText: (text: string | RegExp, options?: any) => Promise<void>;
-    toHaveAttribute: (name: string, value: string | RegExp, options?: any) => Promise<void>;
-    toBeEnabled: (options?: any) => Promise<void>;
-    toBeDisabled: (options?: any) => Promise<void>;
-    toBeChecked: (options?: any) => Promise<void>;
-    toBeHidden: (options?: any) => Promise<void>;
-    toHaveCount: (count: number, options?: any) => Promise<void>;
-    toHaveClass: (className: string | RegExp, options?: any) => Promise<void>;
-    toHaveId: (id: string, options?: any) => Promise<void>;
-    not: WebElementExpect;
-};
-```
-
-**Usage:**
-```typescript
-import { WebElementExpect } from 'playwright-elements';
-
-// Type annotation for better type safety
-const result: WebElementExpect = $('.element').expect();
-```
-
----
-
-### WebElementSoftExpect
-
-> Type representing the result of calling `softExpect()` on a WebElement. Has the same structure as WebElementExpect but for soft assertions.
-
-```typescript
-export type WebElementSoftExpect = {
-    toHaveValue: (value: string | RegExp, options?: any) => Promise<void>;
-    toBeVisible: (options?: any) => Promise<void>;
-    toContainText: (text: string | RegExp, options?: any) => Promise<void>;
-    toHaveText: (text: string | RegExp, options?: any) => Promise<void>;
-    toHaveAttribute: (name: string, value: string | RegExp, options?: any) => Promise<void>;
-    toBeEnabled: (options?: any) => Promise<void>;
-    toBeDisabled: (options?: any) => Promise<void>;
-    toBeChecked: (options?: any) => Promise<void>;
-    toBeHidden: (options?: any) => Promise<void>;
-    toHaveCount: (count: number, options?: any) => Promise<void>;
-    not: WebElementSoftExpect;
-};
-```
-
-**Usage:**
-```typescript
-import { WebElementSoftExpect } from 'playwright-elements';
-
-// Type annotation for better type safety
-const result: WebElementSoftExpect = $('.element').softExpect();
-```
-
----
 
 ## Best Practices
 

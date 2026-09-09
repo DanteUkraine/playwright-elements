@@ -156,6 +156,97 @@ if (isIdFactory(myFactory)) {
 }
 ```
 
+#### `ns<K extends string>(): (part: string | number) => TestId<K>`
+
+Creates a namespaced ID helper function. This is a convenience wrapper around `sid()` that enforces a specific type parameter for all IDs created with it.
+
+```typescript
+import { ns } from 'playwright-elements';
+
+// Create a namespace for login-related IDs
+const loginId = ns<'login'>();
+
+// All IDs will be typed as TestId<'login'>
+const usernameInput = loginId('username-input');  // TestId<'login'>
+const passwordInput = loginId('password-input');  // TestId<'login'>
+
+// Useful for organizing IDs by feature
+export const ids = {
+  login: {
+    usernameInput: loginId('username-input'),
+    passwordInput: loginId('password-input'),
+  } as const,
+};
+```
+
+#### `bareFactory<K extends string>(): IdFactory<K>`
+
+Creates a factory whose entire ID is the key (no prefix). Useful for entity-based IDs where the ID itself is dynamic, such as when an ID is based on a database ID or other unique identifier.
+
+**New in v1.19.0-rc2**
+
+```typescript
+import { bareFactory } from 'playwright-elements';
+
+const ruleRow = bareFactory<'rules.row'>();
+
+// Usage in component
+// <div {...testIdProps(ruleRow(ruleId))} />
+// Results in: data-testid="123" (if ruleId is 123)
+
+// The factory has an empty prefix
+console.log(ruleRow.prefix);  // ''
+```
+
+#### `unsafeId(raw: string): TestId`
+
+Adopts a string as a TestId without type safety. This is an **escape hatch** for third-party IDs or IDs read from fixtures that cannot be statically typed.
+
+**⚠️ Use sparingly** - Prefer `sid()` or `factory()` for better type safety.
+
+**New in v1.19.0-rc2**
+
+```typescript
+import { unsafeId, $byTestId } from 'playwright-elements';
+
+// For third-party components with untyped test IDs
+const thirdPartyId = unsafeId('external-component-id');
+
+// Can still be used with selectors
+const element = $byTestId(thirdPartyId);
+```
+
+#### `assertNoPrefixCollisions(ids: Record<string, unknown>): void`
+
+Validates that no factory prefix is a prefix of another registered ID unless explicitly declared as an alias. This catches collision issues like `factory('idx-consent')` matching a static id `'idx-consents'`.
+
+**New in v1.19.0-rc2**
+
+```typescript
+import { assertNoPrefixCollisions, factory, sid } from 'playwright-elements';
+
+// Define your IDs
+const ids = {
+  consent: {
+    button: factory<'consent.button'>('idx-consent'),
+    // This would cause a collision without alias declaration:
+    // container: sid<'consent.container'>('idx-consents'),
+  },
+} as const;
+
+// Validate at module load time - throws if collisions detected
+assertNoPrefixCollisions(ids);
+
+// With alias prefixes (allows intentional collisions)
+const nudgeButton = factory('nudge-button', {
+  aliasPrefixes: ['nudge-button'],
+});
+const categoryNudge = factory('nudge-button', {
+  aliasPrefixes: ['nudge-button'],
+});
+// This is allowed because both declare the same prefix as an alias
+```
+
 ### Selectors
 
 #### `$byTestId(id: TestId | string): WebElement`
@@ -203,7 +294,7 @@ const ruleRow = factory<'rules.row'>('rule-row');
 
 // Select all rule rows
 const allRows = $byTestIdPrefix(ruleRow);
-// Produces: $('[data-testid^=rule-row]')
+// Produces: $('[data-testid^="rule-row-"]')
 
 // Usage in page object
 export const rulesList = {
@@ -213,6 +304,8 @@ export const rulesList = {
   getRow: (ruleId: string) => allRows.filter({ hasText: ruleId }),
 };
 ```
+
+**Note:** This function matches on `prefix + '-'` to match exactly what `factory()` produces. For example, `factory('btn')` will match `'btn-submit'` but not `'btnSubmit'` or a static id `'btntest'`. This prevents collisions with static IDs that share the prefix.
 
 **Note:** This function throws an error if the factory has an empty prefix (i.e., was created with `bareFactory`).
 

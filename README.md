@@ -91,6 +91,11 @@ const usernameField = $byTestId(ids.login.username);
 await usernameField.fill('admin');
 ```
 
+**Zero-dependency import:** For projects that only need the test IDs module without Playwright dependencies:
+```typescript
+import { sid, factory, testIdProps } from 'playwright-elements/testids';
+```
+
 ---
 
 ## 📚 Learning Path
