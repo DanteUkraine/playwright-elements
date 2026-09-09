@@ -17,7 +17,7 @@ echo ""
 
 # First, check that the number of opening and closing fences match
 # Opening fences have language tags: ```ts, ```tsx, ```javascript, etc.
-OPENING_FENCES=$(grep -c '^```ts$\|^```typescript$\|^```tsx$\|^```javascript$\|^```json$\|^```html$\|^```bash$' README.md || true)
+OPENING_FENCES=$(grep -c -e '^```ts$' -e '^```typescript$' -e '^```tsx$' -e '^```javascript$' -e '^```json$' -e '^```html$' -e '^```bash$' README.md || true)
 # Closing fences are bare: ```
 CLOSING_FENCES=$(grep -c '^```$' README.md || true)
 
