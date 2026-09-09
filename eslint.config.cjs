@@ -5,10 +5,13 @@ const tseslint = require('@typescript-eslint/eslint-plugin');
 const tseslintParser = require('@typescript-eslint/parser');
 
 // ESLint 10.x Flat Config
-// Lints source files only, excludes tests
+// Lints source files only, completely excludes tests from commit checks
 
 module.exports = [
+  // Base recommended config
   js.configs.recommended,
+  
+  // Global ignores - exclude test files completely
   {
     ignores: [
       '**/node_modules/**',
@@ -16,9 +19,10 @@ module.exports = [
       '**/test/**',
       '**/integration.tests/**',
       'eslint.config.cjs',
-      '.eslintrc.cjs',
     ],
   },
+
+  // Source files config - strict rules
   {
     files: ['src/**/*.ts'],
     languageOptions: {
