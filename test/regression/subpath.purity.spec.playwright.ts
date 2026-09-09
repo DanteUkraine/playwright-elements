@@ -22,9 +22,12 @@ test.describe('Subpath Purity - Finding #06', () => {
     const cacheAfter = new Set(Object.keys(require.cache));
     const newModules = [...cacheAfter].filter(m => !cacheBefore.has(m));
     
-    // Should only load 1 module (the builder itself)
-    expect(newModules.length).toBe(1);
-    expect(newModules[0]).toContain('testIds/builder');
+    // Filter to only playwright-elements modules (ignore Playwright internals like babelBundle.js)
+    const playwrightElementsModules = newModules.filter(m => m.includes('playwright-elements/lib'));
+    
+    // Should only load 1 module from playwright-elements (the builder itself)
+    expect(playwrightElementsModules.length).toBe(1);
+    expect(playwrightElementsModules[0]).toContain('testIds/builder');
   });
 
   test('testids subpath should export all expected functions', () => {
@@ -49,21 +52,22 @@ test.describe('Subpath Purity - Finding #06', () => {
       }
     });
     
-    const cacheBefore = Object.keys(require.cache).length;
+    // Count playwright-elements modules before and after
+    const cacheBeforePE = Object.keys(require.cache).filter(k => k.includes('playwright-elements/lib')).length;
     const builder = require('../../lib/testIds/builder');
-    const cacheAfter = Object.keys(require.cache).length;
+    const cacheAfterPE = Object.keys(require.cache).filter(k => k.includes('playwright-elements/lib')).length;
     
-    // Should only load 1 module
-    expect(cacheAfter - cacheBefore).toBe(1);
+    // Should only load 1 module from playwright-elements
+    expect(cacheAfterPE - cacheBeforePE).toBe(1);
     
-    // Verify no playwright modules were loaded
-    const playwrightModules = Object.keys(require.cache).filter(key => 
-      key.includes('playwright') || key.includes('playwright-core')
+    // Verify no playwright-core or @playwright/test modules were loaded by our subpath
+    // (filter out playwright internal modules like babelBundle.js which may be loaded by the test runner)
+    const playwrightTestModules = Object.keys(require.cache).filter(key => 
+      key.includes('playwright-core') || key.includes('@playwright/test')
     );
     
-    // The only playwright module should be the one we're testing with
-    // (the test runner itself uses playwright, but our subpath shouldn't load extra ones)
-    expect(playwrightModules.length).toBeLessThanOrEqual(1);
+    // Our subpath should not load any playwright-core or @playwright/test modules
+    expect(playwrightTestModules.length).toBe(0);
   });
 
   test('testids/builder should work for production React code', () => {
