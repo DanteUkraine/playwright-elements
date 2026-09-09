@@ -8,7 +8,7 @@
  * The fix changed the type from T & Omit<NestedElements<T, A>, K> to T & A.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../src/playwright.test.fixtures';
 import { $, WebElement } from '../../src';
 
 test.describe('Sibling Method Calls in .with() - Finding #10', () => {

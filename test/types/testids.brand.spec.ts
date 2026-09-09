@@ -9,6 +9,7 @@
  */
 
 import { expectTypeOf } from 'expect-type';
+import { test } from '../../src/playwright.test.fixtures';
 import { TestId, sid, factory, ns, bareFactory } from '../../src';
 
 test.describe('TestId Brand Invariance - Finding #12', () => {

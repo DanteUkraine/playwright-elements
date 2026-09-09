@@ -14,7 +14,10 @@ export default defineConfig({
     },
   ],
   testDir: './test',
-  testMatch: '**/*.spec.playwright.ts',
+  testMatch: [
+    '**/*.spec.playwright.ts',
+    'test/types/*.spec.ts',
+  ],
   testIgnore: [
     '**/integration.tests/**',
     '**/*.{tests,benchmarks}.spec.playwright.ts',

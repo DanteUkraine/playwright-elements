@@ -9,7 +9,8 @@
  */
 
 import { expectTypeOf } from 'expect-type';
-import { $, WebElement, test } from '../../src';
+import { test } from '../../src/playwright.test.fixtures';
+import { $, WebElement } from '../../src';
 import { Locator } from 'playwright-core';
 
 test.describe('Expect Type Safety - Finding #03', () => {

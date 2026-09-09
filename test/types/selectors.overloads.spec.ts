@@ -7,7 +7,7 @@
  * Added unsafeId() as an escape hatch for third-party IDs.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../src/playwright.test.fixtures';
 import { $byTestId, testIdProps, sid, unsafeId } from '../../src';
 
 test.describe('Selector String Overloads - Finding #13', () => {
