@@ -7,7 +7,7 @@
  * - aliasPrefixes work correctly to allow declared collisions
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../src/playwright.test.fixtures';
 import { $byTestIdPrefix, factory, sid, assertNoPrefixCollisions } from '../../src';
 
 test.describe('Prefix Collision Prevention - Finding #05, #15', () => {
@@ -56,7 +56,7 @@ test.describe('Prefix Collision Prevention - Finding #05, #15', () => {
     expect(() => $byTestIdPrefix(bare)).toThrow('requires a factory with a non-empty prefix');
   });
 
-  describe('assertNoPrefixCollisions()', () => {
+test.describe('assertNoPrefixCollisions()', () => {
     test('should detect collision between factory and static ID', () => {
       const ids = {
         factory1: factory('prefix'),
@@ -152,7 +152,7 @@ test.describe('Prefix Collision Prevention - Finding #05, #15', () => {
     });
   });
 
-  describe('Edge cases', () => {
+test.describe('Edge cases', () => {
     test('factory with special characters in prefix', async ({ page }) => {
       await page.setContent(`
         <div data-testid="section.hero-title">Title</div>

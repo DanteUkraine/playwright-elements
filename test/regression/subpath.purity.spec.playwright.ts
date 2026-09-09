@@ -8,7 +8,7 @@
  * without loading the entire browser stack, making @playwright/test a production dependency.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../src/playwright.test.fixtures';
 
 test.describe('Subpath Purity - Finding #06', () => {
   test('testids subpath should load only 1 module (itself)', () => {

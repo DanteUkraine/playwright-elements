@@ -8,12 +8,12 @@
  * causing Playwright to abort the entire spec file at collection time.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../src/playwright.test.fixtures';
 
 test.describe('Fixture Runtime Validation - Finding #02', () => {
   test('should have all documented fixtures defined in the type', () => {
     // Import the test function from our package
-    const { test: ourTest } = require('../../lib/playwright.test.fixtures');
+    const { test: ourTest } = require('../../src/playwright.test.fixtures');
     
     // The fixtures that should be available
     const expectedFixtures = ['goto', 'initBrowserInstance', 'usePage'];
@@ -30,7 +30,7 @@ test.describe('Fixture Runtime Validation - Finding #02', () => {
 
   test('should not have implicitNavigation fixture', () => {
     // Verify that implicitNavigation is NOT in the fixtures
-    const { test: ourTest } = require('../../lib/playwright.test.fixtures');
+    const { test: ourTest } = require('../../src/playwright.test.fixtures');
     
     // Create a test that tries to use implicitNavigation
     // This should fail at collection time with "Test has unknown parameter 'implicitNavigation'"
@@ -42,7 +42,7 @@ test.describe('Fixture Runtime Validation - Finding #02', () => {
   });
 
   test('should allow destructuring of all actual fixtures', () => {
-    const { test: ourTest } = require('../../lib/playwright.test.fixtures');
+    const { test: ourTest } = require('../../src/playwright.test.fixtures');
     
     // This should not throw - all these fixtures actually exist
     ourTest('valid fixture destructuring', async ({ goto, initBrowserInstance, usePage }) => {

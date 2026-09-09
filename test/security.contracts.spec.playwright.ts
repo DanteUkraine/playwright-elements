@@ -5,18 +5,8 @@
 
 import { test, expect, WebElement } from '../src';
 import { configureWebElementExpect } from '../src';
-import { expect as pwExpect } from '@playwright/test';
 
 test.describe('Security & Contract Tests', () => {
-
-    test.beforeEach(async ({ page }) => {
-        // Configure expect provider for WebElement methods is handled by the fixture
-        await page.setContent('<html><body><h1>Test</h1><div id="test"></div><input type="text" id="input"></input></body></html>');
-    })
-
-    test.afterEach(async () => {
-        // BrowserInstance cleanup is handled automatically by the fixture
-    })
 
     test.describe('Input Validation (SEC-001-003)', () => {
         test.describe('Selector Input', () => {
@@ -119,25 +109,25 @@ test.describe('Security & Contract Tests', () => {
                 await result.catch(() => {});
             });
 
-            test('M-SEC-016: getText returns Promise<string>', async () => {
+            test('M-SEC-016: getText returns Promise<string>', async ({ testPage }) => {
                 const { $ } = await import('../src');
                 const text = await $('h1').getText(); 
                 expect(typeof text === 'string' || text === null).toBe(true);
             });
 
-            test('M-SEC-017: count returns Promise<number>', async () => {
+            test('M-SEC-017: count returns Promise<number>', async ({ testPage }) => {
                 const { $ } = await import('../src');
                 const count = await $('div').count(); 
                 expect(typeof count).toEqual('number');
             });
 
-            test('M-SEC-018: isVisible returns Promise<boolean>', async () => {
+            test('M-SEC-018: isVisible returns Promise<boolean>', async ({ testPage }) => {
                 const { $ } = await import('../src');
                 const isVisible = await $('h1').isVisible(); 
                 expect(typeof isVisible).toEqual('boolean');
             });
 
-            test('M-SEC-019: getAttribute returns Promise<string|null>', async () => {
+            test('M-SEC-019: getAttribute returns Promise<string|null>', async ({ testPage }) => {
                 const { $ } = await import('../src');
                 const attr = await $('input').getAttribute('type'); 
                 expect(attr === null || typeof attr === 'string').toBe(true);
@@ -392,8 +382,8 @@ test.describe('Security & Contract Tests', () => {
         test('M-SEC-058: setExpectProvider accepts valid provider', async () => {
             const { WebElement } = await import('../src');
             const testProvider = { 
-                expect: (locator: any) => pwExpect(locator), 
-                softExpect: (locator: any) => pwExpect.soft(locator) 
+                expect: (locator: any) => expect(locator), 
+                softExpect: (locator: any) => expect.soft(locator) 
             };
             let providerSet = false;
             try {

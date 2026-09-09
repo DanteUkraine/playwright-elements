@@ -3,7 +3,6 @@ import type { Locator } from 'playwright-core';
 import type { Expect } from '@playwright/test';
 import { BrowserInstance, usePage } from './browser';
 import { WebElement } from './web.element';
-export { expect } from '@playwright/test';
 
 WebElement.setExpectProvider({
     expect: expect,
@@ -28,7 +27,8 @@ type GoToOptions = {
 export const test = base.extend<{
     goto: (endpoint?: string, options?: GoToOptions) => Promise<null | Response>,
     initBrowserInstance: void,
-    usePage: <T>(page: Page, callback: () => Promise<T>) => Promise<T>
+    usePage: <T>(page: Page, callback: () => Promise<T>) => Promise<T>,
+    testPage: Page
 }>({
     goto: [
         async ({}, use: (func: (endpoint?: string, options?: GoToOptions) => Promise<null | Response>) => Promise<void>) => {
@@ -54,5 +54,14 @@ export const test = base.extend<{
             await use(<T>(page: Page, callback: () => Promise<T>) => usePage<T>(page, callback));
         },
         { scope: 'test' }
+    ],
+    testPage: [
+        async ({ page }, use: (testPage: Page) => Promise<void>) => {
+            await page.setContent('<html><body><h1>Test</h1><div id="test"></div><input type="text" id="input"></input></body></html>');
+            await use(page);
+        },
+        { scope: 'test' }
     ]
 });
+
+export { expect };

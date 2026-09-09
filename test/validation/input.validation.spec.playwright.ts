@@ -8,11 +8,11 @@
  * hard-to-debug issues in production.
  */
 
-import { test, expect } from '@playwright/test';
-import { sid, factory, bareFactory } from '../../src';
+import { test, expect } from '../../src/playwright.test.fixtures';
+import { sid, factory, bareFactory } from '../../src/testIds/builder';
 
 test.describe('Input Validation - Finding #16', () => {
-  describe('sid() validation', () => {
+  test.describe('sid() validation', () => {
     test('should throw for empty arguments', () => {
       expect(() => sid()).toThrow('[playwright-elements] sid() needs at least one part');
     });
@@ -72,7 +72,7 @@ test.describe('Input Validation - Finding #16', () => {
     });
   });
 
-  describe('factory() validation', () => {
+  test.describe('factory() validation', () => {
     test('should throw for empty prefix', () => {
       expect(() => factory('')).toThrow('factory() prefix must be a non-empty string');
     });
@@ -136,7 +136,7 @@ test.describe('Input Validation - Finding #16', () => {
     });
   });
 
-  describe('bareFactory() validation', () => {
+  test.describe('bareFactory() validation', () => {
     test('should accept numeric keys including 0', () => {
       const f = bareFactory();
       expect(f(0)).toBe('0');
@@ -178,7 +178,7 @@ test.describe('Input Validation - Finding #16', () => {
     });
   });
 
-  describe('Error message quality', () => {
+  test.describe('Error message quality', () => {
     test('error messages should be descriptive', () => {
       try {
         sid();

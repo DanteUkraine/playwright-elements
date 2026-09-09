@@ -8,7 +8,7 @@
  * Tests cover: . : / # % leading digits whitespace " \
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../src/playwright.test.fixtures';
 import { $byTestId, $byTestIdPrefix, $byTestIdContaining, $byTestIdEndingWith, factory, sid } from '../../src';
 
 test.describe('CSS Selector Edge Cases - Finding #04', () => {
@@ -25,7 +25,7 @@ test.describe('CSS Selector Edge Cases - Finding #04', () => {
     'a%b',         // Percent
   ];
 
-  describe('$byTestId with problematic characters', () => {
+  test.describe('$byTestId with problematic characters', () => {
     problematicIds.forEach(id => {
       test(`should handle ID: "${id}" in $byTestId`, () => {
         const testId = sid(id);
@@ -63,7 +63,7 @@ test.describe('CSS Selector Edge Cases - Finding #04', () => {
     });
   });
 
-  describe('$byTestIdPrefix with problematic characters', () => {
+  test.describe('$byTestIdPrefix with problematic characters', () => {
     test('should properly quote and escape prefix with dots', () => {
       const factoryWithDot = factory('section.hero');
       const element = $byTestIdPrefix(factoryWithDot);
@@ -102,7 +102,7 @@ test.describe('CSS Selector Edge Cases - Finding #04', () => {
     });
   });
 
-  describe('$byTestIdContaining with problematic characters', () => {
+  test.describe('$byTestIdContaining with problematic characters', () => {
     problematicIds.forEach(id => {
       test(`should handle ID: "${id}" in $byTestIdContaining`, () => {
         const element = $byTestIdContaining(id);
@@ -113,7 +113,7 @@ test.describe('CSS Selector Edge Cases - Finding #04', () => {
     });
   });
 
-  describe('$byTestIdEndingWith with problematic characters', () => {
+  test.describe('$byTestIdEndingWith with problematic characters', () => {
     problematicIds.forEach(id => {
       test(`should handle ID: "${id}" in $byTestIdEndingWith`, () => {
         const element = $byTestIdEndingWith(id);
@@ -124,7 +124,7 @@ test.describe('CSS Selector Edge Cases - Finding #04', () => {
     });
   });
 
-  describe('All selector types with same problematic ID', () => {
+  test.describe('All selector types with same problematic ID', () => {
     problematicIds.forEach(id => {
       test(`all selector types should handle: "${id}"`, () => {
         const testId = sid(id);

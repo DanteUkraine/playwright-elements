@@ -6,7 +6,7 @@
  * 4 of 9 entry points would crash when loaded first.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../src/playwright.test.fixtures';
 
 test.describe('Entry Point Stability - Finding #01', () => {
   // List of all published entry points from the package
