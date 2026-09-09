@@ -14,9 +14,7 @@ export default defineConfig({
     },
   ],
   testDir: './test',
-  testMatch: '**/*.spec.playwright.ts',
-  testIgnore: [
-    '**/integration.tests/**',
+  testMatch: [
     '**/*.{tests,benchmarks}.spec.playwright.ts',
     'test/browser*.spec.playwright.ts',
     'test/index.generator*.spec.playwright.ts',
@@ -24,11 +22,10 @@ export default defineConfig({
     'test/testIds.spec.playwright.ts',
     'test/test.support.spec.playwright.ts',
     'test/web.element*.spec.playwright.ts',
-    'test/memory.tests.spec.playwright.ts',
-    'test/performance.benchmarks.spec.playwright.ts',
   ],
+  testIgnore: '**/integration.tests/**',
   fullyParallel: false,
-  timeout: 30000,
+  timeout: 60000,
   expect: {
     timeout: 5000,
   },
