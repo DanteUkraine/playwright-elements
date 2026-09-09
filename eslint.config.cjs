@@ -39,7 +39,16 @@ module.exports = [
       '@typescript-eslint': tseslint,
     },
     rules: {
-      '@typescript-eslint/no-unused-vars': ['error'],
+      'no-unused-vars': 'off',
+      'no-empty-pattern': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', {
+        args: 'none',
+        argsIgnorePattern: '^_',
+        caughtErrors: 'none',
+        destructuredArrayIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+        varsIgnorePattern: '^[A-Z_]+$',
+      }],
     },
   },
 ];

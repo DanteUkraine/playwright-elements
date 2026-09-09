@@ -27,7 +27,7 @@
     "build": "tsc -p tsconfig.build.json",
     "clean": "tsc --build --clean",
     "install:deps": "npm install --registry=https://registry.npmjs.org",
-    "install:browsers": "npx playwright install --force chrome chromium msedge firefox webkit --with-deps",
+    "install:browsers": "npx playwright install --force chrome chromium msedge firefox webkit",
     "test:unit": "npx playwright test --config=playwright.unit.config.ts",
     "test:unit:headed": "npx playwright test --config=playwright.unit.config.ts --headed",
     "test:unit:ui": "npx playwright test --config=playwright.unit.config.ts --ui",
