@@ -1,14 +1,10 @@
 /**
- * Fixture Runtime Validation Tests - Finding #02
+ * Fixture Runtime Validation Tests
  * 
  * These tests ensure that all documented fixtures are actually defined
  * and can be destructured without causing collection errors.
  * 
- * Finding #02: `implicitNavigation` was declared in the .d.ts but never defined,
- * causing Playwright to abort the entire spec file at collection time.
- * The fix was to remove the implicitNavigation fixture declaration.
- * 
- * Note: We verify the absence of implicitNavigation through:
+ * Note: The absence of the previously problematic implicitNavigation fixture is verified through:
  * 1. Type-level: The compiled TypeScript types no longer include implicitNavigation
  * 2. Runtime: These tests can run without collection errors (if implicitNavigation
  *    were still in the type but not implemented, Playwright would abort at collection time)
@@ -16,7 +12,7 @@
 
 import { test, expect } from '../../src/playwright.test.fixtures';
 
-test.describe('Fixture Runtime Validation - Finding #02', () => {
+test.describe('Fixture Runtime Validation', () => {
   test('should have all documented fixtures defined and callable', async ({ goto, usePage, testPage }) => {
     // Verify all documented fixtures are available and have the expected types
     expect(typeof goto).toBe('function');

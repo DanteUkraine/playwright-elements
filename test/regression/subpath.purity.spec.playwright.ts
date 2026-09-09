@@ -1,16 +1,16 @@
 /**
- * Subpath Purity Tests - Finding #06
+ * Subpath Purity Tests
  * 
  * These tests ensure that the testIds module can be imported via a dependency-free
  * subpath, which is essential for using the module in production code (e.g., React components).
  * 
- * Finding #06: There was no way to import testIdProps into application React code
+ * This addresses the issue where there was no way to import testIdProps into application React code
  * without loading the entire browser stack, making @playwright/test a production dependency.
  */
 
 import { test, expect } from '../../src/playwright.test.fixtures';
 
-test.describe('Subpath Purity - Finding #06', () => {
+test.describe('Subpath Purity', () => {
   test('testids subpath should load only 1 module (itself)', () => {
     // Clear the require cache for a clean measurement
     const cacheBefore = new Set(Object.keys(require.cache));

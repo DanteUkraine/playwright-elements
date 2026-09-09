@@ -1,5 +1,5 @@
 /**
- * Entry Point Stability Tests - Finding #01
+ * Entry Point Stability Tests
  * 
  * These tests ensure that all published entry points can be loaded without
  * circular dependency crashes. This was a BLOCKER issue in 1.19.0-rc1 where
@@ -8,7 +8,7 @@
 
 import { test, expect } from '../../src/playwright.test.fixtures';
 
-test.describe('Entry Point Stability - Finding #01', () => {
+test.describe('Entry Point Stability', () => {
   // List of all published entry points from the package
   const entryPoints = [
     'index',
