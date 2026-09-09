@@ -51,8 +51,11 @@ jobs:
       - name: Run collision tests
         run: npm run test:collisions
         timeout-minutes: 5
-      - name: Run existing unit tests
+      - name: Run unit tests
         run: npm run test:unit
+        timeout-minutes: 5
+      - name: Run stress tests
+        run: npm run test:stress
         timeout-minutes: 10
       - name: Run integration tests
         run: npm run integration:test

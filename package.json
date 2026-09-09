@@ -31,6 +31,7 @@
     "test:unit": "npx playwright test --config=playwright.unit.config.ts",
     "test:unit:headed": "npx playwright test --config=playwright.unit.config.ts --headed",
     "test:unit:ui": "npx playwright test --config=playwright.unit.config.ts --ui",
+    "test:stress": "npx playwright test --config=playwright.stress.config.ts",
     "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts",
     "modify:readme": "npx ts-node prepare-readme.ts",
     "prepare": "husky install",
