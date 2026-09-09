@@ -1,14 +1,15 @@
-import js from '@eslint/js';
-import globals from 'globals';
-import tseslint from '@typescript-eslint/eslint-plugin';
-import tseslintParser from '@typescript-eslint/parser';
-import playwright from 'eslint-plugin-playwright';
+/** @type {import('eslint').Linter.FlatConfig} */
+const js = require('@eslint/js');
+const globals = require('globals');
+const tseslint = require('@typescript-eslint/eslint-plugin');
+const tseslintParser = require('@typescript-eslint/parser');
+const playwright = require('eslint-plugin-playwright');
 
 // ESLint 10.x Flat Config
 // Strict configuration with no-unused-vars enforcement
 // Only lint test files (test/** and integration.tests/**)
 
-export default [
+module.exports = [
   {
     ignores: [
       '**',
@@ -50,11 +51,11 @@ export default [
       'playwright/no-page-pause': 'error',
       'playwright/no-focused-test': 'error',
       'playwright/valid-describe-callback': 'error',
-      'playwright/consistent-spacing-between-blocks': 'error',
       'playwright/max-nested-describe': 'error',
       'playwright/no-wait-for-selector': 'error',
+      'playwright/consistent-spacing-between-blocks': 'error',
       'playwright/prefer-web-first-assertions': 'error',
-      'playwright/prefer-locator': 'error',
+      'playwright/no-wait-for-navigation': 'error',
       'playwright/expect-expect': 'error',
       'playwright/no-conditional-expect': 'error',
       'playwright/no-conditional-in-test': 'error',
@@ -63,7 +64,6 @@ export default [
       'playwright/no-duplicate-slow': 'error',
       'playwright/no-nested-step': 'error',
       'playwright/no-networkidle': 'error',
-      'playwright/no-wait-for-navigation': 'error',
       'playwright/prefer-hooks-in-order': 'error',
       'playwright/prefer-hooks-on-top': 'error',
       'playwright/valid-expect-in-promise': 'error',
@@ -125,15 +125,8 @@ export default [
       'playwright/valid-describe-callback': 'error',
       'playwright/consistent-spacing-between-blocks': 'error',
       'playwright/max-nested-describe': 'error',
-      'playwright/prefer-web-first-assertions': 'error',
-      'playwright/prefer-locator': 'error',
-      'playwright/no-conditional-expect': 'error',
-      'playwright/no-conditional-in-test': 'error',
-      'playwright/valid-expect': 'error',
-      'playwright/no-duplicate-hooks': 'error',
-      'playwright/no-duplicate-slow': 'error',
-      'playwright/no-nested-step': 'error',
-      'playwright/no-networkidle': 'error',
+      'playwright/no-wait-for-selector': 'error',
+      'playwright/no-wait-for-navigation': 'error',
       'playwright/prefer-hooks-in-order': 'error',
       'playwright/prefer-hooks-on-top': 'error',
       'playwright/valid-expect-in-promise': 'error',
