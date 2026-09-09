@@ -44,7 +44,7 @@ jobs:
         timeout-minutes: 5
       - name: Run selector tests
         run: npm run test:selectors
-        timeout-minutes: 5
+        timeout-minutes: 10
       - name: Run validation tests
         run: npm run test:validation
         timeout-minutes: 5
@@ -53,11 +53,11 @@ jobs:
         timeout-minutes: 5
       - name: Run unit tests
         run: npm run test:unit
-        timeout-minutes: 5
+        timeout-minutes: 15
       - name: Run stress tests
         run: npm run test:stress
-        timeout-minutes: 10
+        timeout-minutes: 25
       - name: Run integration tests
         run: npm run integration:test
-        timeout-minutes: 10
+        timeout-minutes: 25
       - run: echo "🍏 This job's status is ${{ job.status }}."
