@@ -30,7 +30,8 @@ export default defineConfig({
     'test/memory.tests.spec.playwright.ts',
     'test/performance.benchmarks.spec.playwright.ts',
   ],
-  fullyParallel: false,
+  fullyParallel: true,
+  retries: 1, // Specific fix for unit tests that covers module imports but when forced to run in 1 worker requires fresh namespace to simulate UX.
   timeout: 30000,
   expect: {
     timeout: 5000,
