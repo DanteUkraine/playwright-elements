@@ -18,6 +18,10 @@ module.exports = [
       '**/lib/**',
       '**/src/**',
       'eslint.config.*.cjs',
+      '**/playwright-report/**',
+      '**/test-results/**',
+      '**/reports/**',
+      '**/logs/**',
     ],
   },
 

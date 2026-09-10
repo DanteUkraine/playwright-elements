@@ -19,6 +19,10 @@ module.exports = [
       '**/test/**',
       '**/integration.tests/**',
       'eslint.config.cjs',
+      '**/playwright-report/**',
+      '**/test-results/**',
+      '**/reports/**',
+      '**/logs/**',
     ],
   },
 
