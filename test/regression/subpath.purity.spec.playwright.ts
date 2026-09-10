@@ -12,9 +12,12 @@ import { test, expect } from '../../src/playwright.test.fixtures';
 
 test.describe('Subpath Purity', () => {
   test('testids subpath should load only 1 module (itself)', () => {
+    // Normalize path for cross-platform compatibility (Windows uses backslashes)
+    const normalizePath = (p: string) => p.replace(/\\/g, '/');
+    
     // Clear the require cache for playwright-elements modules for a clean measurement
     Object.keys(require.cache).forEach(key => {
-      if (key.includes('playwright-elements/lib')) {
+      if (normalizePath(key).includes('playwright-elements/lib')) {
         delete require.cache[key];
       }
     });
@@ -29,11 +32,11 @@ test.describe('Subpath Purity', () => {
     const newModules = [...cacheAfter].filter(m => !cacheBefore.has(m));
     
     // Filter to only playwright-elements modules (ignore Playwright internals like babelBundle.js)
-    const playwrightElementsModules = newModules.filter(m => m.includes('playwright-elements/lib'));
+    const playwrightElementsModules = newModules.filter(m => normalizePath(m).includes('playwright-elements/lib'));
     
     // Should only load 1 module from playwright-elements (the builder itself)
     expect(playwrightElementsModules.length).toBe(1);
-    expect(playwrightElementsModules[0]).toContain('testIds/builder');
+    expect(normalizePath(playwrightElementsModules[0])).toContain('testIds/builder');
   });
 
   test('testids subpath should export all expected functions', () => {
@@ -51,17 +54,20 @@ test.describe('Subpath Purity', () => {
   });
 
   test('testids subpath should not load playwright-core or @playwright/test', () => {
+    // Normalize path for cross-platform compatibility (Windows uses backslashes)
+    const normalizePath = (p: string) => p.replace(/\\/g, '/');
+    
     // Clear the cache
     Object.keys(require.cache).forEach(key => {
-      if (key.includes('playwright') || key.includes('playwright-core')) {
+      if (normalizePath(key).includes('playwright')) {
         delete require.cache[key];
       }
     });
     
     // Count playwright-elements modules before and after
-    const cacheBeforePE = Object.keys(require.cache).filter(k => k.includes('playwright-elements/lib')).length;
+    const cacheBeforePE = Object.keys(require.cache).filter(k => normalizePath(k).includes('playwright-elements/lib')).length;
     const builder = require('../../lib/testIds/builder');
-    const cacheAfterPE = Object.keys(require.cache).filter(k => k.includes('playwright-elements/lib')).length;
+    const cacheAfterPE = Object.keys(require.cache).filter(k => normalizePath(k).includes('playwright-elements/lib')).length;
     
     // Should only load 1 module from playwright-elements
     expect(cacheAfterPE - cacheBeforePE).toBe(1);
@@ -69,7 +75,7 @@ test.describe('Subpath Purity', () => {
     // Verify no playwright-core or @playwright/test modules were loaded by our subpath
     // (filter out playwright internal modules like babelBundle.js which may be loaded by the test runner)
     const playwrightTestModules = Object.keys(require.cache).filter(key => 
-      key.includes('playwright-core') || key.includes('@playwright/test')
+      normalizePath(key).includes('playwright-core') || normalizePath(key).includes('@playwright/test')
     );
     
     // Our subpath should not load any playwright-core or @playwright/test modules
