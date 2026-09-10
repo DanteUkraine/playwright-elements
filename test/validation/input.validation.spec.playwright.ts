@@ -18,15 +18,15 @@ test.describe('Input Validation', () => {
     });
 
     test('should throw for null first part', () => {
-      expect(() => sid(null as any)).toThrow('must be a non-empty string');
+      expect(() => sid(null as any)).toThrow('[playwright-elements] sid() needs at least one part');
     });
 
     test('should throw for undefined first part', () => {
-      expect(() => sid(undefined as any)).toThrow('must be a non-empty string');
+      expect(() => sid(undefined as any)).toThrow('[playwright-elements] sid() needs at least one part');
     });
 
     test('should throw for empty string first part', () => {
-      expect(() => sid('')).toThrow('must be a non-empty string');
+      expect(() => sid('')).toThrow('[playwright-elements] sid() needs at least one part');
     });
 
     test('should throw for whitespace-only first part', () => {

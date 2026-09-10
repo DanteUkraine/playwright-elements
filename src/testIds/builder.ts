@@ -85,6 +85,11 @@ export const sid = <K extends string = string>(...parts: Array<string | number>)
   if (parts.length === 0) {
     throw new Error('[playwright-elements] sid() needs at least one part');
   }
+  // Check if there's at least one non-empty, non-null part
+  const hasValidPart = parts.some((p) => p !== '' && p != null);
+  if (!hasValidPart) {
+    throw new Error('[playwright-elements] sid() needs at least one part');
+  }
   assertNonEmptyString(parts[0], 'the first part of sid()');
   return join(parts) as TestId<K>;
 };
