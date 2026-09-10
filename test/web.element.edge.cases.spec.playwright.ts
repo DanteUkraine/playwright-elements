@@ -53,10 +53,10 @@ test.describe('Web Element Edge Cases and Boundary Conditions', () => {
     });
 
     test.describe('Boundary Conditions Testing', () => {
-        test('nth with very large index should work', () => {
+        test('nth with very large index should work', async () => {
             const element = $('div').nth(999999);
             expect(element._nth).toBe(999999);
-            expect(element.count()).resolves.toBeLessThanOrEqual(1);
+            expect(await element.count()).toBeLessThanOrEqual(1);
         });
 
         test('nth with negative index should work', () => {
