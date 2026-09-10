@@ -1,4 +1,4 @@
-import { test as base, Page, Response, expect } from '@playwright/test';
+import { test as base, Page, Response, expect, BrowserContext } from '@playwright/test';
 import type { Locator } from 'playwright-core';
 import type { Expect } from '@playwright/test';
 import { BrowserInstance, usePage } from './browser';
@@ -37,11 +37,11 @@ export const test = base.extend<{
         { scope: 'test' },
     ],
     initBrowserInstance: [
-        async ({ page }: { page: Page }, use: () => Promise<void>) => {
+        async ({ page, context }: { page: Page; context: BrowserContext }, use: () => Promise<void>) => {
             BrowserInstance.withPage(page);
-            // Removed dependency on private context._options API
-            // This sets a default; users can access isMobile through Playwright's built-in fixture
-            BrowserInstance.isContextMobile = false;
+            // Get isMobile from Playwright context options (using internal API as it's the only way)
+            const options = (context as any)._options || {};
+            BrowserInstance.isContextMobile = Boolean(options.isMobile);
             await use();
             BrowserInstance.currentPage = undefined;
             BrowserInstance.currentContext = undefined;
