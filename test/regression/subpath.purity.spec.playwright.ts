@@ -12,7 +12,13 @@ import { test, expect } from '../../src/playwright.test.fixtures';
 
 test.describe('Subpath Purity', () => {
   test('testids subpath should load only 1 module (itself)', () => {
-    // Clear the require cache for a clean measurement
+    // Clear the require cache for playwright-elements modules for a clean measurement
+    Object.keys(require.cache).forEach(key => {
+      if (key.includes('playwright-elements/lib')) {
+        delete require.cache[key];
+      }
+    });
+    
     const cacheBefore = new Set(Object.keys(require.cache));
     
     // Load the builder module via the subpath
