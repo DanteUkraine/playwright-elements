@@ -9,6 +9,7 @@
     "noUnusedParameters": false
   },
   "include": [
-    "test/types/compile.time.spec.ts"
+    "test/types/compile.time.spec.ts",
+    "test/types/index.generator.types.spec.ts"
   ]
 }

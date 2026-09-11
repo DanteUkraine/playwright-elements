@@ -95,11 +95,13 @@ Type-Safe Fixture Setup:
 
 _./fixtures.ts_
 ```ts
-import { test as baseTest, buildPageObject, PageObject, generateIndexFile } from 'playwright-elements';
+import { test as baseTest, buildPageObject, PageObject, generateIndexFile, type GenerateIndexFileOptions } from 'playwright-elements';
 import * as pageObjectModule from './pages';
 
 // Generate an index files recursively in the specified folder or use cli interface.
-generateIndexFile('./page.object');
+// Type-safe options for index generation
+const indexOptions: GenerateIndexFileOptions = { watch: true, cliLog: false };
+generateIndexFile('./page.object', indexOptions);
 
 type TestFixtures = { pageObject: PageObject<typeof pageObjectModule> };
 

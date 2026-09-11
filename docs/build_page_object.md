@@ -129,6 +129,28 @@ This function is useful for automating the creation of centralized export files 
     - `watch` (boolean, optional, default: false): starts watchers in the background for each subdirectory.
 - `manager` (WatcherManager, optional): Shared watcher manager for collecting multiple watchers.
 
+#### Exported Types
+
+The following types are exported for type safety when using the index generator:
+
+- **`GenerateIndexFileOptions`**: The options type for the `generateIndexFile` function
+  ```typescript
+  interface GenerateIndexFileOptions {
+      watch?: boolean;
+      cliLog?: boolean;
+      quotes?: '\'' | '"';
+  }
+  ```
+
+- **`WatcherManager`**: The interface for managing file watchers
+  ```typescript
+  interface WatcherManager {
+      watchers: FSWatcher[];
+      addWatcher: (watcher: FSWatcher) => void;
+      closeAll: () => Promise<void>;
+  }
+  ```
+
 #### Returns:
 Returns a `WatcherManager` instance that can be used to manage file watchers when watch mode is enabled.
 
@@ -188,6 +210,24 @@ const watchers = generateIndexFile('./page.object', { watch: true });
 // You should close all watchers before process exit.
 // Each nested directory with index file will have a dedicated watcher
 watchers.closeAll();
+```
+
+**Type-Safe Usage Example:**
+```ts
+import { generateIndexFile, type GenerateIndexFileOptions, type WatcherManager } from 'playwright-elements';
+
+// Define options with type safety
+const options: GenerateIndexFileOptions = {
+  watch: true,
+  cliLog: false,
+  quotes: '"'
+};
+
+// Use with explicit type annotation
+const watcherManager: WatcherManager = generateIndexFile('./src', options);
+
+// Later, when your application needs to shut down:
+await watcherManager.closeAll();
 ```
 
 #### Before Generation:

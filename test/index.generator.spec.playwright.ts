@@ -122,4 +122,76 @@ test.describe('generateIndexFile', () => {
             await watchers.closeAll();
         }
     }, { timeout: 20000 });
+
+    // ========================================================================
+    // Type Safety Tests - Verify GenerateIndexFileOptions type can be imported
+    // ========================================================================
+
+    test('should accept GenerateIndexFileOptions type import and work correctly', () => {
+        // Import the type explicitly to verify it's exported and usable
+        type GenerateIndexFileOptions = {
+            watch?: boolean;
+            cliLog?: boolean;
+            quotes?: '\'' | '"';
+        };
+
+        const options: GenerateIndexFileOptions = { watch: false, cliLog: false };
+        
+        fs.mkdirSync(testRoot, { recursive: true });
+        fs.writeFileSync(join(testRoot, 'file1.ts'), 'export class TestPage {}');
+
+        generateIndexFile(testRoot, options);
+
+        const indexPath = join(testRoot, 'index.ts');
+        expect(fs.existsSync(indexPath), `Expected index file to be generated with typed options`).toBe(true);
+        const content = fs.readFileSync(indexPath, 'utf-8');
+        expect(content).toContain(`export * from './file1';`);
+    });
+
+    test('should work with all GenerateIndexFileOptions properties', () => {
+        type GenerateIndexFileOptions = {
+            watch?: boolean;
+            cliLog?: boolean;
+            quotes?: '\'' | '"';
+        };
+
+        const options: GenerateIndexFileOptions = {
+            watch: false,
+            cliLog: false,
+            quotes: '"'
+        };
+
+        fs.mkdirSync(testRoot, { recursive: true });
+        fs.writeFileSync(join(testRoot, 'file1.ts'), 'export class TestPage {}');
+
+        generateIndexFile(testRoot, options);
+
+        const indexPath = join(testRoot, 'index.ts');
+        expect(fs.existsSync(indexPath)).toBe(true);
+        const content = fs.readFileSync(indexPath, 'utf-8');
+        // Verify double quotes are used as specified in options
+        expect(content).toContain('export * from "./file1";');
+        expect(content).not.toContain("export * from './file1'");
+    });
+
+    test('should work with empty GenerateIndexFileOptions object', () => {
+        type GenerateIndexFileOptions = {
+            watch?: boolean;
+            cliLog?: boolean;
+            quotes?: '\'' | '"';
+        };
+
+        const options: GenerateIndexFileOptions = {};
+
+        fs.mkdirSync(testRoot, { recursive: true });
+        fs.writeFileSync(join(testRoot, 'file1.ts'), 'export class TestPage {}');
+
+        generateIndexFile(testRoot, options);
+
+        const indexPath = join(testRoot, 'index.ts');
+        expect(fs.existsSync(indexPath)).toBe(true);
+        const content = fs.readFileSync(indexPath, 'utf-8');
+        // Default should be single quotes
+        expect(content).toContain("export * from './file1';");
+    });
 });
