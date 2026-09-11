@@ -31,7 +31,7 @@ export class MainPage {
 The **$** function is simply a shortcut for  **new WebElement('.navbar');**
 
 Each WebElement can have sub-elements, and child elements can have sub-elements as well.
-**subElements({logo: $('.navbar__title')})** or **with({logo: $('.navbar__title')})** returns type intersection.
+Use **with({logo: $('.navbar__title')})** to add sub-elements and custom methods. The `with` method is the recommended approach for creating complex component structures.
 
 _./pages/index.ts_
 ```ts

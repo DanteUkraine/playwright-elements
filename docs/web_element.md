@@ -183,6 +183,8 @@ class MainPage {
 }
 ```
 
+> **Deprecation Notice:** The `subElements` and `withMethods` methods are deprecated. Please use the `with` method instead, which combines the functionality of both methods. The `with` method accepts both sub-elements and custom methods in a single object, providing a cleaner and more unified API.
+
 ---
 
 ## Assertion Provider Configuration
