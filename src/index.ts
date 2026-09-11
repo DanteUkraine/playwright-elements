@@ -8,7 +8,6 @@ export type { PageObject } from './page.object.builder';
 export { generateIndexFile } from './index.generator';
 export type { WatcherManager } from './index.generator';
 export type { Options as GenerateIndexFileOptions } from './index.generator';
-export { createElementAssertions, configureWebElementExpect } from './test.support';
 
 export type {
   TestId,

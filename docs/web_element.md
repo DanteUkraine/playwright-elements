@@ -183,42 +183,13 @@ class MainPage {
 }
 ```
 
-> **Deprecation Notice:** The `subElements` and `withMethods` methods are deprecated. Please use the `with` method instead, which combines the functionality of both methods. The `with` method accepts both sub-elements and custom methods in a single object, providing a cleaner and more unified API.
+> **Recommended Approach:** We recommend using the `.with()` method as the primary way to add sub-elements and custom methods. The `.with()` method combines the functionality of both `subElements()` and `withMethods()` in a single call, providing a cleaner and more unified API. 
+> 
+> **Backward Compatibility:** For existing projects, `subElements()` and `withMethods()` methods remain fully supported and will continue to work. You can migrate to `.with()` at your own pace.
 
 ---
 
 ## Assertion Provider Configuration
-
-> **⚠️ IMPORTANT:** Starting from version 1.18.3, WebElement assertions are **decoupled from @playwright/test**. You **must** configure the assertion provider before using `expect()` or `softExpect()`.
-
-### Overview
-
-This architectural change allows:
-- ✅ Use WebElement in **production code** without test dependencies
-- ✅ Support **different test frameworks** (Playwright, Mocha, Jest, etc.)
-- ✅ Implement **custom assertion libraries**
-- ✅ Better **type safety** and **cleaner architecture**
-
-### The Problem
-
-Previously, WebElement directly imported and used `@playwright/test` expect functions. This created:
-- ❌ Unnecessary dependencies in production code
-- ❌ Inability to use with other test frameworks
-- ❌ Tight coupling between core and test code
-
-### The Solution: ExpectProvider Pattern
-
-The library now uses a **provider pattern** where assertion functionality is injected at runtime.
-
-#### ExpectProvider Interface
-
-```typescript
-// Defined in src/web.element.ts
-export interface ExpectProvider {
-    expect: (locator: any, message?: string) => any;
-    softExpect: (locator: any, message?: string) => any;
-}
-```
 
 #### Configuration Methods
 
@@ -234,21 +205,7 @@ test('my test', async ({}) => {
 });
 ```
 
-**For Mocha (Manual Configuration):**
-```typescript
-// In test/mocha.setup.ts or before hooks
-import { configureWebElementExpect } from 'playwright-elements';
-
-// Configure once before tests run
-configureWebElementExpect();
-
-// Now all WebElement instances can use expect() and softExpect()
-test('my test', async () => {
-    await $('.element').expect().toBeVisible();
-});
-```
-
-**For Custom Frameworks:**
+**For Custom Matchers Recognition:**
 ```typescript
 import { WebElement } from 'playwright-elements';
 import { myCustomExpect, myCustomSoftExpect } from 'my-test-framework';
@@ -263,17 +220,6 @@ WebElement.setExpectProvider({
 await $('.element').expect().toBeVisible();
 ```
 
-**For Individual Elements:**
-```typescript
-import { $, createElementAssertions } from 'playwright-elements';
-
-const element = $('.my-element');
-const { expect, softExpect } = createElementAssertions(element);
-
-await expect().toBeVisible();
-await softExpect().toHaveText('test');
-```
-
 ### Important Notes
 
 ⚠️ **Error if not configured:**
@@ -284,7 +230,7 @@ await $('.element').expect().toBeVisible();
 //        For Playwright: WebElement.setExpectProvider({ expect, softExpect: expect.soft });"
 ```
 
-✅ **Solution:** Call `configureWebElementExpect()` in your test setup, or ensure you're using Playwright Test fixtures.
+✅ **Solution:** Ensure you're using Playwright Test fixtures.
 
 ### Migration from Previous Versions
 
@@ -296,9 +242,7 @@ await $('.element').expect().toBeVisible(); // Just worked
 **After 1.18.3 (explicit configuration):**
 ```typescript
 // For Playwright Test: Automatic (no changes needed)
-// For Mocha: Call configureWebElementExpect() once in setup
-configureWebElementExpect();
-await $('.element').expect().toBeVisible(); // Now works
+await $('.element').expect().toBeVisible(); // Works automatically
 ```
 
 ### Backward Compatibility
@@ -331,7 +275,6 @@ custom matchers without errors.
 import { $ } from 'playwright-elements';
 
 // For Playwright Test: Works automatically
-// For Mocha: Requires configureWebElementExpect() in setup
 
 const element = $('.my-element');
 
@@ -405,7 +348,7 @@ Related Playwright docs: https://playwright.dev/docs/next/test-assertions#add-cu
 **Recommended approach with ExpectProvider:**
 
 ```typescript
-import { WebElement, configureWebElementExpect } from 'playwright-elements';
+import { WebElement } from 'playwright-elements';
 import { expect } from '@playwright/test';
 
 // Extend Playwright expect with custom matchers
@@ -471,49 +414,6 @@ test('custom expect matcher', async ({ goto }) => {
 
 ---
 
-## Types
-
-### WebElementExpect
-
-> Type representing the result of calling `expect()` on a WebElement. Provides type-safe assertion chaining.
-
-```typescript
-export type WebElementExpect = {
-    toHaveValue: (value: string | RegExp, options?: any) => Promise<void>;
-    toBeVisible: (options?: any) => Promise<void>;
-    toContainText: (text: string | RegExp, options?: any) => Promise<void>;
-    toHaveText: (text: string | RegExp, options?: any) => Promise<void>;
-    toHaveAttribute: (name: string, value: string | RegExp, options?: any) => Promise<void>;
-    toBeEnabled: (options?: any) => Promise<void>;
-    toBeDisabled: (options?: any) => Promise<void>;
-    toBeChecked: (options?: any) => Promise<void>;
-    toBeHidden: (options?: any) => Promise<void>;
-    toHaveCount: (count: number, options?: any) => Promise<void>;
-    toHaveClass: (className: string | RegExp, options?: any) => Promise<void>;
-    toHaveId: (id: string, options?: any) => Promise<void>;
-    not: WebElementExpect;
-};
-```
-
-### WebElementSoftExpect
-
-> Type representing the result of calling `softExpect()` on a WebElement. Same structure as WebElementExpect.
-
-```typescript
-export type WebElementSoftExpect = {
-    toHaveValue: (value: string | RegExp, options?: any) => Promise<void>;
-    toBeVisible: (options?: any) => Promise<void>;
-    toContainText: (text: string | RegExp, options?: any) => Promise<void>;
-    toHaveText: (text: string | RegExp, options?: any) => Promise<void>;
-    toHaveAttribute: (name: string, value: string | RegExp, options?: any) => Promise<void>;
-    toBeEnabled: (options?: any) => Promise<void>;
-    toBeDisabled: (options?: any) => Promise<void>;
-    toBeChecked: (options?: any) => Promise<void>;
-    toBeHidden: (options?: any) => Promise<void>;
-    toHaveCount: (count: number, options?: any) => Promise<void>;
-    not: WebElementSoftExpect;
-};
-```
 
 ### ExpectProvider
 

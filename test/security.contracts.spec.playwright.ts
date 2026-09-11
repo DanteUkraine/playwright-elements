@@ -4,7 +4,7 @@
  */
 
 import { test, expect, WebElement } from './test.fixtures';
-import { configureWebElementExpect } from '../src';
+import { configureWebElementExpect } from './test.helpers';
 
 test.describe('Security & Contract Tests', () => {
 

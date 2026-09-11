@@ -542,5 +542,4 @@ For optimal type checking with branded types, ensure your `tsconfig.json` has:
 ## See Also
 
 - [WebElement API](web_element.md) - The core WebElement class
-- [Assertions](test_support.md) - Assertion extensions for WebElement
 - [Migration Guide](migration_guide.md) - Migrating from previous versions

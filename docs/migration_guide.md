@@ -42,12 +42,8 @@ await element.expect().toBeVisible(); // Just worked
 **After:**
 ```typescript
 // For Playwright Test: Automatic (no changes needed)
-// For Mocha: Manual configuration required
-import { configureWebElementExpect, $ } from 'playwright-elements';
-
-configureWebElementExpect(); // Call once in setup
 const element = $('.button');
-await element.expect().toBeVisible(); // Now works
+await element.expect().toBeVisible(); // Works automatically
 ```
 
 **Error if not configured:**
@@ -74,77 +70,6 @@ test('my test', async ({}) => {
 ```
 
 The library automatically configures the provider in `playwright.test.fixtures.ts`.
-
----
-
-### For Mocha Users
-
-⚠️ **Action required:** Add configuration to your setup.
-
-#### Option A: Using mocha.setup.ts (Recommended)
-
-1. Create `test/mocha.setup.ts`:
-```typescript
-import { configureWebElementExpect } from 'playwright-elements';
-configureWebElementExpect();
-```
-
-2. Update `.mocharc.json`:
-```json
-{
-  "extension": ["ts"],
-  "spec": "./**/*.spec.ts",
-  "loader": "ts-node/esm",
-  "require": ["./test/mocha.setup.ts"]
-}
-```
-
-3. Your tests will now work:
-```typescript
-import { $ } from 'playwright-elements';
-
-describe('my test', () => {
-    it('should work', async () => {
-        await $('.element').expect().toBeVisible(); // Now works
-    });
-});
-```
-
-#### Option B: Using before hook
-
-```typescript
-import { configureWebElementExpect } from 'playwright-elements';
-
-describe('my tests', () => {
-    before(() => {
-        configureWebElementExpect();
-    });
-
-    it('should work', async () => {
-        await $('.element').expect().toBeVisible();
-    });
-});
-```
-
----
-
-### For Jest Users
-
-⚠️ **Action required:** Add configuration to your setup.
-
-1. Create `jest.setup.ts`:
-```typescript
-import { configureWebElementExpect } from 'playwright-elements';
-configureWebElementExpect();
-```
-
-2. Update `jest.config.js`:
-```javascript
-module.exports = {
-    setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-    // ... other config
-};
-```
 
 ---
 
@@ -187,7 +112,7 @@ expect.extend({
 
 **After (new approach):**
 ```typescript
-import { WebElement, configureWebElementExpect } from 'playwright-elements';
+import { WebElement } from 'playwright-elements';
 import { expect } from '@playwright/test';
 
 // Extend Playwright expect with custom matchers
@@ -232,9 +157,8 @@ WebElement.setExpectProvider({ expect, softExpect: expect.soft });
 
 ## Benefits of the New Architecture
 
-### 1. Framework Agnostic
-- Use WebElement with **any test framework** (Playwright, Mocha, Jest, etc.)
-- Not limited to @playwright/test
+### 1. Clean Architecture
+- WebElement works seamlessly with Playwright Test
 
 ### 2. Production-Ready
 - **No test dependencies** in core code
@@ -262,19 +186,15 @@ WebElement.setExpectProvider({ expect, softExpect: expect.soft });
 
 ### Q: Why was this change made?
 
-A: To decouple the core WebElement class from test frameworks, allowing it to be used in production code without test dependencies, and to support multiple test frameworks.
+A: To decouple the core WebElement class from test frameworks, allowing it to be used in production code without test dependencies.
 
 ### Q: Do I need to change my existing Playwright tests?
 
 A: **No**, the configuration is automatic for Playwright Test. Your existing tests will continue to work without any changes.
 
-### Q: My Mocha tests stopped working after upgrading. What do I do?
-
-A: Add `configureWebElementExpect()` to your test setup and update `.mocharc.json` to include the setup file. See [Mocha section](#for-mocha-users) above.
-
 ### Q: Can I still use custom matchers?
 
-A: **Yes**, but you need to configure your custom expect implementation using `setExpectProvider()` or `configureWebElementExpect()`. See [Custom Matcher section](#for-custom-matcher-users) above.
+A: **Yes**, you can configure your custom expect implementation using `WebElement.setExpectProvider()`. See [Custom Test Framework Users](#for-custom-test-framework-users) above.
 
 ### Q: How do I know if the provider is configured?
 
@@ -299,10 +219,7 @@ Error: Assertion provider not configured. Call WebElement.setExpectProvider() in
 
 **Cause:** You're trying to use `expect()` or `softExpect()` without configuring the provider.
 
-**Solution:**
-- For Playwright Test: Ensure you're using `import { test } from 'playwright-elements'`
-- For Mocha: Call `configureWebElementExpect()` in your setup
-- For other frameworks: Call `WebElement.setExpectProvider()` with your framework's expect
+**Solution:** Ensure you're using `import { test } from 'playwright-elements'`
 
 ### Error: "expect is not defined"
 
@@ -328,11 +245,7 @@ import { expect } from '@playwright/test';
 
 ## Migration Checklist
 
-- [ ] Identify your test framework (Playwright Test, Mocha, Jest, Custom)
 - [ ] For Playwright Test: No action needed ✅
-- [ ] For Mocha/Jest: Create setup file with `configureWebElementExpect()`
-- [ ] For Mocha: Update `.mocharc.json` to include setup file
-- [ ] For Jest: Update `jest.config.js` to include setup file
 - [ ] For Custom frameworks: Configure provider with `WebElement.setExpectProvider()`
 - [ ] For Custom matchers: Update to use new provider pattern
 - [ ] Run tests to verify migration

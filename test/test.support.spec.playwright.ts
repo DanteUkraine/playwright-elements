@@ -1,10 +1,9 @@
 import { test, expect } from '../src';
 import {
     WebElement,
-    configureWebElementExpect,
-    createElementAssertions,
     $,
 } from '../src';
+import { createElementAssertions, configureWebElementExpect, WebElementExpect, WebElementSoftExpect } from './test.helpers';
 import { localFilePath } from './utils';
 
 test.describe('Test Support Utilities', () => {
