@@ -10,7 +10,7 @@
  *    were still in the type but not implemented, Playwright would abort at collection time)
  */
 
-import { test, expect } from '../../src/playwright.test.fixtures';
+import { test, expect } from '../test.fixtures';
 
 test.describe('Fixture Runtime Validation', () => {
   test('should have all documented fixtures defined and callable', async ({ goto, usePage, testPage }) => {

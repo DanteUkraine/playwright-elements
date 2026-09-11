@@ -27,8 +27,7 @@ type GoToOptions = {
 export const test = base.extend<{
     goto: (endpoint?: string, options?: GoToOptions) => Promise<null | Response>,
     initBrowserInstance: void,
-    usePage: <T>(page: Page, callback: () => Promise<T>) => Promise<T>,
-    testPage: Page
+    usePage: <T>(page: Page, callback: () => Promise<T>) => Promise<T>
 }>({
     goto: [
         async ({}, use: (func: (endpoint?: string, options?: GoToOptions) => Promise<null | Response>) => Promise<void>) => {
@@ -52,13 +51,6 @@ export const test = base.extend<{
     usePage: [
         async ({}, use) => {
             await use(<T>(page: Page, callback: () => Promise<T>) => usePage<T>(page, callback));
-        },
-        { scope: 'test' }
-    ],
-    testPage: [
-        async ({ page }, use: (testPage: Page) => Promise<void>) => {
-            await page.setContent('<html><body><h1>Test</h1><div id="test"></div><input type="text" id="input"></input></body></html>');
-            await use(page);
         },
         { scope: 'test' }
     ]

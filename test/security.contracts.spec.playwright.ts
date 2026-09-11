@@ -3,7 +3,7 @@
  * Explicit security and package-contract tests for critical boundaries
  */
 
-import { test, expect, WebElement } from '../src';
+import { test, expect, WebElement } from './test.fixtures';
 import { configureWebElementExpect } from '../src';
 
 test.describe('Security & Contract Tests', () => {
