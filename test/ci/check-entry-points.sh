@@ -21,7 +21,6 @@ ENTRY_POINTS=(
   "index.js"
   "web.element.js"
   "browser.js"
-  "test.support.js"
   "testIds/builder.js"
   "testIds/selectors.js"
   "testIds/index.js"

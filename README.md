@@ -5,12 +5,14 @@
 **Playwright-elements** is a powerful testing framework that extends Playwright with:
 
 ✅ **Reusable Components** - Build hierarchical UI components with child elements
-✅ **Type Safety** - Full TypeScript support with branded types for test IDs
-✅ **Chainable API** - Fluent interface mixing selectors with synchronous methods
-✅ **Page Object Pattern** - Clean architecture for maintainable tests
-✅ **Test ID System** - Type-safe, collision-resistant test ID generation
-✅ **Framework Integration** - Seamless React/JSX support and automatic fixtures
 
+✅ **Type Safety** - Full TypeScript support with branded types for test IDs
+
+✅ **Chainable API** - Fluent interface mixing selectors with synchronous methods
+
+✅ **Test ID System** - Type-safe, collision-resistant test ID generation
+
+✅ **Page Object Pattern** - Clean architecture for maintainable tests
 ---
 
 ## 🚀 Quick Start
