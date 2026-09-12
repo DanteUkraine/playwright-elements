@@ -24,12 +24,14 @@ class TestFixturesPage {
 class MainPage {
     readonly title = title;
 }
+
 test.describe('Playwright test integration', () => {
     const testFixturesPage = new TestFixturesPage();
     const mainPage = new MainPage();
 
+    // eslint-disable-next-line playwright/expect-expect
     test('usePage with promise all', async ({ goto, secondContextPage }) => {
-        await Promise.all([goto(), secondContextPage.goto('https://playwright.dev/docs/test-fixtures')]);
+        await Promise.all([goto(), secondContextPage.goto('/docs/test-fixtures')]);
         const customContextPromise = usePage(secondContextPage, async () => {
             await testFixturesPage.title.softExpect().toHaveText('Fixtures');
         });

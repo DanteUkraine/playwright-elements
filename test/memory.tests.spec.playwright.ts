@@ -2,25 +2,24 @@ import { test, expect } from '../src';
 import { localFilePath } from './utils';
 import fs from 'fs';
 import { join } from 'path';
-import { BrowserInstance, buildPageObject, generateIndexFile } from '../src';
+import { buildPageObject, generateIndexFile } from '../src';
 
-// Migrated from mocha/chai to @playwright/test
 
 test.describe('Memory Tests', () => {
     const tempDir = join(__dirname, 'tempMemoryTest');
 
-    test.beforeEach(async ({ initBrowserInstance, page, goto }) => {
-        // Clean up temp directory
+    test.beforeEach(async ({ page, goto }) => {
+
         if (fs.existsSync(tempDir)) {
             fs.rmSync(tempDir, { recursive: true, force: true });
         }
         
         await goto(localFilePath);
-        await page.waitForSelector('h1', { timeout: 30000 });
+        await page.locator('h1').waitFor({ timeout: 30000 });
     })
 
-    test.afterEach(async ({ initBrowserInstance }) => {
-        // Clean up temp directory
+    test.afterEach(async () => {
+
         if (fs.existsSync(tempDir)) {
             fs.rmSync(tempDir, { recursive: true, force: true });
         }
@@ -28,7 +27,7 @@ test.describe('Memory Tests', () => {
         // BrowserInstance cleanup is handled automatically by the fixture
     })
 
-    test('should not leak memory with repeated page object creation', async ({ initBrowserInstance }) => {
+    test('should not leak memory with repeated page object creation', async () => {
         const initialMemory = process.memoryUsage().heapUsed;
         
         for (let i = 0; i < 100; i++) {
@@ -39,18 +38,16 @@ test.describe('Memory Tests', () => {
         }
         
         // Force garbage collection if available
-        if (global.gc) {
-            global.gc();
-        }
+        global.gc?.();
         
         const finalMemory = process.memoryUsage().heapUsed;
         const memoryDiff = finalMemory - initialMemory;
         
         // Memory should not grow significantly (less than 10MB for 100 objects)
-        expect(memoryDiff).toBeLessThan(10 * 1024 * 1024);
+        await expect(memoryDiff).toBeLessThan(10 * 1024 * 1024);
     });
 
-    test('should clean up watchers properly', async ({ initBrowserInstance }) => {
+    test('should clean up watchers properly', async () => {
         fs.mkdirSync(tempDir, { recursive: true });
         fs.writeFileSync(join(tempDir, 'file1.ts'), 'export class Test1 {}');
         
@@ -63,7 +60,7 @@ test.describe('Memory Tests', () => {
         expect(manager.watchers.length).toEqual(0);
     });
 
-    test('should handle many element creations without memory bloat', async ({ initBrowserInstance }) => {
+    test('should handle many element creations without memory bloat', async () => {
         const { $ } = await import('../src');
         const initialMemory = process.memoryUsage().heapUsed;
         
@@ -75,18 +72,17 @@ test.describe('Memory Tests', () => {
         // Clear the array to allow GC
         elements.length = 0;
         
-        if (global.gc) {
-            global.gc();
-        }
+        // Force garbage collection if available
+        global.gc?.();
         
         const finalMemory = process.memoryUsage().heapUsed;
         const memoryDiff = finalMemory - initialMemory;
         
         // Should not grow significantly
-        expect(memoryDiff).toBeLessThan(5 * 1024 * 1024);
+        await expect(memoryDiff).toBeLessThan(5 * 1024 * 1024);
     });
 
-    test('should properly clean up index generation resources', async ({ initBrowserInstance }) => {
+    test('should properly clean up index generation resources', async () => {
         fs.mkdirSync(tempDir, { recursive: true });
         
         for (let i = 0; i < 10; i++) {
@@ -97,13 +93,13 @@ test.describe('Memory Tests', () => {
         
         expect(fs.existsSync(join(tempDir, 'index.ts'))).toBe(true);
         
-        // Clean up
+
         fs.rmSync(tempDir, { recursive: true, force: true });
         
         expect(fs.existsSync(tempDir)).toBe(false);
     });
 
-    test('should not retain references to closed browsers', async ({ initBrowserInstance }) => {
+    test('should not retain references to closed browsers', async () => {
         const { BrowserInstance } = await import('../src');
         
         // Save reference before cleanup

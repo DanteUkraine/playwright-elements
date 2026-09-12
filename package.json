@@ -1,25 +1,55 @@
 {
   "name": "playwright-elements",
-  "version": "1.18.2",
+  "version": "1.19.0-rc3",
   "description": "This is Playwright extension.",
+  "type": "commonjs",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "typings": "lib/index.d.ts",
   "files": [
     "lib"
   ],
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./testids": {
+      "types": "./lib/testIds/builder.d.ts",
+      "default": "./lib/testIds/builder.js"
+    },
+    "./package.json": "./package.json"
+  },
   "bin": {
     "generate-index": "./lib/index.generator.cli.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "clean": "tsc --build --clean",
     "install:deps": "npm install --registry=https://registry.npmjs.org",
     "install:browsers": "npx playwright install --force chrome chromium msedge firefox webkit --with-deps",
-    "test": "ts-mocha",
+    "test:unit": "npx playwright test --config=playwright.unit.config.ts",
+    "test:unit:headed": "npx playwright test --config=playwright.unit.config.ts --headed",
+    "test:unit:ui": "npx playwright test --config=playwright.unit.config.ts --ui",
+    "test:stress": "npx playwright test --config=playwright.stress.config.ts",
+    "integration:server": "npx http-server integration.tests/server -p 3457 -s",
     "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts",
     "modify:readme": "npx ts-node prepare-readme.ts",
     "prepare": "husky install",
-    "lint": "npx eslint ."
+    "lint": "npx eslint .",
+    "lint:src": "npx eslint src/",
+    "lint:tests": "npx eslint --config eslint.config.tests.cjs test/ integration.tests/",
+    "lint:all": "npm run lint:src && npm run lint:tests",
+    "ci:check-entry-points": "bash test/ci/check-entry-points.sh",
+    "ci:check-subpath-purity": "bash test/ci/check-subpath-purity.sh",
+    "ci:check-readme-fences": "bash test/ci/check-readme-fences.sh",
+    "ci:check-all": "npm run ci:check-entry-points && npm run ci:check-subpath-purity && npm run ci:check-readme-fences",
+    "test:types": "npx tsc --noEmit -p tsconfig.types.json",
+    "test:regression": "npx playwright test test/regression --config=playwright.unit.config.ts",
+    "test:types-runtime": "npx playwright test test/types --config=playwright.unit.config.ts",
+    "test:selectors": "npx playwright test test/selectors --config=playwright.unit.config.ts",
+    "test:validation": "npx playwright test test/validation --config=playwright.unit.config.ts",
+    "test:collisions": "npx playwright test test/collisions --config=playwright.unit.config.ts"
   },
   "repository": {
     "type": "git",
@@ -38,22 +68,21 @@
   "homepage": "https://danteukraine.github.io/playwright-elements",
   "devDependencies": {
     "@eslint/js": "^8.57.0",
-    "globals": "^15.12.0",
     "@playwright/test": "^1.62.1",
     "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^7.1.5",
     "@types/lodash.clonedeep": "^4.5.9",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^26.2.0",
+    "@types/node": "^20.11.0",
     "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^8.67.0",
     "@typescript-eslint/parser": "^8.67.0",
-    "chai": "^6.2.2",
     "eslint": "^10.8.1",
+    "eslint-plugin-playwright": "^2.11.0",
     "expect-type": "^1.2.0",
+    "globals": "^15.12.0",
     "husky": "^8.0.3",
-    "mocha": "^11.8.0",
-    "ts-mocha": "^10.0.0",
+    "http-server": "^14.1.1",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
   },

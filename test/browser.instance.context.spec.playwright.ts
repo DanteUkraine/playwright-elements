@@ -2,8 +2,6 @@ import { test, expect } from '../src';
 import { webkit } from 'playwright-core';
 import { BrowserInstance, Context } from '../src';
 
-// Migrated from mocha/chai to @playwright/test
-// Note: These tests manually manage browser lifecycle to test Context class
 
 test.describe('BrowserInstance - Context Class', () => {
 
@@ -21,7 +19,7 @@ test.describe('BrowserInstance - Context Class', () => {
             } finally {
                 await playwrightContext.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -43,7 +41,7 @@ test.describe('BrowserInstance - Context Class', () => {
             } finally {
                 await playwrightContext.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -61,14 +59,14 @@ test.describe('BrowserInstance - Context Class', () => {
                 const contextInstance = BrowserInstance['_currentContext'] as Context;
                 const pages = contextInstance.pages;
                 
-                expect(Array.isArray(pages)).toBeTruthy();
+                expect(pages).toBeInstanceOf(Array);
                 expect(pages.length).toBeGreaterThanOrEqual(1);
                 expect(pages[0]).toBeDefined();
             } finally {
                 await page.close();
                 await playwrightContext.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -88,10 +86,10 @@ test.describe('BrowserInstance - Context Class', () => {
                 const contextInstance = BrowserInstance['_currentContext'] as Context;
                 const pages = contextInstance.pages;
                 
-                expect(Array.isArray(pages)).toBeTruthy();
+                expect(pages).toBeInstanceOf(Array);
                 expect(pages.length).toBeGreaterThanOrEqual(2);
                 
-                // Clean up the extra page
+
                 const allPages = playwrightContext.pages();
                 for (let i = 1; i < allPages.length; i++) {
                     await allPages[i].close();
@@ -100,7 +98,7 @@ test.describe('BrowserInstance - Context Class', () => {
                 await initialPage.close();
                 await playwrightContext.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -121,7 +119,7 @@ test.describe('BrowserInstance - Context Class', () => {
             } finally {
                 await playwrightContext.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -142,7 +140,7 @@ test.describe('BrowserInstance - Context Class', () => {
             } finally {
                 await playwrightContext.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -164,7 +162,7 @@ test.describe('BrowserInstance - Context Class', () => {
             } finally {
                 await playwrightContext.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -186,7 +184,7 @@ test.describe('BrowserInstance - Context Class', () => {
             } finally {
                 await playwrightContext.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -208,7 +206,7 @@ test.describe('BrowserInstance - Context Class', () => {
             } finally {
                 await playwrightContext.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -236,7 +234,7 @@ test.describe('BrowserInstance - Context Class', () => {
             } finally {
                 await playwrightContext.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -261,7 +259,7 @@ test.describe('BrowserInstance - Context Class', () => {
             } finally {
                 await playwrightContext.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -285,7 +283,7 @@ test.describe('BrowserInstance - Context Class', () => {
             } finally {
                 await playwrightContext.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -308,7 +306,7 @@ test.describe('BrowserInstance - Context Class', () => {
                 expect(BrowserInstance.currentPage).toBeDefined();
                 expect(BrowserInstance.currentPage).not.toEqual(initialPage);
                 
-                // Clean up the extra page
+
                 const allPages = playwrightContext.pages();
                 for (let i = 1; i < allPages.length; i++) {
                     await allPages[i].close();
@@ -316,7 +314,7 @@ test.describe('BrowserInstance - Context Class', () => {
             } finally {
                 await playwrightContext.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -337,7 +335,7 @@ test.describe('BrowserInstance - Context Class', () => {
                 const contextInstance = BrowserInstance['_currentContext'] as Context;
                 expect(contextInstance.previousPage).toBeDefined();
                 
-                // Clean up the extra page
+
                 const allPages = playwrightContext.pages();
                 for (let i = 1; i < allPages.length; i++) {
                     await allPages[i].close();
@@ -345,7 +343,7 @@ test.describe('BrowserInstance - Context Class', () => {
             } finally {
                 await playwrightContext.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -367,7 +365,7 @@ test.describe('BrowserInstance - Context Class', () => {
                 expect(contextInstance.get).toBeDefined();
             } finally {
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -389,7 +387,7 @@ test.describe('BrowserInstance - Context Class', () => {
                 expect(contextInstance.pages.length).toBeGreaterThan(initialPagesCount);
             } finally {
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -410,7 +408,7 @@ test.describe('BrowserInstance - Context Class', () => {
                 expect(contextInstance.previousPage).toBeDefined();
             } finally {
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;

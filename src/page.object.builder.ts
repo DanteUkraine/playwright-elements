@@ -1,4 +1,3 @@
-// Type for consumers page object
 export type PageObject<T extends Record<string, any>, Suffix extends string = DefaultSuffix> = Instances<T, Suffix>;
 
 type LowercaseFirst<T extends string> = T extends `${infer First}${infer Rest}` ? `${Lowercase<First>}${Rest}` : T;
@@ -35,12 +34,10 @@ export function buildPageObject<
 
     const { suffix = defaultSuffix as Suffix, lowerCaseFirst = true as LowercaseFlag } = options;
 
-    // Initialize pages object with the correct type
     const pages = {} as Instances<T, Suffix, LowercaseFlag>;
 
     Object.keys(mod).forEach((key) => {
         if (!suffix || key.endsWith(suffix)) {
-            // Remove the suffix from the key to get the base property name - THIS SHOULD BE OPTIONAL
             const baseName = suffix ? key.slice(0, -suffix.length) : key;
 
             const propName = lowerCaseFirst

@@ -1,7 +1,24 @@
 import { Locator, LocatorScreenshotOptions, Page } from 'playwright-core';
 import cloneDeep from 'lodash.clonedeep';
-import { BrowserInstance } from './index';
-import { Expect, expect } from '@playwright/test';
+import { BrowserInstance } from './browser';
+
+// Default expectation types when no provider is configured
+// This will be augmented by test-specific modules (e.g., playwright.test.fixtures)
+export interface WebElementAssertions {
+    expect: any;
+    softExpect: any;
+}
+
+// Return types for expect() and softExpect() methods
+export type ExpectReturn = WebElementAssertions['expect'];
+export type SoftExpectReturn = WebElementAssertions['softExpect'];
+
+export interface ExpectProvider {
+    expect: (locator: any, message?: string) => any;
+    softExpect: (locator: any, message?: string) => any;
+}
+
+let _expectProvider: ExpectProvider | null = null;
 
 function extractSelector(pointer: string | WebElement): string {
     return pointer instanceof WebElement ? pointer.selector : pointer;
@@ -12,7 +29,7 @@ type NestedElements<T extends WebElement, A> = {
     A[K] extends WebElement
         ? A[K] & NestedElements<A[K], InferNestedElements<A[K]>>
         : A[K] extends (this: any, ...args: infer Args) => infer Result
-            ? (this: T & Omit<NestedElements<T, A>, K>, ...args: Args) => Result
+            ? (this: T & A, ...args: Args) => Result
             : A[K]
 };
 
@@ -26,10 +43,9 @@ type InternalElements = { [key: string]: WebElement };
 type InternalMethods<T extends WebElement, M> = {
     [K in keyof M]:
     M[K] extends (this: any, ...args: infer Args) => infer Result
-        ? (this: T & Omit<InternalMethods<T, M>, K>, ...args: Args) => Result
+        ? (this: T & M, ...args: Args) => Result
         : M[K];
 };
-// Locator method options and return types
 type AriaSnapshotOptions = Parameters<Locator['ariaSnapshot']>[0];
 type BlurOptions = Parameters<Locator['blur']>[0];
 type BoundingBoxOptions = Parameters<Locator['boundingBox']>[0];
@@ -71,9 +87,6 @@ type UncheckOptions = Parameters<Locator['uncheck']>[0];
 type WaitForOptions = Parameters<Locator['waitFor']>[0];
 type AddLocatorHandlerOptions = Parameters<Page['addLocatorHandler']>[2];
 
-const _expect = expect as Expect<{[key: string]: (...args: any[]) => Promise<void>}>;
-type LocatorExpect = ReturnType<typeof _expect<Locator>>;
-
 export class WebElement {
 
     protected _isFrame = false;
@@ -96,8 +109,6 @@ export class WebElement {
         this._by = by;
         this._byOptions = options;
     }
-
-    // page and frame pointers
 
     private selectLocatorMethod(element: string | WebElement | undefined): Locator | undefined {
         if (!element) return undefined;
@@ -185,19 +196,84 @@ export class WebElement {
         return this.locator;
     }
 
-    public static useExpect<T>(expect: Expect<T>) {
-        expect;
+    /**
+     * Configures the assertion provider for WebElement.expect() and softExpect()
+     * This allows different test frameworks to provide their own expect implementations.
+     * 
+     * @param provider - An object with expect and softExpect methods
+     * @example
+     * ```typescript
+     * import { expect } from '@playwright/test';
+     * import { WebElement } from 'playwright-elements';
+     * 
+     * // Configure Playwright expect for all WebElement instances
+     * WebElement.setExpectProvider({
+     *     expect: expect,
+     *     softExpect: expect.soft
+     * });
+     * 
+     * // Now you can use:
+     * await myElement.expect().toHaveValue('test');
+     * ```
+     */
+    public static setExpectProvider(provider: ExpectProvider): void {
+        _expectProvider = provider;
     }
 
-    public expect(message?: string): LocatorExpect {
-        return _expect(this.locator, message) as LocatorExpect;
+    /**
+     * Static method to allow custom expect implementation injection.
+     * This is maintained for backward compatibility with existing code.
+     * 
+     * @deprecated Use setExpectProvider() instead for better type safety. 
+     * Kept working for 1.x compatibility.
+     * @param expect - Optional expect provider for backward compatibility
+     */
+    public static useExpect(expect?: { (locator: unknown, message?: string): unknown; soft: (locator: unknown, message?: string) => unknown }): void {
+        if (expect) {
+            WebElement.setExpectProvider({ expect, softExpect: expect.soft });
+            return;
+        }
+        // no argument: previous behaviour, nothing to configure
     }
 
-    public softExpect(message?: string): LocatorExpect {
-        return _expect.soft(this.locator, message) as LocatorExpect;
+    /**
+     * Provides assertion support for this element.
+     * Uses the configured ExpectProvider to create assertion chains.
+     * 
+     * @param message - Optional message for the assertion
+     * @returns Playwright assertion chain for the element's locator
+     * @throws Error if ExpectProvider is not configured
+     */
+    public expect(message?: string): ExpectReturn {
+        if (!_expectProvider) {
+            throw new Error(
+                'Assertion provider not configured. Call WebElement.setExpectProvider() in your test setup. ' +
+                'For Playwright: WebElement.setExpectProvider({ expect, softExpect: expect.soft });'
+            );
+        }
+        return _expectProvider.expect(this.locator, message);
     }
 
-    // augmentation
+    /**
+     * Provides soft assertion support for this element.
+     * Soft assertions do not fail the test immediately. Instead, they are collected
+     * and reported at the end of the test. This is useful for validating multiple
+     * conditions without stopping at the first failure.
+     * 
+     * @param message - Optional message for the assertion
+     * @returns Playwright soft assertion chain for the element's locator
+     * @throws Error if ExpectProvider is not configured
+     */
+    public softExpect(message?: string): SoftExpectReturn {
+        if (!_expectProvider) {
+            throw new Error(
+                'Assertion provider not configured. Call WebElement.setExpectProvider() in your test setup. ' +
+                'For Playwright: WebElement.setExpectProvider({ expect, softExpect: expect.soft });'
+            );
+        }
+        return _expectProvider.softExpect(this.locator, message);
+    }
+
     private recursiveParentSelectorInjection<T extends WebElement, E>(this: T, element: E) {
         const entries = Object.entries(element as Record<string, unknown>)
             .filter(([key, value]) => {
@@ -251,7 +327,6 @@ export class WebElement {
         return this as T & A;
     }
 
-    // getters setters
     get narrowSelector(): string {
         return this._selector;
     }
@@ -285,8 +360,6 @@ export class WebElement {
         this._parents.unshift(parent);
     }
 
-    // chainable web element creation
-
     public clone<T extends WebElement>(this: T, options?: {
         selector?: string
         hasLocator?: string | WebElement,
@@ -317,7 +390,7 @@ export class WebElement {
                     configurable: false
                 },
                 _hasNotText: {
-                    value: options?.hasNotText ?? this._hasNotLocator,
+                    value: options?.hasNotText ?? this._hasNotText,
                     writable: true,
                     configurable: false
                 },
@@ -366,7 +439,7 @@ export class WebElement {
     }
 
     public hasText<R extends WebElement>(this: R, text: string | RegExp): R {
-        if(this._by) throw Error(`has option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
+        if(this._by) throw Error(`hasText option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
         return this.clone({
             selector: this.narrowSelector,
             hasLocator: this._hasLocator,
@@ -378,7 +451,7 @@ export class WebElement {
     }
 
     public hasNotText<R extends WebElement>(this: R, text: string | RegExp): R {
-        if(this._by) throw Error(`hasNot option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
+        if(this._by) throw Error(`hasNotText option can not be used with ${this._by}, it can be used only with $ or new WebElement('#id') syntax.`)
         return this.clone({
             selector: this.narrowSelector,
             hasLocator: this._hasLocator,
@@ -469,8 +542,6 @@ export class WebElement {
         return this.nth(-1);
     }
 
-    // arrays of elements
-
     public async getAll<T extends WebElement>(this: T): Promise<T[]> {
         const elements: T[] = [];
         const amount = await this.count();
@@ -529,8 +600,6 @@ export class WebElement {
         }
         return matchedElements;
     }
-
-    // Locator methods
 
     public async allInnerTexts(): Promise<Array<string>> {
         return this.locator.allInnerTexts();
@@ -691,8 +760,6 @@ export class WebElement {
     public async waitFor(options?: WaitForOptions): Promise<void> {
         await this.locator.waitFor(options);
     }
-
-    // additional methods
 
     public async getText(options?: TextContentOptions): Promise<string> {
         const text = await this.locator.textContent(options);
