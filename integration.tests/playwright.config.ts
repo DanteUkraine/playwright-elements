@@ -1,12 +1,16 @@
 import { devices, PlaywrightTestConfig } from '@playwright/test';
-import { generateIndexFile } from '../src/index';
-
-generateIndexFile('./integration.tests/resources');
 
 const config: PlaywrightTestConfig = {
     timeout: 45_000,
+    retries: 1,
     expect: {
         timeout: 15_000
+    },
+    webServer: {
+        command: 'npx http-server integration.tests/server -p 3457 -s',
+        port: 3457,
+        timeout: 90_000,
+        reuseExistingServer: true,
     },
     projects: [
         {
@@ -24,8 +28,15 @@ const config: PlaywrightTestConfig = {
     ],
     use: {
         headless: true,
-        baseURL: 'https://playwright.dev',
+        baseURL: 'http://localhost:3457',
         ignoreHTTPSErrors: true,
+        trace: 'on-first-retry',
+        screenshot: 'only-on-failure',
+        video: 'retain-on-failure',
     },
+    reporter: [
+        ['list'],
+        ['html', { open: 'never' }],
+    ],
 };
 export default config;

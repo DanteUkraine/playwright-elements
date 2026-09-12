@@ -32,6 +32,7 @@
     "test:unit:headed": "npx playwright test --config=playwright.unit.config.ts --headed",
     "test:unit:ui": "npx playwright test --config=playwright.unit.config.ts --ui",
     "test:stress": "npx playwright test --config=playwright.stress.config.ts",
+    "integration:server": "npx http-server integration.tests/server -p 3457 -s",
     "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts",
     "modify:readme": "npx ts-node prepare-readme.ts",
     "prepare": "husky install",
@@ -81,6 +82,7 @@
     "expect-type": "^1.2.0",
     "globals": "^15.12.0",
     "husky": "^8.0.3",
+    "http-server": "^14.1.1",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
   },
