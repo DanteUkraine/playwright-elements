@@ -2,7 +2,6 @@ import { devices, PlaywrightTestConfig } from '@playwright/test';
 
 const config: PlaywrightTestConfig = {
     timeout: 45_000,
-    retries: 1,
     expect: {
         timeout: 15_000
     },
@@ -30,9 +29,7 @@ const config: PlaywrightTestConfig = {
         headless: true,
         baseURL: 'http://localhost:3457',
         ignoreHTTPSErrors: true,
-        trace: 'on-first-retry',
-        screenshot: 'only-on-failure',
-        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
     },
     reporter: [
         ['list'],

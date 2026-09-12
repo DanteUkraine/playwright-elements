@@ -528,7 +528,7 @@ const button = $byTestId(ids.buttons.submit);
 
 ## TypeScript Configuration
 
-For optimal type checking with branded types, ensure your `tsconfig.json` has:
+For optimal type checking with branded types, ensure your `../tsconfig.json` has:
 
 ```json
 {

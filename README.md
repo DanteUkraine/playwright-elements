@@ -108,6 +108,7 @@ import { sid, factory, testIdProps } from 'playwright-elements/testids';
 | 🟢 Beginner | [Get Started](https://danteukraine.github.io/playwright-elements/docs/get_started.html) | 15 min |
 | 🟡 Intermediate | [WebElement Deep Dive](https://danteukraine.github.io/playwright-elements/docs/web_element.html) | 30 min |
 | 🔵 Advanced | [Test IDs Module](https://danteukraine.github.io/playwright-elements/docs/test_ids.html) | 20 min |
+| 🔵 Advanced | [Best Practices](https://danteukraine.github.io/playwright-elements/docs/best_practices.html) | 30 min |
 | 🟣 Expert | [Architecture & Patterns](https://danteukraine.github.io/playwright-elements/docs/architecture.html) | 45 min |
 
 ---
@@ -290,7 +291,8 @@ See [Test IDs Module](https://danteukraine.github.io/playwright-elements/docs/te
 | [Browser Management](https://danteukraine.github.io/playwright-elements/docs/browser_instance.html) | Advanced browser control |
 | [Architecture](https://danteukraine.github.io/playwright-elements/docs/architecture.html) | Framework design principles |
 | [Migration Guide](https://danteukraine.github.io/playwright-elements/docs/migration_guide.html) | Upgrade instructions |
-| [FAQ](https://danteukraine.github.io/playwright-elements/docs/faq.html) | Common questions and solutions |
+| [FAQ & Troubleshooting](https://danteukraine.github.io/playwright-elements/docs/faq.html) | Common questions and solutions |
+| [Best Practices](https://danteukraine.github.io/playwright-elements/docs/best_practices.html) | Recommended patterns and tips |
 
 ---
 
