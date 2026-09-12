@@ -3,7 +3,7 @@ import { WebElement, expect, $, test } from '../src/index';
 
 const customMatchers = {
     async toHaveAriaLabel(locator: Locator, expected: string, options?: { timeout?: number }) {
-        const assertionName = 'toHaveAmount';
+        const assertionName = 'toHaveAriaLabel';
         let pass: boolean;
         let matcherResult: any;
         try {

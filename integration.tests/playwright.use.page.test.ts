@@ -31,7 +31,7 @@ test.describe('Playwright test integration', () => {
 
     // eslint-disable-next-line playwright/expect-expect
     test('usePage with promise all', async ({ goto, secondContextPage }) => {
-        await Promise.all([goto(), secondContextPage.goto('https://playwright.dev/docs/test-fixtures')]);
+        await Promise.all([goto(), secondContextPage.goto('/docs/test-fixtures')]);
         const customContextPromise = usePage(secondContextPage, async () => {
             await testFixturesPage.title.softExpect().toHaveText('Fixtures');
         });

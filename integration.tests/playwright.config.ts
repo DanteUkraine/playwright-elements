@@ -6,7 +6,7 @@ const config: PlaywrightTestConfig = {
         timeout: 15_000
     },
     webServer: {
-        command: 'npx http-server integration.tests/server -p 3457 -s',
+        command: 'npx http-server integration.tests/server -p 3457 -s -e html',
         port: 3457,
         timeout: 90_000,
         reuseExistingServer: true,

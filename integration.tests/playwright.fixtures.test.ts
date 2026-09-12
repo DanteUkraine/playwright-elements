@@ -44,7 +44,7 @@ test.describe(`Playwright test integration`, () => {
     })
 
     test(`BrowserInstance.currentPage should switch tab automatically`, async ({ goto }) => {
-        await goto(localFilePath);
+        await goto('/');
         await $('button[title=Navigation]').click();
         await expect.poll(() => BrowserInstance.currentPage.url()).toEqual('https://playwright.dev/');
     })
