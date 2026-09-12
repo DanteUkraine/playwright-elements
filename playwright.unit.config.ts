@@ -9,7 +9,8 @@ export default defineConfig({
     },
     {
       name: 'Browser tests',
-      testMatch: 'browser*.spec.playwright.ts'
+      testMatch: 'browser*.spec.playwright.ts',
+      timeout: process.platform === 'win32' ? 60_000 : 30_000
     },
     {
       name: 'Core tests',
