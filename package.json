@@ -7,16 +7,27 @@
   "types": "lib/index.d.ts",
   "typings": "lib/index.d.ts",
   "files": [
-    "lib"
+    "lib",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE"
   ],
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
       "default": "./lib/index.js"
     },
-    "./testids": {
+    "./testIds/builder": {
       "types": "./lib/testIds/builder.d.ts",
       "default": "./lib/testIds/builder.js"
+    },
+    "./testIds/selectors": {
+      "types": "./lib/testIds/selectors.d.ts",
+      "default": "./lib/testIds/selectors.js"
+    },
+    "./testids": {
+      "types": "./lib/testids.d.ts",
+      "default": "./lib/testids.js"
     },
     "./package.json": "./package.json"
   },

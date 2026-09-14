@@ -69,6 +69,37 @@ processButtonId(buttonId);
 processContainerId(containerId);
 
 // ============================================================================
+// Test B2 Regression: $byTestId and testIdProps with typed TestId
+// ============================================================================
+
+// These tests ensure that typed TestId<K> can be passed to $byTestId and testIdProps
+// This was a regression in v1.19.0-rc3 where only TestId<string> was accepted
+
+// Typed TestId with explicit type parameter
+const typedButtonIdForB2: TestId<'button'> = sid<'button'>('submit-button-b2');
+const typedContainerIdForB2: TestId<'container'> = sid<'container'>('main-container-b2');
+
+// Should compile - typed TestId accepted by $byTestId
+$byTestId(typedButtonIdForB2);
+$byTestId(typedContainerIdForB2);
+
+// Should compile - typed TestId accepted by testIdProps
+testIdProps(typedButtonIdForB2);
+testIdProps(typedContainerIdForB2);
+
+// Typed factory for B2 test
+const buttonFactoryForB2 = factory<'button'>('btn-b2');
+const typedFactoryIdForB2: TestId<'button'> = buttonFactoryForB2('submit');
+
+// Should compile - factory-created typed TestId accepted
+$byTestId(typedFactoryIdForB2);
+testIdProps(typedFactoryIdForB2);
+
+// Direct usage with type parameter
+$byTestId(sid<'header'>('main-header'));
+testIdProps(sid<'footer'>('page-footer'));
+
+// ============================================================================
 // Test all selector functions with TestId
 // ============================================================================
 

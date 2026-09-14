@@ -120,7 +120,10 @@ Organize your tests around reusable components rather than pages:
 
 ```typescript
 // elements.ts
-export const header = $('.header').with({ logo: $('.logo') });
+export const header = $('.header').with({
+  logo: $('.logo'),
+  avatar: $('.avatar')
+});
 export const form = $('.login-form').with({
   usernameInput: $('input[name="username"]'),
   passwordInput: $('input[name="password"]'),
@@ -138,8 +141,10 @@ import * as elements from './elements';
 
 type TestFixtures = { elements: typeof elements };
 
-export const test = baseTest.extend({
+export const test = baseTest.extend<TestFixtures>({
   elements: [async ({}, use) => {
+    // Note: First parameter MUST use object destructuring pattern
+    // async (_deps, use) => { ... } will fail at collection time
     await use(elements);
   }, { scope: 'test' }],
 });
@@ -183,8 +188,9 @@ import * as pageObjectModule from '../pages';
 
 type TestFixtures = { pageObject: PageObject<typeof pageObjectModule> };
 
-export const test = baseTest.extend({
+export const test = baseTest.extend<TestFixtures>({
   pageObject: [async ({}, use) => {
+    // Note: First parameter MUST use object destructuring pattern
     await use(buildPageObject(pageObjectModule));
   }, { scope: 'test' }],
 });

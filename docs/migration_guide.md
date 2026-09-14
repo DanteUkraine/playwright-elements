@@ -182,6 +182,91 @@ WebElement.setExpectProvider({ expect, softExpect: expect.soft });
 
 ---
 
+## New Features in 1.19.0
+
+### TestIds Module
+
+Version 1.19.0 introduced a new **TestIds module** for type-safe test ID generation. This module is **zero-dependency** and can be used independently of Playwright.
+
+#### Import Paths
+
+**Zero-dependency import (recommended for production code):**
+```typescript
+import { sid, factory, testIdProps } from 'playwright-elements/testids';
+```
+
+**Full import with selectors (includes Playwright dependencies):**
+```typescript
+import { sid, factory, testIdProps, $byTestId } from 'playwright-elements';
+// or
+import { $byTestId } from 'playwright-elements/testIds/selectors';
+```
+
+#### Type Safety
+
+The TestId types use **branded types** to prevent mixing IDs from different categories:
+
+```typescript
+// Different types for different ID categories
+const buttonId: TestId<'button'> = sid<'button'>('submit');
+const containerId: TestId<'container'> = sid<'container'>('main');
+
+// Type error: cannot assign button ID to container
+// const wrong: TestId<'container'> = buttonId; // Error!
+```
+
+**Important:** Brands are **nominal and per-package**. IDs from your existing project registry are **NOT** interchangeable with the `TestId` type from playwright-elements. You'll need to migrate to use the new types, or use `unsafeId()` as an escape hatch.
+
+#### Usage Examples
+
+```typescript
+import { sid, factory, testIdProps, $byTestId } from 'playwright-elements';
+
+// Simple static IDs
+const submitButton = sid<'button'>('submit-button');
+
+// Factory for prefixed IDs
+const button = factory<'button'>('btn');
+const cancelButton = button('cancel'); // TestId<'button'> -> 'btn-cancel'
+
+// Use in React/JSX
+function MyComponent() {
+  return <button {...testIdProps(submitButton)}>Submit</button>;
+}
+
+// Use in tests
+const cancelBtn = $byTestId(cancelButton);
+await cancelBtn.click();
+```
+
+#### Migration from Existing ID Registry
+
+If you have an existing ID registry:
+
+```typescript
+// Old approach (your existing code)
+const ids = {
+  login: {
+    username: 'login-username',
+    password: 'login-password',
+  }
+};
+
+// New approach with TestId
+import { sid, factory } from 'playwright-elements/testids';
+
+const ids = {
+  login: {
+    username: sid<'login'>('login-username'),
+    password: sid<'login'>('login-password'),
+  }
+};
+```
+
+**Note:** The new TestId types provide **compile-time safety** and prevent ID collisions through the type system.
+
+---
+
 ## Frequently Asked Questions
 
 ### Q: Why was this change made?
@@ -209,6 +294,52 @@ A: **Yes**, you can call `WebElement.setExpectProvider()` multiple times to chan
 A: Calling `expect()` or `softExpect()` will throw a clear error message:
 ```
 Error: Assertion provider not configured. Call WebElement.setExpectProvider() in your test setup.
+```
+
+### Q: Do custom matchers added via `expect.extend()` work with WebElement?
+
+A: **Yes!** This is one of the major improvements in 1.19.0. When you extend Playwright's expect and configure it via `WebElement.setExpectProvider()`, your custom matchers are now available on WebElement instances:
+
+```typescript
+import { expect } from '@playwright/test';
+import { WebElement, $ } from 'playwright-elements';
+
+// Extend Playwright expect with custom matcher
+expect.extend({
+  async toHaveCustomValue(locator, expected) {
+    const value = await locator.getAttribute('data-custom');
+    return { pass: value === expected };
+  }
+});
+
+// Configure WebElement to use extended expect
+WebElement.setExpectProvider({
+  expect: expect,
+  softExpect: expect.soft
+});
+
+// Now custom matcher works with WebElement!
+await $('[data-testid="my-element"]').expect().toHaveCustomValue('test');
+```
+
+### Q: What about deep imports?
+
+A: If you use a deep import like `import { WebElement } from 'playwright-elements/lib/web.element'`, the automatic configuration from `playwright.test.fixtures` won't apply. You need to either:
+
+1. **Use the main entry point (recommended):**
+```typescript
+import { WebElement, $ } from 'playwright-elements';
+```
+
+2. **Manually configure the provider:**
+```typescript
+import { WebElement } from 'playwright-elements/lib/web.element';
+import { expect } from '@playwright/test';
+
+WebElement.setExpectProvider({
+  expect: expect,
+  softExpect: expect.soft
+});
 ```
 
 ---

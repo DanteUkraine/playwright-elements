@@ -10,7 +10,8 @@
 
 import { expectTypeOf } from 'expect-type';
 import { test } from '../../src/playwright.test.fixtures';
-import { TestId, sid, factory, ns, bareFactory } from '../../src';
+import { TestId, sid, factory, ns, bareFactory, $byTestId, testIdProps } from '../../src';
+import { WebElement } from '../../src/web.element';
 
 test.describe('TestId Brand Invariance', () => {
   test('sid() should create properly typed TestId', () => {
@@ -75,5 +76,52 @@ test.describe('TestId Brand Invariance', () => {
     const result = typedFactory('key');
     
     expectTypeOf(result).toMatchTypeOf<TestId<'my-type'>>();
+  });
+
+  test.describe('B2 Regression: Typed TestId in selectors and helpers', () => {
+    test('$byTestId should accept typed TestId<K>', () => {
+      const typedId: TestId<'login.username'> = sid<'login.username'>('username-input');
+      const element = $byTestId(typedId);
+      
+      expectTypeOf(element).toMatchTypeOf<WebElement>();
+    });
+
+    test('$byTestId should work with factory-created typed TestIds', () => {
+      const loginId = factory<'login'>('login');
+      const usernameField = $byTestId(loginId('username'));
+      
+      expectTypeOf(usernameField).toMatchTypeOf<WebElement>();
+    });
+
+    test('$byTestId should work with ns-created typed TestIds', () => {
+      const loginId = ns<'login'>();
+      const passwordField = $byTestId(loginId('password'));
+      
+      expectTypeOf(passwordField).toMatchTypeOf<WebElement>();
+    });
+
+    test('testIdProps should accept typed TestId<K>', () => {
+      const typedId: TestId<'button'> = sid<'button'>('submit-button');
+      const props = testIdProps(typedId);
+      
+      expectTypeOf(props).toMatchTypeOf<{ 'data-testid': string }>();
+    });
+
+    test('testIdProps should work with factory-created typed TestIds', () => {
+      const buttonId = factory<'button'>('btn');
+      const props = testIdProps(buttonId('submit'));
+      
+      expectTypeOf(props).toMatchTypeOf<{ 'data-testid': string }>();
+    });
+
+    test('$byTestId should preserve type inference from sid with type parameter', () => {
+      const button = $byTestId(sid<'button'>('submit'));
+      expectTypeOf(button).toMatchTypeOf<WebElement>();
+    });
+
+    test('testIdProps should preserve type inference from sid with type parameter', () => {
+      const props = testIdProps(sid<'header'>('main-header'));
+      expectTypeOf(props).toMatchTypeOf<{ 'data-testid': string }>();
+    });
   });
 });

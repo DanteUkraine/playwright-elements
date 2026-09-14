@@ -257,7 +257,7 @@ export const unsafeId = (raw: string): TestId => raw as TestId;
  * @param id - The test ID to attach to the element
  * @returns Object with data-testid property
  */
-export const testIdProps = (id: TestId): { 'data-testid': string } => ({
+export const testIdProps = <K extends string>(id: TestId<K>): { 'data-testid': string } => ({
   'data-testid': id as string,
 });
 

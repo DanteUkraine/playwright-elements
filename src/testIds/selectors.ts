@@ -43,7 +43,7 @@ import type { IdFactory, TestId } from './builder';
  * @param id - The test ID to match
  * @returns A WebElement that matches elements with the exact data-testid value
  */
-export const $byTestId = (id: TestId): ReturnType<typeof $> =>
+export const $byTestId = <K extends string>(id: TestId<K>): ReturnType<typeof $> =>
   $(`[data-testid=${escapeForCssAttribute(id as string)}]`);
 
 /**
