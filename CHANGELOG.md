@@ -31,6 +31,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed type regression where `element.expect()` and `element.softExpect()` returned `any` instead of Playwright's full matcher types (regression from 1.18.2).
 - Fixed `$byTestId` and `testIdProps` to accept typed `TestId<K>` parameters (previously only accepted `TestId<string>`).
+- Fixed `assertNoPrefixCollisions` to use the same delimiter logic as `$byTestIdPrefix` (previously caused false positives for `idx-consent`/`idx-consents` pair).
+- Fixed `.with()` to throw on non-WebElement/Function values (previously silently dropped them).
+- Fixed `initBrowserInstance` to use Playwright's public `isMobile` fixture instead of private `_options` field (prevents silent degradation).
+
+### 📦 Packaging
+
+- Moved `chokidar` and `yargs` to `optionalDependencies` (only needed for CLI commands).
+- Added `engines` field specifying Node.js >= 18.0.0.
+- Added `sideEffects: true` to explicitly declare module has side effects.
+
+**Note on peerDependencies:** Both `@playwright/test` and `playwright-core` are listed as peer dependencies. This is intentional because the library imports types directly from `playwright-core` (e.g., `Locator`, `Page`). While `@playwright/test` depends on `playwright` which depends on `playwright-core`, having both as peer dependencies with matching version ranges (`>= 1.62.x`) ensures type compatibility.
 
 ### 📝 Documentation Updates
 

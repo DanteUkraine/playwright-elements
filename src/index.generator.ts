@@ -1,6 +1,15 @@
-import chokidar, { FSWatcher } from 'chokidar';
 import { existsSync, readdirSync, writeFileSync, rmSync, statSync } from 'fs';
 import { join, basename } from 'path';
+
+// chokidar is an optional dependency (only needed for watch mode)
+let chokidar: typeof import('chokidar') | null;
+try {
+    chokidar = require('chokidar');
+} catch {
+    chokidar = null;
+}
+
+type FSWatcher = any;
 
 export type Options = {
     watch?: boolean;
@@ -103,6 +112,12 @@ export function generateIndexFile(
 
     // If watch mode is enabled, create a watcher for the current folder.
     if (watch) {
+        if (!chokidar) {
+            throw new Error(
+                '[playwright-elements] Watch mode requires the optional dependency chokidar. ' +
+                'Install it with: npm install chokidar'
+            );
+        }
         const watcher = chokidar.watch(folder, {
             ignored: /(^|[/\\])\../, // Ignore dotfiles.
             persistent: true,

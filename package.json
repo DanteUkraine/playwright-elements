@@ -6,6 +6,10 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "typings": "lib/index.d.ts",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "sideEffects": true,
   "files": [
     "lib",
     "CHANGELOG.md",
@@ -98,8 +102,10 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "lodash.clonedeep": "^4.5.0"
+  },
+  "optionalDependencies": {
     "chokidar": "^4.0.3",
-    "lodash.clonedeep": "^4.5.0",
     "yargs": "^17.7.2"
   },
   "peerDependencies": {

@@ -101,15 +101,154 @@ import { sid, factory, testIdProps } from 'playwright-elements/testids';
 
 ---
 
+### Advanced Component Methods
+
+The `.with()` method supports both elements and methods for complete component encapsulation:
+
+```typescript
+const loginForm = $('.login-form').with({
+  // Child elements
+  username: $('input[name="username"]'),
+  password: $('input[name="password"]'),
+  submit: $('button[type="submit"]'),
+  
+  // Methods for component actions
+  async login(user: string, pass: string) {
+    await this.username.fill(user);
+    await this.password.fill(pass);
+    await this.submit.click();
+  }
+});
+
+// Usage
+await loginForm.login('admin', 'password123');
+```
+
+For advanced use cases, separate element and method configuration:
+- **`subElements()`** - Configure only child elements
+- **`withMethods()`** - Configure only methods
+
+---
+
+### Browser and Page Management
+
+Access the current page and context through `BrowserInstance`:
+
+```typescript
+import { BrowserInstance, $ } from 'playwright-elements';
+
+// Get the current page
+const currentPage = BrowserInstance.currentPage;
+
+// Check if running in mobile context
+if (BrowserInstance.isContextMobile) {
+  // Mobile-specific logic
+}
+
+// Use with custom pages
+import { usePage } from 'playwright-elements';
+usePage(customPage, async () => {
+  // Your code with custom page
+});
+```
+
+---
+
+### Assertion Configuration
+
+Configure custom assertion providers for WebElement:
+
+```typescript
+import { WebElement } from 'playwright-elements';
+
+// Set up custom expect provider
+WebElement.setExpectProvider({
+  expect: customExpect,
+  softExpect: customExpect.soft
+});
+
+// Now all elements use your custom expectations
+await $('.element').expect().toBeVisible();
+await $('.element').softExpect().toBeVisible();
+```
+
+---
+
+### Advanced Selectors
+
+Filter elements by text and other criteria:
+
+```typescript
+// Filter by text content
+const items = $('.item').filter({ hasText: 'Product' });
+
+// Get all matching elements
+const allButtons = $('.button').getAll();
+
+// Chain filters
+const visibleProducts = $('.product')
+  .filter({ hasText: /Product/ })
+  .filter({ isVisible: true });
+```
+
+---
+
+### Accessing Underlying Playwright Locator
+
+Every WebElement has a `.locator` property that provides access to the underlying Playwright Locator. Use this to access Playwright methods not directly exposed by WebElement:
+
+```typescript
+// Access the underlying Playwright Locator
+const element = $('.my-element');
+const locator = element.locator;
+
+// Use Playwright methods directly
+const value = await locator.evaluate((el) => el.getAttribute('data-value'));
+const boundingBox = await locator.boundingBox();
+const screenshot = await locator.screenshot();
+
+// Or use the shorthand alias
+const result = await element._.evaluate((el) => el.textContent);
+```
+
+**Common use cases:**
+- Measuring element geometry with `boundingBox()`
+- Reading computed styles with `evaluate()`
+- Taking element screenshots with `screenshot()`
+- Accessing multi-node relationships in one round trip
+
+---
+
+### Utility Functions
+
+Generate index files and initialize test environments:
+
+```typescript
+import { generateIndexFile, initDesktopOrMobile } from 'playwright-elements';
+
+// Generate index.ts files in a directory
+generateIndexFile('./test', { watch: false });
+
+// Initialize test environment for desktop or mobile
+initDesktopOrMobile('desktop');
+```
+
+Use the CLI for index generation:
+```bash
+npx generate-index ./test
+```
+
+---
+
 ## 📚 Learning Path
 
 | Level | Topic | Duration |
 |-------|-------|----------|
 | 🟢 Beginner | [Get Started](https://danteukraine.github.io/playwright-elements/docs/get_started.html) | 15 min |
 | 🟡 Intermediate | [WebElement Deep Dive](https://danteukraine.github.io/playwright-elements/docs/web_element.html) | 30 min |
-| 🔵 Advanced | [Test IDs Module](https://danteukraine.github.io/playwright-elements/docs/test_ids.html) | 20 min |
-| 🔵 Advanced | [Best Practices](https://danteukraine.github.io/playwright-elements/docs/best_practices.html) | 30 min |
-| 🟣 Expert | [Architecture & Patterns](https://danteukraine.github.io/playwright-elements/docs/architecture.html) | 45 min |
+| 🔵 Advanced | [Test IDs Module](docs/test_ids.md) | 20 min |
+| 🔵 Advanced | [Best Practices](docs/best_practices.md) | 30 min |
+| 🟣 Expert | [Architecture & Patterns](docs/architecture.md) | 45 min |
 
 ---
 
@@ -265,7 +404,7 @@ test('login form submission', async ({ goto }) => {
 });
 ```
 
-See [Test IDs Module](https://danteukraine.github.io/playwright-elements/docs/test_ids.html) for complete documentation.
+See [Test IDs Module](docs/test_ids.md) for complete documentation.
 
 ---
 
@@ -291,14 +430,16 @@ See [Test IDs Module](https://danteukraine.github.io/playwright-elements/docs/te
 |---------|-------------|
 | [Get Started](https://danteukraine.github.io/playwright-elements/docs/get_started.html) | Installation and basic usage |
 | [Web Element](https://danteukraine.github.io/playwright-elements/docs/web_element.html) | Complete WebElement API reference |
-| [Test IDs](https://danteukraine.github.io/playwright-elements/docs/test_ids.html) | Type-safe test ID system |
 | [Page Objects](https://danteukraine.github.io/playwright-elements/docs/build_page_object.html) | Page object pattern guide |
 | [Fixtures](https://danteukraine.github.io/playwright-elements/docs/playwright_elements_fixtures.html) | Test fixture configuration |
 | [Browser Management](https://danteukraine.github.io/playwright-elements/docs/browser_instance.html) | Advanced browser control |
-| [Architecture](https://danteukraine.github.io/playwright-elements/docs/architecture.html) | Framework design principles |
-| [Migration Guide](https://danteukraine.github.io/playwright-elements/docs/migration_guide.html) | Upgrade instructions |
-| [FAQ & Troubleshooting](https://danteukraine.github.io/playwright-elements/docs/faq.html) | Common questions and solutions |
-| [Best Practices](https://danteukraine.github.io/playwright-elements/docs/best_practices.html) | Recommended patterns and tips |
+
+**Additional documentation available in the repository:**
+- [Architecture](docs/architecture.md) - Framework design principles
+- [Best Practices](docs/best_practices.md) - Recommended patterns and tips
+- [FAQ](docs/faq.md) - Common questions and solutions
+- [Migration Guide](docs/migration_guide.md) - Upgrade instructions
+- [Test IDs](docs/test_ids.md) - Type-safe test ID system
 
 ---
 

@@ -1,8 +1,22 @@
 #!/usr/bin/env node
 
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
+// yargs is an optional dependency (only needed for CLI)
+let yargs: typeof import('yargs') | null;
+let hideBin: ((argv: string[]) => string[]) | null;
+try {
+    yargs = require('yargs');
+    hideBin = require('yargs/helpers').hideBin;
+} catch {
+    yargs = null;
+    hideBin = null;
+}
+
 import { generateIndexFile } from './index.generator';
+
+if (!yargs || !hideBin) {
+    console.error('[playwright-elements] CLI requires the optional dependency "yargs". Install it with: npm install yargs');
+    process.exit(1);
+}
 
 const argv = yargs(hideBin(process.argv))
     .scriptName('generate-index')
