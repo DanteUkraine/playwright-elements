@@ -16,6 +16,21 @@
 
 ---
 
+## 🆕 What's New in v1.19.0
+
+### Type-Safe TestIds Module
+A new **zero-dependency** module for type-safe test ID generation:
+
+- **Branded Types**: Compile-time type checking prevents ID misuse
+- **Factory System**: `factory()`, `bareFactory()` for dynamic ID generation
+- **Collision Detection**: `assertNoPrefixCollisions()` catches prefix conflicts
+- **Zero Dependencies**: Import from `playwright-elements/testids` for production code
+
+### Custom Matcher Support
+Custom matchers added via `expect.extend()` now work seamlessly with WebElement.expect() and provide full TypeScript autocomplete.
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Installation
@@ -41,6 +56,7 @@ const loginForm = $('.login-form').with({
 test('user login', async ({ goto }) => {
   await goto('/login');
   await loginForm.login('admin', 'password123');
+  // Assert form was submitted successfully
   await loginForm.submit.expect().toBeVisible();
 });
 ```
@@ -70,21 +86,24 @@ await app.header.navigation.items.first().click();
 ```
 
 ### Type-Safe Test IDs (v1.19.0+)
-Prevent selector typos and ensure type safety across your entire test suite:
+Prevent selector typos and ensure type safety across your entire test suite using **branded types**:
 
 ```typescript
-import { factory, sid, $byTestId, testIdProps } from 'playwright-elements';
+import { factory, sid, bareFactory, $byTestId, testIdProps, assertNoPrefixCollisions } from 'playwright-elements';
 
-// Define typed IDs
+// Define typed IDs with branded types for compile-time safety
 const ids = {
   login: {
     username: sid<'login.username'>('username-input'),
     password: sid<'login.password'>('password-input'),
   },
   button: factory<'button'>('btn')
-};
+} as const;
 
-// Use in React components
+// Validate no prefix collisions at module load time
+assertNoPrefixCollisions(ids);
+
+// Use in React/Vue/Angular components
 function MyComponent() {
   return <input {...testIdProps(ids.login.username)} />;
 }
@@ -92,12 +111,24 @@ function MyComponent() {
 // Use in tests
 const usernameField = $byTestId(ids.login.username);
 await usernameField.fill('admin');
+
+// bareFactory for entity-based IDs (no prefix)
+const ruleRow = bareFactory<'rules.row'>();
+// Usage: ruleRow(123) -> TestId<'rules.row'> with value '123'
 ```
+
+**Benefits of Branded Types:**
+- **Compile-time safety**: TypeScript prevents mixing IDs from different categories
+- **Autocompletion**: IDE suggests available IDs with correct types
+- **Refactoring support**: Change ID types in one place, errors appear throughout
+- **Zero runtime overhead**: All types are erased at compile time
 
 **Zero-dependency import:** For projects that only need the test IDs module without Playwright dependencies:
 ```typescript
-import { sid, factory, testIdProps } from 'playwright-elements/testids';
+import { sid, factory, bareFactory, testIdProps } from 'playwright-elements/testids';
 ```
+
+This import has **zero dependencies** and can be used in production code.
 
 ---
 
@@ -135,42 +166,82 @@ For advanced use cases, separate element and method configuration:
 Access the current page and context through `BrowserInstance`:
 
 ```typescript
-import { BrowserInstance, $ } from 'playwright-elements';
+import { BrowserInstance, $, usePage, test } from 'playwright-elements';
 
 // Get the current page
 const currentPage = BrowserInstance.currentPage;
 
-// Check if running in mobile context
+// Check if running in mobile context (uses Playwright's public isMobile fixture)
 if (BrowserInstance.isContextMobile) {
   // Mobile-specific logic
 }
 
-// Use with custom pages
-import { usePage } from 'playwright-elements';
-usePage(customPage, async () => {
-  // Your code with custom page
+// Use with custom pages - execute code in specific page context
+const result = await usePage(customPage, async () => {
+  // All playwright-elements operations here use the provided page
+  const element = $('.my-element');
+  await element.click();
+  return await element.textContent();
+});
+
+// In Playwright Test, isContextMobile is automatically set from the test fixture
+test.use({ ...devices['iPhone 13'] });
+test('mobile test', async ({}) => {
+  // BrowserInstance.isContextMobile will be true
 });
 ```
+
+**v1.19.0 Improvements:**
+- `initBrowserInstance` now uses Playwright's **public `isMobile` fixture** instead of private `_options` field (fixes silent degradation)
+- Mobile context detection is more reliable and maintains backward compatibility with v1.18.2
+- `usePage` allows switching execution to specific page contexts for multi-tab scenarios
 
 ---
 
 ### Assertion Configuration
 
-Configure custom assertion providers for WebElement:
+WebElement provides seamless integration with `@playwright/test` assertions. No configuration needed!
+
+#### Automatic Setup
+When importing from `'playwright-elements'`, assertions work automatically:
 
 ```typescript
-import { WebElement } from 'playwright-elements';
+import { test } from 'playwright-elements';
 
-// Set up custom expect provider
-WebElement.setExpectProvider({
-  expect: customExpect,
-  softExpect: customExpect.soft
+test('my test', async ({}) => {
+  // Works automatically
+  await $('.element').expect().toBeVisible();
+  await $('.element').softExpect().toBeVisible();
+});
+```
+
+#### Custom Matchers
+Extend Playwright's expect with custom matchers - they will work automatically with WebElement:
+
+```typescript
+import { expect } from '@playwright/test';
+import { test } from 'playwright-elements';
+import { $ } from 'playwright-elements';
+
+// Extend expect with custom matcher
+expect.extend({
+  async toHaveCustomValue(locator, expected) {
+    const actual = await locator.getAttribute('data-custom');
+    return {
+      pass: actual === expected,
+      message: () => `Expected custom value to be ${expected}, but got ${actual}`
+    };
+  }
 });
 
-// Now all elements use your custom expectations
-await $('.element').expect().toBeVisible();
-await $('.element').softExpect().toBeVisible();
+test('custom matcher', async ({ goto }) => {
+  await goto('/');
+  // Custom matcher works with full TypeScript autocomplete
+  await $('.element').expect().toHaveCustomValue('test');
+});
 ```
+
+**How it works:** WebElement.expect() directly uses @playwright/test's expect, so any matchers added via `expect.extend()` are automatically available.
 
 ---
 
@@ -244,11 +315,11 @@ npx generate-index ./test
 
 | Level | Topic | Duration |
 |-------|-------|----------|
-| 🟢 Beginner | [Get Started](https://danteukraine.github.io/playwright-elements/docs/get_started.html) | 15 min |
-| 🟡 Intermediate | [WebElement Deep Dive](https://danteukraine.github.io/playwright-elements/docs/web_element.html) | 30 min |
-| 🔵 Advanced | [Test IDs Module](docs/test_ids.md) | 20 min |
-| 🔵 Advanced | [Best Practices](docs/best_practices.md) | 30 min |
-| 🟣 Expert | [Architecture & Patterns](docs/architecture.md) | 45 min |
+| 🟢 Beginner | [Get Started](./docs/get_started.html) | 15 min |
+| 🟡 Intermediate | [WebElement Deep Dive](./docs/web_element.html) | 30 min |
+| 🔵 Advanced | [Test IDs Module](./docs/test_ids.html) | 20 min |
+| 🔵 Advanced | [Best Practices](./docs/best_practices.html) | 30 min |
+| 🟣 Expert | [Architecture & Patterns](./docs/architecture.html) | 45 min |
 
 ---
 
@@ -282,7 +353,7 @@ type TestFixtures = { elements: typeof elements };
 
 export const test = baseTest.extend<TestFixtures>({
   elements: [async ({}, use) => {
-    // Note: First parameter MUST use object destructuring pattern
+    // IMPORTANT: First parameter MUST use object destructuring pattern
     // async (_deps, use) => { ... } will fail at collection time
     await use(elements);
   }, { scope: 'test' }],
@@ -329,7 +400,8 @@ type TestFixtures = { pageObject: PageObject<typeof pageObjectModule> };
 
 export const test = baseTest.extend<TestFixtures>({
   pageObject: [async ({}, use) => {
-    // Note: First parameter MUST use object destructuring pattern
+    // IMPORTANT: First parameter MUST use object destructuring pattern
+    // async (_deps, use) => { ... } will fail at collection time
     await use(buildPageObject(pageObjectModule));
   }, { scope: 'test' }],
 });
@@ -428,11 +500,11 @@ See [Test IDs Module](docs/test_ids.md) for complete documentation.
 
 | Section | Description |
 |---------|-------------|
-| [Get Started](https://danteukraine.github.io/playwright-elements/docs/get_started.html) | Installation and basic usage |
-| [Web Element](https://danteukraine.github.io/playwright-elements/docs/web_element.html) | Complete WebElement API reference |
-| [Page Objects](https://danteukraine.github.io/playwright-elements/docs/build_page_object.html) | Page object pattern guide |
-| [Fixtures](https://danteukraine.github.io/playwright-elements/docs/playwright_elements_fixtures.html) | Test fixture configuration |
-| [Browser Management](https://danteukraine.github.io/playwright-elements/docs/browser_instance.html) | Advanced browser control |
+| [Get Started](./docs/get_started.html) | Installation and basic usage |
+| [Web Element](./docs/web_element.html) | Complete WebElement API reference |
+| [Page Objects](./docs/build_page_object.html) | Page object pattern guide |
+| [Fixtures](./docs/playwright_elements_fixtures.html) | Test fixture configuration |
+| [Browser Management](./docs/browser_instance.html) | Advanced browser control |
 
 **Additional documentation available in the repository:**
 - [Architecture](docs/architecture.md) - Framework design principles
