@@ -324,14 +324,16 @@ await $('[data-testid="my-element"]').expect().toHaveCustomValue('test');
 
 ### Q: What about deep imports?
 
-A: If you use a deep import like `import { WebElement } from 'playwright-elements/lib/web.element'`, the automatic configuration from `playwright.test.fixtures` won't apply. You need to either:
+A: If you use a deep import like `import { WebElement } from 'playwright-elements/lib/web.element'`, the automatic configuration from `playwright.test.fixtures` won't apply. However, **the library now attempts a lazy default** by requiring `@playwright/test` on first use. This means:
 
 1. **Use the main entry point (recommended):**
 ```typescript
 import { WebElement, $ } from 'playwright-elements';
 ```
 
-2. **Manually configure the provider:**
+2. **Deep imports with @playwright/test available:** If `@playwright/test` is installed and available in your environment, deep imports will work automatically on first use.
+
+3. **Manually configure the provider (if @playwright/test is not available):**
 ```typescript
 import { WebElement } from 'playwright-elements/lib/web.element';
 import { expect } from '@playwright/test';
@@ -341,6 +343,8 @@ WebElement.setExpectProvider({
   softExpect: expect.soft
 });
 ```
+
+**Note:** The lazy default only works if `@playwright/test` is available at runtime. For production code without test dependencies, you must either use the main entry point or manually configure a provider.
 
 ---
 

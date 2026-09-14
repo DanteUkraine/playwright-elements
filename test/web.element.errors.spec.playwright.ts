@@ -390,4 +390,52 @@ test.describe('Web Element Error Handling and Negative Testing', () => {
             BrowserInstance.isContextMobile = false;
         });
     });
+
+    test.describe('.with() Invalid Values', () => {
+        test('should throw error when .with() receives non-WebElement/Function values', () => {
+            const element = $('div');
+            
+            expect(() => {
+                element.with({
+                    child: $('.child'),
+                    label: 'hello',
+                    cfg: { a: 1 }
+                });
+            }).toThrow(/\.with\(\) received invalid values for keys: label, cfg/);
+        });
+
+        test('should accept only WebElement instances and functions', () => {
+            const element = $('div');
+            
+            // This should work - only WebElement and Function
+            expect(() => {
+                element.with({
+                    child: $('.child'),
+                    method: function() { return 'test'; }
+                });
+            }).not.toThrow();
+        });
+
+        test('should throw for single invalid value', () => {
+            const element = $('div');
+            
+            expect(() => {
+                element.with({
+                    label: 'invalid'
+                });
+            }).toThrow(/\.with\(\) received invalid values for keys: label/);
+        });
+
+        test('should throw for multiple invalid values', () => {
+            const element = $('div');
+            
+            expect(() => {
+                element.with({
+                    a: 'invalid1',
+                    b: 123,
+                    c: { nested: 'object' }
+                });
+            }).toThrow(/\.with\(\) received invalid values/);
+        });
+    });
 });

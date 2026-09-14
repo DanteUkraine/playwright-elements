@@ -15,6 +15,26 @@ export type SoftExpectReturn = any;
 
 let _expectProvider: ExpectProvider | null = null;
 
+/**
+ * Attempts to get the Playwright expect provider if @playwright/test is available.
+ * Returns null if not available (e.g., in production code without test dependencies).
+ */
+function tryGetPlaywrightExpectProvider(): ExpectProvider | null {
+    try {
+        // Try to require @playwright/test - this works in test environments
+        const playwrightTest = require('@playwright/test');
+        if (playwrightTest && playwrightTest.expect) {
+            return {
+                expect: playwrightTest.expect,
+                softExpect: playwrightTest.expect.soft
+            };
+        }
+    } catch {
+        // @playwright/test not available - return null
+    }
+    return null;
+}
+
 function extractSelector(pointer: string | WebElement): string {
     return pointer instanceof WebElement ? pointer.selector : pointer;
 }
@@ -237,9 +257,13 @@ export class WebElement {
      * 
      * @param message - Optional message for the assertion
      * @returns Playwright assertion chain for the element's locator
-     * @throws Error if ExpectProvider is not configured
+     * @throws Error if ExpectProvider is not configured and @playwright/test is not available
      */
     public expect(message?: string): ExpectReturn {
+        if (!_expectProvider) {
+            // Lazy default: try to use @playwright/test's expect if available
+            _expectProvider = tryGetPlaywrightExpectProvider();
+        }
         if (!_expectProvider) {
             throw new Error(
                 'Assertion provider not configured. Call WebElement.setExpectProvider() in your test setup. ' +
@@ -257,9 +281,13 @@ export class WebElement {
      * 
      * @param message - Optional message for the assertion
      * @returns Playwright soft assertion chain for the element's locator
-     * @throws Error if ExpectProvider is not configured
+     * @throws Error if ExpectProvider is not configured and @playwright/test is not available
      */
     public softExpect(message?: string): SoftExpectReturn {
+        if (!_expectProvider) {
+            // Lazy default: try to use @playwright/test's expect if available
+            _expectProvider = tryGetPlaywrightExpectProvider();
+        }
         if (!_expectProvider) {
             throw new Error(
                 'Assertion provider not configured. Call WebElement.setExpectProvider() in your test setup. ' +
@@ -317,6 +345,19 @@ export class WebElement {
             .filter(e => e[1] instanceof WebElement)) as InternalElements;
         const functions = Object.fromEntries(Object.entries(augment)
             .filter(e => e[1] instanceof Function)) as InternalMethods<T, A>;
+        
+        // Check for invalid values (neither WebElement nor Function)
+        const invalidKeys = Object.entries(augment)
+            .filter(e => !(e[1] instanceof WebElement) && !(e[1] instanceof Function))
+            .map(e => e[0]);
+        
+        if (invalidKeys.length > 0) {
+            throw new Error(
+                `[playwright-elements] .with() received invalid values for keys: ${invalidKeys.join(', ')}. ` +
+                `Only WebElement instances and functions are allowed.`
+            );
+        }
+        
         if (Object.keys(elements).length !== 0) this.subElements(elements);
         if (Object.keys(functions).length !== 0) this.withMethods(functions);
         return this as T & A;

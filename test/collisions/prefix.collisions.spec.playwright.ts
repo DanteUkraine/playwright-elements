@@ -56,7 +56,52 @@ test.describe('Prefix Collision Prevention', () => {
     expect(() => $byTestIdPrefix(bare)).toThrow('requires a factory with a non-empty prefix');
   });
 
+    test('$byTestIdPrefix works correctly with factory that has non-empty prefix', () => {
+    const factoryWithPrefix = factory('test');
+    const element = $byTestIdPrefix(factoryWithPrefix);
+    
+    expect(element.selector).toBe('[data-testid^="test-"]');
+    });
+
 test.describe('assertNoPrefixCollisions()', () => {
+    test('idx-consent / idx-consents pair should NOT be flagged as collision', () => {
+      // This is the origin story for the delimiter fix.
+      // factory('idx-consent') produces IDs like 'idx-consent-acme' (with - delimiter)
+      // The selector is [data-testid^="idx-consent-"] which does NOT match 'idx-consents'
+      // Therefore, these should NOT be flagged as a collision
+      const ids = {
+        consentFactory: factory('idx-consent'),
+        consentsStatic: sid('idx-consents')
+      };
+      
+      // Should NOT throw - no collision because selector uses prefix + '-' delimiter
+      expect(() => assertNoPrefixCollisions(ids)).not.toThrow();
+    });
+
+    test('idx-consent / idx-consent-acme pair should be flagged as collision', () => {
+      // factory('idx-consent') produces IDs like 'idx-consent-acme'
+      // This SHOULD be flagged as a collision
+      const ids = {
+        consentFactory: factory('idx-consent'),
+        acmeStatic: sid('idx-consent-acme')
+      };
+      
+      // Should throw - collision detected
+      expect(() => assertNoPrefixCollisions(ids)).toThrow('test id prefix collisions');
+    });
+
+    test('factory to factory collision with delimiter', () => {
+      // factory('idx-consent') with prefix 'idx-consent-'
+      // factory('idx-consent-other') with prefix 'idx-consent-other-'
+      // These should be flagged as collision
+      const ids = {
+        factory1: factory('idx-consent'),
+        factory2: factory('idx-consent-other')
+      };
+      
+      expect(() => assertNoPrefixCollisions(ids)).toThrow('test id prefix collisions');
+    });
+
     test('should detect collision between factory and static ID', () => {
       const ids = {
         factory1: factory('prefix'),

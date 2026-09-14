@@ -63,6 +63,9 @@ const escapeForCssAttribute = (value: string): string => {
  * Note: This selector matches on prefix + '-', so factory('btn') will match
  * 'btn-submit' but not 'btnSubmit' or a static id 'btntest'.
  * 
+ * **Warning:** Does not accept `bareFactory()` instances (which have empty prefix).
+ * Use `factory()` to create a factory with a non-empty prefix.
+ * 
  * @example
  * ```typescript
  * import { $byTestIdPrefix, factory } from 'playwright-elements';
@@ -83,7 +86,7 @@ const escapeForCssAttribute = (value: string): string => {
  * };
  * ```
  * 
- * @param factory - An IdFactory with a non-empty prefix
+ * @param factory - An IdFactory with a non-empty prefix (not bareFactory)
  * @returns A WebElement that matches elements with data-testid starting with the prefix
  * @throws Error if the factory has an empty prefix
  */

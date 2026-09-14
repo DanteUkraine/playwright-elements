@@ -200,6 +200,9 @@ export const factory = <K extends string = string>(
  * Used for raw entity-id testids, such as when an ID is based on a database ID
  * or other unique identifier.
  * 
+ * **Note:** Incompatible with `$byTestIdPrefix` which requires a non-empty prefix.
+ * Use `factory()` instead if you need prefix-based selectors.
+ * 
  * @example
  * ```typescript
  * // For components that use entity IDs directly
@@ -295,9 +298,14 @@ export function assertNoPrefixCollisions(ids: Record<string, unknown>): void {
         if (!f.prefix) continue;
         const allowed = new Set(f.aliasPrefixes ?? []);
         
+        // The selector uses prefix + '-', so we need to check against that
+        // to match the actual selector behavior (e.g., factory('idx-consent')
+        // produces '[data-testid^="idx-consent-"]' which won't match 'idx-consents')
+        const prefixWithDelimiter = `${f.prefix}-`;
+        
         // Check against static IDs
         for (const s of statics) {
-            if (s.startsWith(f.prefix) && s !== f.prefix && !allowed.has(s)) {
+            if (s.startsWith(prefixWithDelimiter) && !allowed.has(s)) {
                 problems.push(`factory '${f.prefix}' also matches static id '${s}'`);
             }
         }
@@ -305,7 +313,8 @@ export function assertNoPrefixCollisions(ids: Record<string, unknown>): void {
         // Check against other factories
         for (const g of factories) {
             if (g === f || !g.prefix) continue;
-            if (g.prefix.startsWith(f.prefix) && !allowed.has(g.prefix)) {
+            const gPrefixWithDelimiter = `${g.prefix}-`;
+            if (gPrefixWithDelimiter.startsWith(prefixWithDelimiter) && !allowed.has(g.prefix)) {
                 problems.push(`factory '${f.prefix}' also matches factory '${g.prefix}'`);
             }
         }
