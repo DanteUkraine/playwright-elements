@@ -1,9 +1,11 @@
 import { test as base, Page, Response, expect, BrowserContext } from '@playwright/test';
 import type { Locator } from 'playwright-core';
-import type { Expect } from '@playwright/test';
 import { BrowserInstance, usePage } from './browser';
 import { WebElement } from './web.element';
 
+type LocatorExpect = ReturnType<typeof expect<Locator>>;
+
+// Configure the expectation provider with proper types
 WebElement.setExpectProvider({
     expect: expect,
     softExpect: expect.soft
@@ -11,10 +13,11 @@ WebElement.setExpectProvider({
 
 // Type augmentation: When using playwright-elements/test, the expect() and softExpect()
 // methods should return Playwright's full LocatorExpect type
+// We augment the WebElement class from the main entry point
 declare module './web.element' {
-    interface WebElementAssertions {
-        expect: ReturnType<Expect<Locator>>;
-        softExpect: ReturnType<Expect<Locator>>;
+    interface WebElement {
+        expect(message?: string): LocatorExpect;
+        softExpect(message?: string): LocatorExpect;
     }
 }
 

@@ -183,7 +183,7 @@ export const ids = {
 
 Creates a factory whose entire ID is the key (no prefix). Useful for entity-based IDs where the ID itself is dynamic, such as when an ID is based on a database ID or other unique identifier.
 
-**New in v1.19.0-rc2**
+**New in v1.19.0**
 
 ```typescript
 import { bareFactory } from 'playwright-elements';
@@ -204,7 +204,7 @@ Adopts a string as a TestId without type safety. This is an **escape hatch** for
 
 **⚠️ Use sparingly** - Prefer `sid()` or `factory()` for better type safety.
 
-**New in v1.19.0-rc2**
+**New in v1.19.0**
 
 ```typescript
 import { unsafeId, $byTestId } from 'playwright-elements';
@@ -220,7 +220,7 @@ const element = $byTestId(thirdPartyId);
 
 Validates that no factory prefix is a prefix of another registered ID unless explicitly declared as an alias. This catches collision issues like `factory('idx-consent')` matching a static id `'idx-consents'`.
 
-**New in v1.19.0-rc2**
+**New in v1.19.0**
 
 ```typescript
 import { assertNoPrefixCollisions, factory, sid } from 'playwright-elements';

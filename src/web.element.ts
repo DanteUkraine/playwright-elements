@@ -2,21 +2,16 @@ import { Locator, LocatorScreenshotOptions, Page } from 'playwright-core';
 import cloneDeep from 'lodash.clonedeep';
 import { BrowserInstance } from './browser';
 
-// Default expectation types when no provider is configured
-// This will be augmented by test-specific modules (e.g., playwright.test.fixtures)
-export interface WebElementAssertions {
-    expect: any;
-    softExpect: any;
-}
-
-// Return types for expect() and softExpect() methods
-export type ExpectReturn = WebElementAssertions['expect'];
-export type SoftExpectReturn = WebElementAssertions['softExpect'];
-
 export interface ExpectProvider {
     expect: (locator: any, message?: string) => any;
     softExpect: (locator: any, message?: string) => any;
 }
+
+// Default expectation types when no provider is configured.
+// This will be augmented by test-specific modules (e.g., playwright.test.fixtures)
+// We use any as default, which will be replaced by augmentation
+export type ExpectReturn = any;
+export type SoftExpectReturn = any;
 
 let _expectProvider: ExpectProvider | null = null;
 

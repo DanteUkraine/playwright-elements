@@ -6,24 +6,24 @@ title: Migration Guide
 
 # Migration Guide
 
-> **Guide for migrating to playwright-elements version 1.18.3+**
+> **Guide for migrating to playwright-elements version 1.19.0+**
 
-## Version 1.18.3: ExpectProvider Pattern
+## Version 1.19.0: ExpectProvider Pattern
 
 ### Overview
 
-Version 1.18.3 introduced a **breaking change** in how WebElement assertions work. This change **decouples the core WebElement class from @playwright/test**, providing better architecture and framework flexibility.
+Version 1.19.0 introduced a **breaking change** in how WebElement assertions work. This change **decouples the core WebElement class from @playwright/test**, providing better architecture and framework flexibility.
 
 ---
 
 ## What Changed
 
-| **Before 1.18.3** | **After 1.18.3** |
+| **Before 1.19.0** | **After 1.19.0** |
 |-------------------|------------------|
 | Direct import of `@playwright/test` expect | No direct dependency on test framework |
-| `expect()` worked out of the box | Requires provider configuration |
+| `expect()` worked out of the box | Requires provider configuration (automatic for @playwright/test) |
 | Tight coupling with Playwright | Framework-agnostic architecture |
-| `useExpect()` method for custom expect | `setExpectProvider()` for provider injection (useExpect restored in 1.19.0-rc2) |
+| `useExpect()` method for custom expect | `setExpectProvider()` for provider injection (useExpect maintained for backward compatibility) |
 
 ---
 
@@ -138,7 +138,7 @@ await $('.element').expect().toHaveCustomValue('test');
 
 ### `useExpect()` Method
 
-The `useExpect()` static method was restored in v1.19.0-rc2 and now accepts an optional expect provider parameter for backward compatibility:
+The `useExpect()` static method accepts an optional expect provider parameter for backward compatibility:
 
 ```typescript
 // With parameter - delegates to setExpectProvider:

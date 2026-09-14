@@ -500,7 +500,7 @@ clone<T extends WebElement>(options?: {
 
 ## Assertion Provider Configuration
 
-Starting from version 1.18.3, assertions use a **provider pattern** that decouples WebElement from specific test frameworks.
+Starting from version 1.19.0, assertions use a **provider pattern** that decouples WebElement from specific test frameworks.
 
 ### For Playwright Test (Automatic)
 
@@ -542,9 +542,9 @@ export interface ExpectProvider {
 
 ### Migration from Previous Versions
 
-**Before 1.18.3:** Assertions worked implicitly.
+**Before 1.19.0:** Assertions worked implicitly.
 
-**After 1.18.3:** Explicit configuration required (automatic for `@playwright/test`).
+**After 1.19.0:** Explicit configuration required (automatic for `@playwright/test`).
 
 **Backward Compatibility:** The `useExpect()` method is maintained but is now a no-op. Use `setExpectProvider()` instead.
 
@@ -1010,12 +1010,12 @@ await $('.element').expect().toBeVisible();
 
 ### Migration from Previous Versions
 
-**Before 1.18.3 (automatic, implicit):**
+**Before 1.19.0 (automatic, implicit):**
 ```typescript
 await $('.element').expect().toBeVisible(); // Just worked
 ```
 
-**After 1.18.3 (explicit configuration):**
+**After 1.19.0 (explicit configuration):**
 ```typescript
 // For Playwright Test: Automatic (no changes needed)
 await $('.element').expect().toBeVisible(); // Works automatically
@@ -1109,11 +1109,11 @@ await element.softExpect('User name should match').toHaveText('John Doe');
 
 #### Type Safety
 
-The return type of `expect()` and `softExpect()` is `any` to support the full Playwright assertion chain. For better type safety with custom matchers, see [Extended Expect](#extended-expect).
+When using `playwright-elements/test`, the return type of `expect()` and `softExpect()` is fully typed with Playwright's `MakeMatchers` type, providing complete autocompletion for all Playwright matchers (`.toBeVisible()`, `.toHaveText()`, etc.). For custom frameworks, the type depends on the configured ExpectProvider.
 
 ### Extended Expect
 
-> **Note:** With the new ExpectProvider pattern (v1.18.3+), custom matchers should be configured through the provider rather than directly extending expect.
+> **Note:** With the ExpectProvider pattern (v1.19.0+), custom matchers should be configured through the provider rather than directly extending expect.
 
 WebElement allows users to use custom matchers with the new provider pattern. For full type safety and autocompletion with custom matchers, configure them through the ExpectProvider.
 

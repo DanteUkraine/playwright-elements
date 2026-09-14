@@ -30,7 +30,7 @@ The central class that wraps Playwright's Locator with additional functionality.
 - Chainable selector building
 - Sub-element support with type-safe `with()` method
 - Locator method delegation
-- Assertion support via provider pattern (since v1.18.3)
+- Assertion support via provider pattern (since v1.19.0)
 
 **Architecture Diagram:**
 ```
@@ -53,7 +53,7 @@ WebElement
 
 ### 2. ExpectProvider Pattern
 
-Starting from version 1.18.3, assertions are implemented using a **provider pattern** that decouples WebElement from specific test frameworks.
+Starting from version 1.19.0, assertions are implemented using a **provider pattern** that decouples WebElement from specific test frameworks.
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -286,7 +286,7 @@ await button.expect().toBeVisible();
 |---------|-------------------|---------------|
 | Type Safety | ✅ Full TypeScript | ⚠️ Varies |
 | Chainable | ✅ Yes | ⚠️ Sometimes |
-| Framework Agnostic | ✅ Yes (v1.18.3+) | ❌ Usually not |
+| Framework Agnostic | ✅ Yes (v1.19.0+) | ❌ Usually not |
 | Production Ready | ✅ Yes | ❌ Usually not |
 | No Dependencies | ✅ Only Playwright-core | ❌ Often have many |
 | Extensible | ✅ Yes | ⚠️ Sometimes |
@@ -344,12 +344,12 @@ WebElement.setExpectProvider({
 
 Playwright-elements combines the power of Playwright's native locators with:
 - Type-safe page object patterns
-- Framework-agnostic architecture (v1.18.3+)
+- Framework-agnostic architecture (v1.19.0+)
 - Minimal boilerplate
 - Extensible design
 - Production-ready core
 
-The ExpectProvider pattern (introduced in v1.18.3) represents a significant architectural improvement, making the library truly framework-agnostic while maintaining backward compatibility.
+The ExpectProvider pattern (introduced in v1.19.0) represents a significant architectural improvement, making the library truly framework-agnostic while maintaining backward compatibility.
 
 ---
 
