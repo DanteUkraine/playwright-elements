@@ -1,6 +1,7 @@
 export * from "./browser.instance.context.spec.playwright";
 export * from "./browser.instance.managers.spec.playwright";
 export * from "./browser.spec.playwright";
+export * from "./custom.matchers.spec";
 export * from "./index.generator.cli.spec.playwright";
 export * from "./index.generator.spec.playwright";
 export * from "./memory.tests.spec.playwright";
