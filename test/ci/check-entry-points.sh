@@ -45,6 +45,16 @@ for entry in "${ENTRY_POINTS[@]}"; do
   fi
 done
 
+# Also test the standalone testids package entry point
+echo "Testing packages/testids/lib/builder.js (standalone package)..."
+if node -e "require('./packages/testids/lib/builder')" > /dev/null 2>&1; then
+  echo "  ✅ PASS: packages/testids/lib/builder.js"
+  PASSED=$((PASSED + 1))
+else
+  echo "  ❌ FAIL: packages/testids/lib/builder.js"
+  FAILED=$((FAILED + 1))
+fi
+
 echo ""
 echo "=========================================="
 echo "Results: ${PASSED} passed, ${FAILED} failed"

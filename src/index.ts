@@ -28,4 +28,6 @@ export {
   $byTestIdPrefix,
   $byTestIdContaining,
   $byTestIdEndingWith,
+  setTestIdAttribute,
+  getTestIdAttribute,
 } from './testIds/selectors';

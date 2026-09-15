@@ -16,11 +16,22 @@ The Test IDs module provides a type-safe system for generating and managing test
 
 ## Installation
 
-The Test IDs module is included with playwright-elements v1.19.0 and later. No additional installation is required.
+The Test IDs module is included with playwright-elements v1.19.0 and later.
 
+**For full use (IDs + selectors):**
 ```bash
-npm install playwright-elements@^1.19.0
+npm install -D playwright-elements
 ```
+
+**For IDs only (zero runtime dependencies — no Playwright, no lodash):**
+```bash
+npm install -D @playwright-elements/testids
+```
+```typescript
+import { sid, factory, testIdProps } from '@playwright-elements/testids';
+```
+
+The standalone `@playwright-elements/testids` package is recommended for production code (React components) and unit tests where you do not need Playwright selectors. The `playwright-elements/testids` subpath also works as a backward-compatible alternative (import-time isolation only).
 
 ## Core Concepts
 

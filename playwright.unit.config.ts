@@ -50,6 +50,11 @@ export default defineConfig({
       timeout: 45_000,
     },
     {
+      name: 'Custom testId attribute tests',
+      testMatch: 'selectors/custom.testid.attribute.spec.playwright.ts',
+      timeout: 45_000,
+    },
+    {
       name: 'Security contracts tests',
       testMatch: 'security.contracts.spec.playwright.ts',
       use: {

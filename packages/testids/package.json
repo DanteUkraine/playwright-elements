@@ -1,0 +1,58 @@
+{
+  "name": "@playwright-elements/testids",
+  "version": "1.0.0",
+  "description": "Zero-dependency, type-safe test ID generation for Playwright and beyond.",
+  "type": "commonjs",
+  "main": "lib/builder.js",
+  "types": "lib/builder.d.ts",
+  "typings": "lib/builder.d.ts",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "sideEffects": false,
+  "files": [
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./lib/builder.d.ts",
+      "default": "./lib/builder.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "tsc --build --clean tsconfig.build.json",
+    "test:unit": "npx playwright test --config=playwright.unit.config.ts",
+    "ci:check-purity": "node -e \"const b=Object.keys(require.cache).length;require('./lib/builder');const a=Object.keys(require.cache).length;if(a-b!==1){console.error('Expected 1 module, loaded '+(a-b));process.exit(1)}else{console.log('Purity OK: 1 module loaded')}\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DanteUkraine/playwright-elements.git",
+    "directory": "packages/testids"
+  },
+  "keywords": [
+    "playwright",
+    "testids",
+    "test-ids",
+    "data-testid",
+    "type-safe",
+    "branded-types"
+  ],
+  "author": "Oleksandr Solomin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DanteUkraine/playwright-elements/issues"
+  },
+  "homepage": "https://danteukraine.github.io/playwright-elements",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^20.11.0",
+    "typescript": "^6.0.3"
+  }
+}

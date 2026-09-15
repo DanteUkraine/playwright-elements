@@ -24,7 +24,7 @@ A new **zero-dependency** module for type-safe test ID generation:
 - **Branded Types**: Compile-time type checking prevents ID misuse
 - **Factory System**: `factory()`, `bareFactory()` for dynamic ID generation
 - **Collision Detection**: `assertNoPrefixCollisions()` catches prefix conflicts
-- **Zero Dependencies**: Import from `playwright-elements/testids` for production code
+- **Zero Dependencies**: Install `@playwright-elements/testids` for true install-time isolation (no Playwright or lodash in `node_modules`), or import from `playwright-elements/testids` for backward-compatible import-time isolation
 
 ### Custom Matcher Support
 Custom matchers added via `expect.extend()` now work seamlessly with WebElement.expect() and provide full TypeScript autocomplete.
@@ -124,11 +124,21 @@ const ruleRow = bareFactory<'rules.row'>();
 - **Zero runtime overhead**: All types are erased at compile time
 
 **Zero-dependency import:** For projects that only need the test IDs module without Playwright dependencies:
+
+**Option 1 — Standalone package (recommended for unit tests and production code):**
+```bash
+npm install -D @playwright-elements/testids
+```
+```typescript
+import { sid, factory, bareFactory, testIdProps } from '@playwright-elements/testids';
+```
+This installs a separate package with **zero runtime dependencies** — no Playwright, no lodash in `node_modules`.
+
+**Option 2 — Subpath re-export (backward compatible):**
 ```typescript
 import { sid, factory, bareFactory, testIdProps } from 'playwright-elements/testids';
 ```
-
-This import has **zero dependencies** and can be used in production code.
+This has **zero import-time dependencies** (loads no Playwright at runtime) but still installs the full `playwright-elements` package.
 
 ---
 

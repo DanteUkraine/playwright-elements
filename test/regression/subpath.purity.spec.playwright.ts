@@ -4,20 +4,23 @@
  * These tests ensure that the testIds module can be imported via a dependency-free
  * subpath, which is essential for using the module in production code (e.g., React components).
  * 
- * This addresses the issue where there was no way to import testIdProps into application React code
- * without loading the entire browser stack, making @playwright/test a production dependency.
+ * The builder is now a re-export from @playwright-elements/testids (a standalone
+ * zero-dependency package). The re-export itself loads 2 modules:
+ *   1. lib/testIds/builder.js (the re-export shim)
+ *   2. @playwright-elements/testids/lib/builder.js (the standalone package)
+ * Neither loads Playwright or lodash.
  */
 
 import { test, expect } from '../../src/playwright.test.fixtures';
 
 test.describe('Subpath Purity', () => {
-  test('testids subpath should load only 1 module (itself)', () => {
+  test('testids subpath should load only the re-export + standalone package (no Playwright/lodash)', () => {
     // Normalize path for cross-platform compatibility (Windows uses backslashes)
     const normalizePath = (p: string) => p.replace(/\\/g, '/');
     
     // Clear the require cache for playwright-elements modules for a clean measurement
     Object.keys(require.cache).forEach(key => {
-      if (normalizePath(key).includes('playwright-elements/lib')) {
+      if (normalizePath(key).includes('playwright-elements/lib') || normalizePath(key).includes('testids/lib')) {
         delete require.cache[key];
       }
     });
@@ -31,12 +34,17 @@ test.describe('Subpath Purity', () => {
     const cacheAfter = new Set(Object.keys(require.cache));
     const newModules = [...cacheAfter].filter(m => !cacheBefore.has(m));
     
-    // Filter to only playwright-elements modules (ignore Playwright internals like babelBundle.js)
-    const playwrightElementsModules = newModules.filter(m => normalizePath(m).includes('playwright-elements/lib'));
+    // The re-export loads 2 modules: the shim + the standalone package
+    // Neither should be Playwright or lodash
+    const impureModules = newModules.filter(m => {
+      const n = normalizePath(m);
+      return n.includes('playwright-core') || n.includes('@playwright/test') || n.includes('lodash');
+    });
     
-    // Should only load 1 module from playwright-elements (the builder itself)
-    expect(playwrightElementsModules.length).toBe(1);
-    expect(normalizePath(playwrightElementsModules[0])).toContain('testIds/builder');
+    expect(impureModules.length).toBe(0);
+    
+    // Verify the builder exports work
+    expect(typeof builder.sid).toBe('function');
   });
 
   test('testids subpath should export all expected functions', () => {
@@ -64,13 +72,8 @@ test.describe('Subpath Purity', () => {
       }
     });
     
-    // Count playwright-elements modules before and after
-    const cacheBeforePE = Object.keys(require.cache).filter(k => normalizePath(k).includes('playwright-elements/lib')).length;
-    const builder = require('../../lib/testIds/builder');
-    const cacheAfterPE = Object.keys(require.cache).filter(k => normalizePath(k).includes('playwright-elements/lib')).length;
-    
-    // Should only load 1 module from playwright-elements
-    expect(cacheAfterPE - cacheBeforePE).toBe(1);
+    // Load the re-export
+    require('../../lib/testIds/builder');
     
     // Verify no playwright-core or @playwright/test modules were loaded by our subpath
     // (filter out playwright internal modules like babelBundle.js which may be loaded by the test runner)

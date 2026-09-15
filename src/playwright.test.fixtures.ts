@@ -2,6 +2,7 @@ import { test as base, Page, Response, expect } from '@playwright/test';
 import type { Locator } from 'playwright-core';
 import { BrowserInstance, usePage } from './browser';
 import { WebElement } from './web.element';
+import { setTestIdAttribute } from './testIds/selectors';
 
 type LocatorExpect = ReturnType<typeof expect<Locator>>;
 
@@ -30,6 +31,7 @@ type GoToOptions = {
 export const test = base.extend<{
     goto: (endpoint?: string, options?: GoToOptions) => Promise<null | Response>,
     initBrowserInstance: void,
+    testIdAttributeBridge: void,
     usePage: <T>(page: Page, callback: () => Promise<T>) => Promise<T>
 }>({
     goto: [
@@ -55,6 +57,16 @@ export const test = base.extend<{
             await use(<T>(page: Page, callback: () => Promise<T>) => usePage<T>(page, callback));
         },
         { scope: 'test' }
+    ],
+    testIdAttributeBridge: [
+        async ({ testIdAttribute }: { testIdAttribute?: string }, use: () => Promise<void>) => {
+            // Sync the $byTestId* CSS selectors with Playwright's use.testIdAttribute config.
+            // Playwright's native getByTestId already respects this; our CSS-based selectors
+            // need to be told explicitly because they don't go through Playwright's locator chain.
+            setTestIdAttribute(testIdAttribute ?? 'data-testid');
+            await use();
+        },
+        { scope: 'test', auto: true }
     ]
 });
 

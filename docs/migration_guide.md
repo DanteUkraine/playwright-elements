@@ -190,7 +190,16 @@ Version 1.19.0 introduced a new **TestIds module** for type-safe test ID generat
 
 #### Import Paths
 
-**Zero-dependency import (recommended for production code):**
+**Standalone package (recommended for production code and unit tests):**
+```bash
+npm install -D @playwright-elements/testids
+```
+```typescript
+import { sid, factory, testIdProps } from '@playwright-elements/testids';
+```
+This is a separate npm package with **zero runtime dependencies** — no Playwright or lodash in `node_modules`.
+
+**Zero-dependency subpath (backward compatible, import-time isolation only):**
 ```typescript
 import { sid, factory, testIdProps } from 'playwright-elements/testids';
 ```

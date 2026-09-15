@@ -299,13 +299,22 @@ The exact-match semantics are identical.
 
 ### Can I use Test IDs without the full playwright-elements?
 
-Yes! Import from the lightweight subpath:
+Yes! There are two options:
 
+**Option 1 — Standalone package (recommended):**
+```bash
+npm install -D @playwright-elements/testids
+```
+```typescript
+import { sid, factory, testIdProps } from '@playwright-elements/testids';
+```
+This is a separate npm package with **zero runtime dependencies**. Nothing from Playwright or lodash is installed in your `node_modules`.
+
+**Option 2 — Subpath import (backward compatible):**
 ```typescript
 import { sid, factory, testIdProps } from 'playwright-elements/testids';
 ```
-
-This has zero dependencies on Playwright.
+This loads zero Playwright modules at runtime, but still installs the full `playwright-elements` package.
 
 ### How do I validate my Test IDs?
 

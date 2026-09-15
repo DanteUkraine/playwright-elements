@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-- **Type-Safe TestIds Module**: New `testIds` module with branded types for test ID generation, preventing ID misuse through the type system. Available via zero-dependency import `playwright-elements/testids`.
+- **Type-Safe TestIds Module**: New `testIds` module with branded types for test ID generation, preventing ID misuse through the type system. Available via zero-dependency import `playwright-elements/testids`, or as a standalone package `@playwright-elements/testids` for true install-time isolation.
 
 - **Custom Matcher Support**: Custom matchers added via `expect.extend()` now work seamlessly with WebElement instances and provide full TypeScript autocomplete.
 
@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `sideEffects: true` to explicitly declare module has side effects.
 - Added zero-dependency entry point at `playwright-elements/testids` for use in production code.
 - Added exports for `./testIds/builder` and `./testIds/selectors` subpaths.
+- Extracted test IDs builder into standalone package `@playwright-elements/testids` (zero runtime dependencies) for true install-time isolation. Framework `testIds/builder` now re-exports from this package.
 
 **Note on peerDependencies:** Both `@playwright/test` and `playwright-core` are listed as peer dependencies. This is intentional because the library imports types directly from `playwright-core` (e.g., `Locator`, `Page`). While `@playwright/test` depends on `playwright` which depends on `playwright-core`, having both as peer dependencies with matching version ranges (`>= 1.62.x`) ensures type compatibility.
 

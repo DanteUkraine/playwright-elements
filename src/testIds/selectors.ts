@@ -11,6 +11,30 @@ import { $ } from '../web.element';
 import type { IdFactory, TestId } from './builder';
 
 /**
+ * Configurable test ID attribute name.
+ * Defaults to 'data-testid' (matching Playwright's default).
+ * Updated at runtime by the testIdAttributeBridge fixture, which reads
+ * `use.testIdAttribute` from the Playwright config.
+ */
+let configuredTestIdAttribute = 'data-testid';
+
+/**
+ * Sets the test ID attribute name used by the $byTestId* selector functions.
+ * Called automatically by the testIdAttributeBridge fixture in playwright.test.fixtures.ts
+ * to sync with `use.testIdAttribute` from the Playwright config.
+ *
+ * @param attr - The HTML attribute name (e.g. 'data-testid', 'data-pw')
+ */
+export const setTestIdAttribute = (attr: string): void => {
+  configuredTestIdAttribute = attr;
+};
+
+/**
+ * Returns the currently configured test ID attribute name.
+ */
+export const getTestIdAttribute = (): string => configuredTestIdAttribute;
+
+/**
  * Creates a WebElement that matches an element with an exact data-testid value.
  * This selector builds a CSS attribute selector (`[data-testid="..."`]) rather than
  * using Playwright's `getByTestId`, which is important because:
@@ -22,6 +46,11 @@ import type { IdFactory, TestId } from './builder';
  * 
  * Exact-match semantics are identical to Playwright's `getByTestId`.
  * 
+ * The attribute name defaults to `data-testid` but can be overridden:
+ * - Globally via `use.testIdAttribute` in the Playwright config (applied automatically
+ *   by the testIdAttributeBridge fixture)
+ * - Per-call via the `attr` parameter
+ * 
  * @example
  * ```typescript
  * import { $byTestId, sid } from 'playwright-elements';
@@ -32,6 +61,9 @@ import type { IdFactory, TestId } from './builder';
  * // Typed TestId
  * const header = $byTestId(sid<'header'>('main-header'));
  * 
+ * // Custom attribute (overrides config)
+ * const button = $byTestId(sid('submit-button'), 'data-pw');
+ * 
  * // Usage in page object
  * export const loginPage = {
  *   usernameField: $byTestId(sid('username-input')),
@@ -41,10 +73,11 @@ import type { IdFactory, TestId } from './builder';
  * ```
  * 
  * @param id - The test ID to match
- * @returns A WebElement that matches elements with the exact data-testid value
+ * @param attr - Optional attribute name (defaults to configured testIdAttribute or 'data-testid')
+ * @returns A WebElement that matches elements with the exact test id attribute value
  */
-export const $byTestId = <K extends string>(id: TestId<K>): ReturnType<typeof $> =>
-  $(`[data-testid=${escapeForCssAttribute(id as string)}]`);
+export const $byTestId = <K extends string>(id: TestId<K>, attr?: string): ReturnType<typeof $> =>
+  $(`[${attr ?? configuredTestIdAttribute}=${escapeForCssAttribute(id as string)}]`);
 
 /**
  * Escapes special characters for use in CSS attribute selectors.
@@ -77,6 +110,9 @@ const escapeForCssAttribute = (value: string): string => {
  * const allRows = $byTestIdPrefix(ruleRow);
  * // Produces: $('[data-testid^="rule-row-"]')
  * 
+ * // Custom attribute (overrides config)
+ * const allRows = $byTestIdPrefix(ruleRow, 'data-pw');
+ * 
  * // Usage in page object
  * export const rulesList = {
  *   allRows: $byTestIdPrefix(ruleRow),
@@ -87,10 +123,11 @@ const escapeForCssAttribute = (value: string): string => {
  * ```
  * 
  * @param factory - An IdFactory with a non-empty prefix (not bareFactory)
- * @returns A WebElement that matches elements with data-testid starting with the prefix
+ * @param attr - Optional attribute name (defaults to configured testIdAttribute or 'data-testid')
+ * @returns A WebElement that matches elements with test id attribute starting with the prefix
  * @throws Error if the factory has an empty prefix
  */
-export const $byTestIdPrefix = <K extends string>(factory: IdFactory<K>): ReturnType<typeof $> => {
+export const $byTestIdPrefix = <K extends string>(factory: IdFactory<K>, attr?: string): ReturnType<typeof $> => {
   if (!factory.prefix) {
     throw new Error('$byTestIdPrefix requires a factory with a non-empty prefix');
   }
@@ -98,7 +135,7 @@ export const $byTestIdPrefix = <K extends string>(factory: IdFactory<K>): Return
   // Use prefix + '-' to match exactly what factory() produces, preventing collisions
   // with static IDs that share the prefix (e.g., factory('idx-consent') shouldn't match 'idx-consents')
   const prefixWithDelimiter = `${factory.prefix}-`;
-  return $(`[data-testid^=${escapeForCssAttribute(prefixWithDelimiter)}]`);
+  return $(`[${attr ?? configuredTestIdAttribute}^=${escapeForCssAttribute(prefixWithDelimiter)}]`);
 };
 
 /**
@@ -113,13 +150,17 @@ export const $byTestIdPrefix = <K extends string>(factory: IdFactory<K>): Return
  * // Match any ID containing 'user'
  * const userElements = $byTestIdContaining('user');
  * // Produces: $('[data-testid*="user"]')
+ * 
+ * // Custom attribute (overrides config)
+ * const userElements = $byTestIdContaining('user', 'data-pw');
  * ```
  * 
- * @param substring - The substring to match within data-testid values
- * @returns A WebElement that matches elements with data-testid containing the substring
+ * @param substring - The substring to match within test id attribute values
+ * @param attr - Optional attribute name (defaults to configured testIdAttribute or 'data-testid')
+ * @returns A WebElement that matches elements with test id attribute containing the substring
  */
-export const $byTestIdContaining = (substring: string): ReturnType<typeof $> =>
-  $(`[data-testid*=${escapeForCssAttribute(substring)}]`);
+export const $byTestIdContaining = (substring: string, attr?: string): ReturnType<typeof $> =>
+  ($(`[${attr ?? configuredTestIdAttribute}*=${escapeForCssAttribute(substring)}]`));
 
 /**
  * Creates a WebElement that matches any element whose `data-testid` ends with
@@ -132,10 +173,14 @@ export const $byTestIdContaining = (substring: string): ReturnType<typeof $> =>
  * // Match any ID ending with '-button'
  * const buttons = $byTestIdEndingWith('-button');
  * // Produces: $('[data-testid$="-button"]')
+ * 
+ * // Custom attribute (overrides config)
+ * const buttons = $byTestIdEndingWith('-button', 'data-pw');
  * ```
  * 
- * @param suffix - The suffix to match at the end of data-testid values
- * @returns A WebElement that matches elements with data-testid ending with the suffix
+ * @param suffix - The suffix to match at the end of test id attribute values
+ * @param attr - Optional attribute name (defaults to configured testIdAttribute or 'data-testid')
+ * @returns A WebElement that matches elements with test id attribute ending with the suffix
  */
-export const $byTestIdEndingWith = (suffix: string): ReturnType<typeof $> =>
-  $(`[data-testid$=${escapeForCssAttribute(suffix)}]`);
+export const $byTestIdEndingWith = (suffix: string, attr?: string): ReturnType<typeof $> =>
+  ($(`[${attr ?? configuredTestIdAttribute}$=${escapeForCssAttribute(suffix)}]`));

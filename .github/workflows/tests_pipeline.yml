@@ -35,6 +35,9 @@ jobs:
       - name: Run Unit tests
         run: npm run test:unit
         timeout-minutes: 15
+      - name: Run testids package tests
+        run: npm run test:unit --workspace @playwright-elements/testids
+        timeout-minutes: 5
       - name: Run integration tests
         run: npm run integration:test
         timeout-minutes: 15

@@ -1,6 +1,6 @@
 {
   "name": "playwright-elements",
-  "version": "1.19.0-rc4",
+  "version": "1.19.0-rc5",
   "description": "This is Playwright extension.",
   "type": "commonjs",
   "main": "lib/index.js",
@@ -10,6 +10,9 @@
     "node": ">=18.0.0"
   },
   "sideEffects": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "files": [
     "lib",
     "CHANGELOG.md",
@@ -39,7 +42,7 @@
     "generate-index": "./lib/index.generator.cli.js"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "npm run build --workspace @playwright-elements/testids && tsc -p tsconfig.build.json",
     "clean": "tsc --build --clean",
     "install:deps": "npm install --registry=https://registry.npmjs.org",
     "install:browsers": "npx playwright install --force chrome chromium msedge firefox webkit --with-deps",
@@ -102,6 +105,7 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "@playwright-elements/testids": "^1.0.0",
     "lodash.clonedeep": "^4.5.0"
   },
   "optionalDependencies": {
