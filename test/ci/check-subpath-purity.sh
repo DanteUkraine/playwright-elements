@@ -3,7 +3,7 @@
 # 
 # This script checks that:
 # 1. The standalone @playwright-elements/testids package is truly dependency-free
-#    (loads exactly 1 module — itself).
+#    (loads exactly 2 modules — builder + strippable, both zero-dep).
 # 2. The framework's testIds/builder subpath (a re-export) loads no Playwright
 #    or lodash modules — only the re-export shim and the standalone package.
 
@@ -34,9 +34,9 @@ MODULES_LOADED=$(node -e "
 
 echo "  Modules loaded: ${MODULES_LOADED}"
 
-if [ "$MODULES_LOADED" -ne 1 ]; then
+if [ "$MODULES_LOADED" -ne 2 ]; then
   echo ""
-  echo "FAIL: testids standalone package loaded ${MODULES_LOADED} modules (expected 1)"
+  echo "FAIL: testids standalone package loaded ${MODULES_LOADED} modules (expected 2)"
   echo "This indicates the package has dependencies"
   
   echo ""
@@ -53,7 +53,7 @@ if [ "$MODULES_LOADED" -ne 1 ]; then
 fi
 
 echo ""
-echo "  PASS: standalone package is pure (1 module)"
+echo "  PASS: standalone package is pure (2 modules: builder + strippable)"
 echo ""
 
 # Verify the standalone package doesn't load playwright or lodash

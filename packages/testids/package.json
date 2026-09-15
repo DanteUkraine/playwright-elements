@@ -17,8 +17,20 @@
   ],
   "exports": {
     ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./builder": {
       "types": "./lib/builder.d.ts",
       "default": "./lib/builder.js"
+    },
+    "./selectors": {
+      "types": "./lib/selectors.d.ts",
+      "default": "./lib/selectors.js"
+    },
+    "./strippable": {
+      "types": "./lib/strippable.d.ts",
+      "default": "./lib/strippable.js"
     },
     "./package.json": "./package.json"
   },
@@ -29,7 +41,7 @@
     "build": "tsc -p tsconfig.build.json",
     "clean": "tsc --build --clean tsconfig.build.json",
     "test:unit": "npx playwright test --config=playwright.unit.config.ts",
-    "ci:check-purity": "node -e \"const b=Object.keys(require.cache).length;require('./lib/builder');const a=Object.keys(require.cache).length;if(a-b!==1){console.error('Expected 1 module, loaded '+(a-b));process.exit(1)}else{console.log('Purity OK: 1 module loaded')}\""
+    "ci:check-purity": "node -e \"const b=Object.keys(require.cache).length;require('./lib/builder');const a=Object.keys(require.cache).length;if(a-b!==2){console.error('Expected 2 modules, loaded '+(a-b));process.exit(1)}else{console.log('Purity OK: 2 modules loaded')}\""
   },
   "repository": {
     "type": "git",

@@ -1,45 +1,50 @@
 /**
  * Test ID Builder Module
- * 
+ *
  * This module provides type-safe test ID generation utilities for use with
  * playwright-elements. It enables:
  * - Branded types for test IDs to prevent misuse
  * - Factory functions for generating IDs with consistent prefixes
  * - Static ID generation for simple cases
  * - React integration via testIdProps helper
- * 
+ *
  * @packageDocumentation
  */
 
-/**
- * Unique brand symbol for TestId type
- */
-declare const __testIdBrand: unique symbol;
+import { TEST_IDS_ENABLED } from './strippable';
+
+/** R8 — frozen empty object shared by every stripped stamp. */
+const NOTHING: Readonly<Record<string, string>> = Object.freeze({});
 
 /**
  * Branded string type for `data-testid` values.
- * The `Kind` parameter allows the type system to distinguish between different
- * categories of test IDs (e.g., a button ID vs. a container ID), preventing
- * them from being used interchangeably even though both are strings.
- * 
- * The brand uses a function type in the invariant position to prevent both
- * widening and narrowing, making TestId<'a'> and TestId<string> mutually
- * unassignable.
- * 
+ *
+ * Uses a STRUCTURAL string brand ("pe/testids") so that two installed copies
+ * of this package produce interoperable types (F3). A `unique symbol` would
+ * make copies mutually unassignable (F2), which is a realistic hoisting
+ * outcome once two packages depend on this one.
+ *
+ * The `Kind` parameter is optional (defaults to `string`) and provides
+ * IDE autocompletion and light category grouping. It is covariant, not
+ * invariant: `TestId<'button'>` is assignable to `TestId<string>` but not
+ * vice versa. Consumers who do not need per-id kind typing can omit it
+ * entirely (P4).
+ *
+ * Plain strings are still rejected: `string` lacks `__testIdBrand`.
+ *
  * @example
  * ```typescript
+ * // Simple (no Kind needed):
+ * const submit = sid('submit-button');
+ *
+ * // Typed (when you want autocompletion):
  * type ButtonId = TestId<'button'>;
- * type ContainerId = TestId<'container'>;
- * 
  * const buttonId: ButtonId = sid('submit-button');
- * const containerId: ContainerId = sid('main-container');
- * 
- * // This would be a type error:
- * // const wrong: ButtonId = containerId; // Error: Type 'ContainerId' is not assignable to type 'ButtonId'
  * ```
  */
 export type TestId<Kind extends string = string> = string & {
-  readonly [__testIdBrand]: (k: Kind) => Kind;  // Function type makes the brand invariant
+  readonly __testIdBrand: 'pe/testids';
+  readonly __kind: Kind;
 };
 
 /**
@@ -244,35 +249,63 @@ export const unsafeId = (raw: string): TestId => raw as TestId;
 
 /**
  * Returns props to spread onto a React/JSX element to attach the `data-testid` attribute.
- * 
+ *
+ * Honours the build-time strip flag (R6): when stripping is on, returns a frozen
+ * empty object so spreading is a no-op (R8). The attribute is absent from the DOM,
+ * not merely empty.
+ *
  * Pass a custom attribute name as the second argument to use an attribute other than
  * `data-testid` (e.g. when your Playwright config sets `use.testIdAttribute: 'data-pw'`).
- * 
+ *
  * @example
  * ```typescript
  * function MyComponent() {
  *   return <button {...testIdProps(sid('my-button'))}>Click me</button>;
  * }
- * 
+ *
  * // Or with a factory:
  * function RuleRow({ ruleId }: { ruleId: string }) {
  *   return <div {...testIdProps(ruleRow(ruleId))}>...</div>;
  * }
- * 
+ *
  * // Custom attribute (matches Playwright's use.testIdAttribute config):
  * <div {...testIdProps(sid('my-button'), 'data-pw')} />
  * ```
- * 
+ *
  * @param id - The test ID to attach to the element
  * @param attr - The HTML attribute name (defaults to 'data-testid')
- * @returns Object with the test id attribute property
+ * @returns Object with the test id attribute property, or frozen {} when stripped
  */
 export const testIdProps = <K extends string>(
   id: TestId<K>,
   attr = 'data-testid',
-): Record<string, string> => ({
-  [attr]: id as string,
-});
+): Record<string, string> => {
+  if (!TEST_IDS_ENABLED) return NOTHING as Record<string, string>;
+  return { [attr]: id as string };
+};
+
+/**
+ * Returns the test ID value for bound-attribute binding styles (Angular, Vue).
+ *
+ * Use this with Angular `[attr.data-testid]="testIdValue(id)"` or
+ * Vue `:data-testid="testIdValue(id)"`. When stripping is enabled, returns
+ * `undefined` so the framework omits the attribute entirely (R6).
+ *
+ * @example
+ * ```typescript
+ * // Angular:
+ * // <div [attr.data-testid]="testIdValue(sid('my-id'))"></div>
+ *
+ * // Vue:
+ * // <div :data-testid="testIdValue(sid('my-id'))"></div>
+ * ```
+ *
+ * @param id - The test ID to attach to the element
+ * @returns The id string, or undefined when stripped
+ */
+export const testIdValue = <K extends string>(
+  id: TestId<K>,
+): string | undefined => TEST_IDS_ENABLED ? id as string : undefined;
 
 /**
  * Type guard to check if a value is an IdFactory.

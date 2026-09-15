@@ -115,5 +115,9 @@
   "peerDependencies": {
     "@playwright/test": ">=1.62.x",
     "playwright-core": ">= 1.62.x"
+  },
+  "peerDependenciesMeta": {
+    "@playwright/test": { "optional": true },
+    "playwright-core": { "optional": true }
   }
 }

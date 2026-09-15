@@ -33,6 +33,118 @@ import { sid, factory, testIdProps } from '@playwright-elements/testids';
 
 The standalone `@playwright-elements/testids` package is recommended for production code (React components) and unit tests where you do not need Playwright selectors. The `playwright-elements/testids` subpath also works as a backward-compatible alternative (import-time isolation only).
 
+## Production Stripping
+
+Test IDs are a development-time concern, not a production-time concern. The module automatically strips `data-testid` attributes from production builds — no manual cleanup needed.
+
+### How It Works
+
+The strip decision is a single build-time-foldable module constant:
+
+- **Default**: `NODE_ENV !== "production"` → **emit** (ids present in dev/test)
+- **Override**: `PE_TESTIDS=on|off` overrides `NODE_ENV` in **both** directions
+
+```bash
+# Production build (ids stripped):
+NODE_ENV=production npm run build
+
+# Production build WITH ids (for e2e lane):
+PE_TESTIDS=on NODE_ENV=production npm run build
+```
+
+The flag is written as literal `process.env` references so that bundlers (webpack DefinePlugin, Vite `define`, esbuild `--define`) replace them at build time, eliminating the dead branch entirely.
+
+### Spread Pattern Incompatibility (Important)
+
+Standard React attribute stripping tools **cannot** strip the spread form:
+
+```typescript
+// This is NOT stripped by compiler.reactRemoveProperties or babel-plugin-react-remove-properties:
+<div data-testid="literal" {...testIdProps(ids.foo)}>x</div>
+
+// The literal `data-testid` is removed, but the spread survives — silently shipping ids to production.
+```
+
+These transforms match `JSXAttribute` by name; `JSXSpreadAttribute` has no name. Stripping **must** happen inside `testIdProps()`, which is what this module does. When stripping is on, `testIdProps()` returns a frozen empty object, so spreading is a no-op.
+
+### Emission Helpers
+
+Two binding styles are supported:
+
+```typescript
+// Spread form (React, Preact, Solid, Svelte, Vue v-bind):
+<button {...testIdProps(sid('submit'))}>Submit</button>
+// Dev:  <button data-testid="submit">Submit</button>
+// Prod: <button>Submit</button>
+
+// Bound form (Angular, Vue :attr):
+// Angular: <div [attr.data-testid]="testIdValue(sid('my-id'))"></div>
+// Vue:     <div :data-testid="testIdValue(sid('my-id'))"></div>
+// Dev:  data-testid="my-id"
+// Prod: attribute omitted (testIdValue returns undefined)
+```
+
+### Verifying Stripping (R5)
+
+Mode assertion — cheap, runs in any unit lane:
+
+```typescript
+import { testIds } from '@playwright-elements/testids';
+
+it('emits ids in dev and test', () => {
+  expect(testIds.enabled).toBe(true);
+  expect(testIds.props(sid('submit'))).toEqual({ 'data-testid': 'submit' });
+});
+```
+
+Artifact assertion — reads the built output:
+
+```bash
+# Must find nothing:
+NODE_ENV=production npm run build
+grep -r 'data-testid' <build output dir> && echo "FAIL: ids in prod build" || echo "OK"
+
+# Override must put them back:
+PE_TESTIDS=on NODE_ENV=production npm run build
+grep -rq 'data-testid' <build output dir> && echo "OK" || echo "FAIL"
+```
+
+### `createStrippableAttribute` — Universal Strippable Primitive
+
+For applications with multiple identity attributes (e.g. `data-testid`, `data-section-part`, `data-qa`), the `createStrippableAttribute` primitive provides one mechanism for all of them:
+
+```typescript
+import { createStrippableAttribute } from '@playwright-elements/testids';
+
+// Canonical instance for data-testid (uses global flag):
+const testIds = createStrippableAttribute('data-testid');
+
+// Never strip (read by production CSS):
+const sectionKind = createStrippableAttribute('data-section-kind', {
+  enabled: true,
+});
+
+// Custom attribute:
+const qaIds = createStrippableAttribute('data-qa');
+
+// Usage:
+sectionKind.props(sid('hero'));    // { 'data-section-kind': 'hero' } — always emitted
+qaIds.props(sid('submit'));        // { 'data-qa': 'submit' } or {} — follows flag
+```
+
+### `createTestIds` — Configurable Factory
+
+For isolated attribute configuration without global mutable state:
+
+```typescript
+import { createTestIds } from '@playwright-elements/testids';
+
+const myIds = createTestIds({ attribute: 'data-pw' });
+myIds.props(sid('submit'));     // { 'data-pw': 'submit' } or {}
+myIds.selector(sid('submit'));  // '[data-pw="submit"]'
+myIds.value(sid('submit'));     // 'submit' or undefined
+```
+
 ## Core Concepts
 
 ### TestId Type

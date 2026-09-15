@@ -18,6 +18,7 @@ export {
   factory,
   bareFactory,
   testIdProps,
+  testIdValue,
   isIdFactory,
   unsafeId,
   ns,
@@ -31,3 +32,14 @@ export {
   setTestIdAttribute,
   getTestIdAttribute,
 } from './testIds/selectors';
+export {
+  createStrippableAttribute,
+  createTestIds,
+  testIds,
+  TEST_IDS_ENABLED,
+  testIdSelector,
+  testIdPrefixSelector,
+  testIdContainsSelector,
+  testIdEndsWithSelector,
+} from '@playwright-elements/testids';
+export type { StrippableAttribute } from '@playwright-elements/testids';

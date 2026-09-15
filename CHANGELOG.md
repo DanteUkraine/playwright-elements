@@ -19,13 +19,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🔧 Breaking Changes
 
+- **TestId brand migration**: The `TestId` type migrated from `unique symbol` brand to a structural string brand (`__testIdBrand: "pe/testids"`). Two installed copies of the package now produce interoperable types. The `Kind` parameter is now covariant (not invariant): `TestId<'button'>` is assignable to `TestId<string>` but not vice versa. Plain strings are still rejected.
+
 - **Custom Matcher Integration**: `expect()` and `softExpect()` now directly use @playwright/test's expect, so custom matchers added via `expect.extend()` work automatically with full TypeScript autocomplete.
 
 ### ✨ New Features
 
 
-- **`testIds` module**: Type-safe test ID generation with `sid()`, `factory()`, `bareFactory()`, `ns()`, `testIdProps()`, `unsafeId()`, and `assertNoPrefixCollisions()`.
-- **`$byTestId` and related selectors**: Type-safe selectors that work with the new TestId types.
+- **`testIds` module**: Type-safe test ID generation with `sid()`, `factory()`, `bareFactory()`, `ns()`, `testIdProps()`, `testIdValue()`, `unsafeId()`, and `assertNoPrefixCollisions()`.
+- **`$byTestId` and related selectors**: Type-safe selectors that work with the new TestId types. Now accepts `string` (A7) for foreign registries.
+- **Production stripping**: `testIdProps()` and `testIdValue()` honour a build-time-foldable flag (`TEST_IDS_ENABLED` / `PE_TESTIDS` / `NODE_ENV`). IDs are stripped from production builds automatically.
+- **`createStrippableAttribute`**: Universal primitive for any strippable identity attribute (data-testid, data-qa, data-section-part). One mechanism covers 100% of identity attributes.
+- **`createTestIds({ attribute })`**: Configurable factory for custom attribute names without global mutable state.
+- **Zero-dep string selectors**: `testIdSelector`, `testIdPrefixSelector`, `testIdContainsSelector`, `testIdEndsWithSelector` exported from `@playwright-elements/testids` — usable in vitest/jsdom without Playwright.
+- **`$byTestId` as one-line wrapper**: `$byTestId(id) === $(testIdSelector(id))` — single source of truth for selector shape.
+- **Optional peer dependencies**: `@playwright/test` and `playwright-core` marked as optional peers — consumers using only `testIdProps` don't pull browser automation.
 
 ### 🐛 Bug Fixes
 
