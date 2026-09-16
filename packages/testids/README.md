@@ -91,4 +91,4 @@ when you want install-time isolation (no Playwright or lodash in
 
 ## API
 
-See the [full Test IDs documentation](https://danteukraine.github.io/playwright-elements/test_ids) for the complete API reference.
+See the [full Test IDs documentation](https://danteukraine.github.io/playwright-elements/docs/test_ids.html) for the complete API reference.

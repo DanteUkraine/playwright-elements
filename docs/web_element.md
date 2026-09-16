@@ -797,12 +797,6 @@ const header = $('.header').with({
   logo: $('.logo'),
   menu: $('.menu')
 });
-
-// Old way (still works but less type-safe)
-const header2 = $('.header').subElements({
-  logo: { selector: '.logo' },
-  menu: { selector: '.menu' }
-});
 ```
 
 ### 3. Use `this` Type Annotations
@@ -932,10 +926,6 @@ class MainPage {
             });
 }
 ```
-
-> **Recommended Approach:** We recommend using the `.with()` method as the primary way to add sub-elements and custom methods. The `.with()` method combines the functionality of both `subElements()` and `withMethods()` in a single call, providing a cleaner and more unified API. 
-> 
-> **Backward Compatibility:** For existing projects, `subElements()` and `withMethods()` methods remain fully supported and will continue to work. You can migrate to `.with()` at your own pace.
 
 ---
 

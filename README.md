@@ -1,44 +1,33 @@
-# Playwright-elements: Comprehensive Web Testing Framework
+# Playwright-elements
 
 [![Awesome](https://awesome.re/mentioned-badge.svg)](https://github.com/mxschmitt/awesome-playwright/blob/master/README.md#utils)
 
 **Playwright-elements** is a powerful testing framework that extends Playwright with:
 
-✅ **Reusable Components** - Build hierarchical UI components with child elements
-
-✅ **Type Safety** - Full TypeScript support with branded types for test IDs
-
-✅ **Chainable API** - Fluent interface mixing selectors with synchronous methods
-
-✅ **Test ID System** - Type-safe, collision-resistant test ID generation
-
-✅ **Page Object Pattern** - Clean architecture for maintainable tests
+- **Reusable Components** - Build hierarchical UI components with child elements
+- **Type Safety** - Full TypeScript support with branded types for test IDs
+- **Chainable API** - Fluent interface mixing selectors with synchronous methods
+- **Test ID System** - Type-safe, collision-resistant test ID generation with production stripping
+- **Page Object Pattern** - Clean architecture for maintainable tests
 
 ---
 
-## 🆕 What's New in v1.19.0
+## Installation
 
-### Type-Safe TestIds Module
-A new **zero-dependency** module for type-safe test ID generation:
-
-- **Branded Types**: Compile-time type checking prevents ID misuse
-- **Factory System**: `factory()`, `bareFactory()` for dynamic ID generation
-- **Collision Detection**: `assertNoPrefixCollisions()` catches prefix conflicts
-- **Zero Dependencies**: Install `@playwright-elements/testids` for true install-time isolation (no Playwright or lodash in `node_modules`), or import from `playwright-elements/testids` for backward-compatible import-time isolation
-
-### Custom Matcher Support
-Custom matchers added via `expect.extend()` now work seamlessly with WebElement.expect() and provide full TypeScript autocomplete.
-
----
-
-## 🚀 Quick Start
-
-### 1. Installation
 ```bash
 npm install -D playwright-elements
 ```
 
-### 2. Basic Usage
+For projects that only need test ID generation without Playwright:
+
+```bash
+npm install -D @playwright-elements/testids
+```
+
+---
+
+## Quick Start
+
 ```typescript
 import { $, test } from 'playwright-elements';
 
@@ -56,7 +45,6 @@ const loginForm = $('.login-form').with({
 test('user login', async ({ goto }) => {
   await goto('/login');
   await loginForm.login('admin', 'password123');
-  // Assert form was submitted successfully
   await loginForm.submit.expect().toBeVisible();
 });
 ```
@@ -85,7 +73,7 @@ const app = $('.app').with({
 await app.header.navigation.items.first().click();
 ```
 
-### Type-Safe Test IDs (v1.19.0+)
+### Type-Safe Test IDs
 Prevent selector typos and ensure type safety across your entire test suite using **branded types**:
 
 ```typescript
@@ -165,10 +153,6 @@ const loginForm = $('.login-form').with({
 await loginForm.login('admin', 'password123');
 ```
 
-For advanced use cases, separate element and method configuration:
-- **`subElements()`** - Configure only child elements
-- **`withMethods()`** - Configure only methods
-
 ---
 
 ### Browser and Page Management
@@ -200,11 +184,6 @@ test('mobile test', async ({}) => {
   // BrowserInstance.isContextMobile will be true
 });
 ```
-
-**v1.19.0 Improvements:**
-- `initBrowserInstance` now uses Playwright's **public `isMobile` fixture** instead of private `_options` field (fixes silent degradation)
-- Mobile context detection is more reliable and maintains backward compatibility with v1.18.2
-- `usePage` allows switching execution to specific page contexts for multi-tab scenarios
 
 ---
 
@@ -319,64 +298,6 @@ Use the CLI for index generation:
 npx generate-index ./test
 ```
 
----
-
-## 📚 Learning Path
-
-| Level | Topic | Duration |
-|-------|-------|----------|
-| 🟢 Beginner | [Get Started](./docs/get_started.html) | 15 min |
-| 🟡 Intermediate | [WebElement Deep Dive](./docs/web_element.html) | 30 min |
-| 🔵 Advanced | [Test IDs Module](./docs/test_ids.html) | 20 min |
-| 🔵 Advanced | [Best Practices](./docs/best_practices.html) | 30 min |
-| 🟣 Expert | [Architecture & Patterns](./docs/architecture.html) | 45 min |
-
----
-
-## 🎯 Advanced Patterns
-
-### Component-Driven Testing
-Organize your tests around reusable components rather than pages:
-
-```typescript
-// elements.ts
-export const header = $('.header').with({
-  logo: $('.logo'),
-  avatar: $('.avatar')
-});
-export const form = $('.login-form').with({
-  usernameInput: $('input[name="username"]'),
-  passwordInput: $('input[name="password"]'),
-  loginButton: $('button[type="submit"]'),
-  async fillForm(userName: string, password: string) {
-    await this.usernameInput.fill(userName);
-    await this.passwordInput.fill(password);
-    await this.loginButton.click();
-  }
-});
-
-// fixtures.ts
-import { test as baseTest } from 'playwright-elements';
-import * as elements from './elements';
-
-type TestFixtures = { elements: typeof elements };
-
-export const test = baseTest.extend<TestFixtures>({
-  elements: [async ({}, use) => {
-    // IMPORTANT: First parameter MUST use object destructuring pattern
-    // async (_deps, use) => { ... } will fail at collection time
-    await use(elements);
-  }, { scope: 'test' }],
-});
-
-// test.ts
-test('check login page', async ({ elements }) => {
-  await elements.form.fillForm('UserName', 'Pass!');
-  await elements.header.logo.expect().toBeVisible();
-  await elements.header.avatar.expect().toBeVisible();
-});
-```
-
 ### Page Object Pattern
 Traditional page object approach with automatic instantiation:
 
@@ -486,7 +407,7 @@ test('login form submission', async ({ goto }) => {
 });
 ```
 
-See [Test IDs Module](docs/test_ids.md) for complete documentation.
+See [Test IDs Module](https://danteukraine.github.io/playwright-elements/docs/test_ids.html) for complete documentation.
 
 ---
 
@@ -506,22 +427,22 @@ See [Test IDs Module](docs/test_ids.md) for complete documentation.
 
 ---
 
-## 📖 Documentation
+## Documentation
 
 | Section | Description |
 |---------|-------------|
-| [Get Started](./docs/get_started.html) | Installation and basic usage |
-| [Web Element](./docs/web_element.html) | Complete WebElement API reference |
-| [Page Objects](./docs/build_page_object.html) | Page object pattern guide |
-| [Fixtures](./docs/playwright_elements_fixtures.html) | Test fixture configuration |
-| [Browser Management](./docs/browser_instance.html) | Advanced browser control |
+| [Get Started](https://danteukraine.github.io/playwright-elements/docs/get_started.html) | Installation and basic usage |
+| [Web Element](https://danteukraine.github.io/playwright-elements/docs/web_element.html) | Complete WebElement API reference |
+| [Test IDs](https://danteukraine.github.io/playwright-elements/docs/test_ids.html) | Type-safe test ID system with production stripping |
+| [Page Objects](https://danteukraine.github.io/playwright-elements/docs/build_page_object.html) | Page object pattern guide |
+| [Fixtures](https://danteukraine.github.io/playwright-elements/docs/playwright_elements_fixtures.html) | Test fixture configuration |
+| [Browser Management](https://danteukraine.github.io/playwright-elements/docs/browser_instance.html) | Advanced browser control |
+| [Architecture](https://danteukraine.github.io/playwright-elements/docs/architecture.html) | Framework design principles |
+| [Best Practices](https://danteukraine.github.io/playwright-elements/docs/best_practices.html) | Recommended patterns and tips |
+| [Migration Guide](https://danteukraine.github.io/playwright-elements/docs/migration_guide.html) | Upgrade instructions |
+| [FAQ](https://danteukraine.github.io/playwright-elements/docs/faq.html) | Common questions and solutions |
 
-**Additional documentation available in the repository:**
-- [Architecture](docs/architecture.md) - Framework design principles
-- [Best Practices](docs/best_practices.md) - Recommended patterns and tips
-- [FAQ](docs/faq.md) - Common questions and solutions
-- [Migration Guide](docs/migration_guide.md) - Upgrade instructions
-- [Test IDs](docs/test_ids.md) - Type-safe test ID system
+For version-specific changes and release notes, see the [CHANGELOG](https://github.com/DanteUkraine/playwright-elements/blob/main/CHANGELOG.md).
 
 ---
 

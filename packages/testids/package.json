@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Zero-dependency, type-safe test ID generation for Playwright and beyond.",
   "type": "commonjs",
-  "main": "lib/builder.js",
-  "types": "lib/builder.d.ts",
-  "typings": "lib/builder.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "typings": "lib/index.d.ts",
   "engines": {
     "node": ">=18.0.0"
   },
