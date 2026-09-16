@@ -57,15 +57,13 @@ jobs:
         run: npm run build
 
       - name: Publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           DIR="${{ steps.determine.outputs.dir }}"
           TAG="${{ steps.determine.outputs.dist-tag }}"
           echo "Publishing ${{ steps.determine.outputs.package }} from $DIR with tag $TAG"
           cd "$DIR"
           if [ "$TAG" != "latest" ]; then
-            npm publish --tag "$TAG" --provenance
+            npm publish --tag "$TAG"
           else
-            npm publish --provenance
+            npm publish
           fi
