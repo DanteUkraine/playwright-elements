@@ -25,6 +25,7 @@ test.describe(`Playwright test integration`, () => {
     })
 
     test(`soft expect negative`, async ({ goto }) => {
+        test.fail()
         await goto();
         const header = $(`.navbar`)
             .subElements({
@@ -32,8 +33,8 @@ test.describe(`Playwright test integration`, () => {
             });
         await header.logo.softExpect().not.toBeVisible({ timeout: 500 });
         await header.logo.softExpect().not.toHaveText('Playwright', { timeout: 500 });
-        expect(test.info().errors).toHaveLength(2);
-        test.fail()
+        const softErrors = test.info().errors.filter(e => !e.message?.includes('Test timeout'));
+        expect(softErrors).toHaveLength(2);
     })
 
     test(`goto fixture should navigate to endpoint`, async ({ goto }) => {
