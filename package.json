@@ -53,7 +53,7 @@
     "integration:server": "npx http-server integration.tests/server -p 3457 -s",
     "integration:test": "npx playwright test integration.tests --config=integration.tests/playwright.config.ts",
     "modify:readme": "npx ts-node prepare-readme.ts",
-    "prepare": "husky install",
+    "prepare": "husky install || exit 0",
     "lint": "npx eslint .",
     "lint:src": "npx eslint src/",
     "lint:tests": "npx eslint --config eslint.config.tests.cjs test/ integration.tests/",
