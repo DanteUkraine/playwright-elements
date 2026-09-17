@@ -1,6 +1,6 @@
 {
   "name": "playwright-elements",
-  "version": "1.19.0-rc5",
+  "version": "1.19.0",
   "description": "Playwright extension for type-safe test IDs, production stripping, and fluent element selectors.",
   "type": "commonjs",
   "main": "lib/index.js",
