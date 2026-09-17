@@ -3,13 +3,12 @@ import { test } from '../src';
 import { $, $getByAltText, $getByLabel, $getByPlaceholder, $getByRole, $getByTestId, $getByText, $getByTitle, BrowserInstance } from '../src';
 import { localFilePath } from './utils';
 
-// Migrated from mocha/chai to @playwright/test
 
 test.describe('Web Element Error Handling and Negative Testing', () => {
 
     test.beforeEach(async ({ goto }) => {
         await goto(localFilePath);
-        await BrowserInstance.currentPage.waitForSelector('h1');
+        await BrowserInstance.currentPage.locator('h1').waitFor();
     })
 
     test.describe('Invalid Selector Testing', () => {
@@ -20,12 +19,7 @@ test.describe('Web Element Error Handling and Negative Testing', () => {
 
         test('should handle empty string selector', async () => {
             const element = $('');
-            try {
-                await element.count();
-                throw new Error('Expected error for empty selector');
-            } catch (error) {
-                expect(error).toBeInstanceOf(Error);
-            }
+            await expect(element.count()).rejects.toBeInstanceOf(Error);
         });
 
         test('should handle null-like selector', async () => {
@@ -61,12 +55,7 @@ test.describe('Web Element Error Handling and Negative Testing', () => {
         test('getText should handle non-existent elements', async () => {
             // getText will throw when textContent returns null
             const element = $('#non-existent-element-12345');
-            try {
-                await element.locator.textContent({ timeout: 100 });
-                throw new Error('Expected error for textContent on non-existent element');
-            } catch (error) {
-                expect(error).toBeInstanceOf(Error);
-            }
+            await expect(element.locator.textContent({ timeout: 100 })).rejects.toBeInstanceOf(Error);
         });
 
         test('getAttribute should handle non-existent elements', async () => {
@@ -78,14 +67,12 @@ test.describe('Web Element Error Handling and Negative Testing', () => {
 
         test('should handle non-existent element with isVisible', async () => {
             const element = $('#non-existent-element-12345');
-            const result = await element.isVisible();
-            expect(result).toBe(false);
+            await expect(element.locator).toBeHidden();
         });
 
         test('should handle non-existent element with isHidden', async () => {
             const element = $('#non-existent-element-12345');
-            const result = await element.isHidden();
-            expect(result).toBe(true);
+            await expect(element.locator).toBeHidden();
         });
     });
 
@@ -401,6 +388,54 @@ test.describe('Web Element Error Handling and Negative Testing', () => {
             
             // Reset to default
             BrowserInstance.isContextMobile = false;
+        });
+    });
+
+    test.describe('.with() Invalid Values', () => {
+        test('should throw error when .with() receives non-WebElement/Function values', () => {
+            const element = $('div');
+            
+            expect(() => {
+                element.with({
+                    child: $('.child'),
+                    label: 'hello',
+                    cfg: { a: 1 }
+                });
+            }).toThrow(/\.with\(\) received invalid values for keys: label, cfg/);
+        });
+
+        test('should accept only WebElement instances and functions', () => {
+            const element = $('div');
+            
+            // This should work - only WebElement and Function
+            expect(() => {
+                element.with({
+                    child: $('.child'),
+                    method: function() { return 'test'; }
+                });
+            }).not.toThrow();
+        });
+
+        test('should throw for single invalid value', () => {
+            const element = $('div');
+            
+            expect(() => {
+                element.with({
+                    label: 'invalid'
+                });
+            }).toThrow(/\.with\(\) received invalid values for keys: label/);
+        });
+
+        test('should throw for multiple invalid values', () => {
+            const element = $('div');
+            
+            expect(() => {
+                element.with({
+                    a: 'invalid1',
+                    b: 123,
+                    c: { nested: 'object' }
+                });
+            }).toThrow(/\.with\(\) received invalid values/);
         });
     });
 });

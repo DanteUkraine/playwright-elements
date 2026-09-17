@@ -3,8 +3,6 @@ import { buildPageObject } from '../src';
 import * as pageObjectModule from '../integration.tests/resources/page.object';
 import { HomePage, SettingsPage, AboutBoxElement } from '../integration.tests/resources/page.object';
 
-// Migrated from mocha/chai to @playwright/test
-// This file doesn't need browser as it's testing buildPageObject function only
 
 test.describe('buildPageObject', () => {
     test('should return instances of pages using default options (suffix "Page", lowerCaseFirst true)', () => {

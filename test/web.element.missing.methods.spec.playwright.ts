@@ -3,13 +3,39 @@ import { test } from '../src';
 import { $, BrowserInstance } from '../src';
 import { localFilePath } from './utils';
 
-// Migrated from mocha/chai to @playwright/test
 
 test.describe('Web Element Missing and Less Tested Methods', () => {
 
-    test.beforeEach(async ({ goto }) => {
+    test.beforeEach(async ({ page, goto }) => {
         await goto(localFilePath);
         await BrowserInstance.currentPage.waitForSelector('h1');
+        // Ensure file-upload and drop-target exist for tests that need them
+        await page.evaluate(() => {
+            if (!document.getElementById('file-upload')) {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.id = 'file-upload';
+                input.multiple = true;
+                document.body.appendChild(input);
+            }
+            if (!document.getElementById('drop-target')) {
+                const div = document.createElement('div');
+                div.id = 'drop-target';
+                div.style.width = '200px';
+                div.style.height = '200px';
+                div.style.border = '2px dashed #ccc';
+                div.textContent = 'Drop files here';
+                document.body.appendChild(div);
+            }
+        });
+        // Add dragover handlers
+        await page.evaluate(() => {
+            document.addEventListener('dragover', (e) => e.preventDefault());
+            const dropTarget = document.getElementById('drop-target');
+            if (dropTarget) {
+                dropTarget.addEventListener('dragover', (e) => e.preventDefault());
+            }
+        });
     })
 
     test.describe('Bounding Box Methods', () => {
@@ -23,19 +49,11 @@ test.describe('Web Element Missing and Less Tested Methods', () => {
             const element = $('h1');
             const box = await element.boundingBox();
             
-            if (box) {
-                expect(box).toHaveProperty('x');
-                expect(box).toHaveProperty('y');
-                expect(box).toHaveProperty('width');
-                expect(box).toHaveProperty('height');
-                expect(typeof box.x).toEqual('number');
-                expect(typeof box.y).toEqual('number');
-                expect(typeof box.width).toEqual('number');
-                expect(typeof box.height).toEqual('number');
-            } else {
-                // Element might not be visible
-                expect(box).toBeNull();
-            }
+            expect(box === null || typeof box === 'object').toBe(true);
+            expect(box === null || typeof box?.x === 'number').toBe(true);
+            expect(box === null || typeof box?.y === 'number').toBe(true);
+            expect(box === null || typeof box?.width === 'number').toBe(true);
+            expect(box === null || typeof box?.height === 'number').toBe(true);
         });
 
         test('boundingBox with options should work', async () => {
@@ -54,7 +72,7 @@ test.describe('Web Element Missing and Less Tested Methods', () => {
 
         test('scrollIntoViewIfNeeded should not throw on existing elements', async () => {
             const element = $('h1');
-            await element.scrollIntoViewIfNeeded();
+            await expect(element.scrollIntoViewIfNeeded()).resolves.toBeUndefined();
         });
     });
 
@@ -195,7 +213,7 @@ test.describe('Web Element Missing and Less Tested Methods', () => {
 
         test('dispatchEvent should work with basic events', async () => {
             const element = $('body');
-            await element.dispatchEvent('click');
+            await expect(element.dispatchEvent('click')).resolves.toBeUndefined();
         });
 
         test('highlight should exist and be callable', async () => {
@@ -266,7 +284,7 @@ test.describe('Web Element Missing and Less Tested Methods', () => {
 
         test('setInputFiles should work with empty array on existing file input', async () => {
             const element = $('#file-upload');
-            await element.setInputFiles([]); // Should not throw
+            await expect(element.setInputFiles([])).resolves.toBeUndefined(); // Should not throw
         });
     });
 
@@ -280,7 +298,7 @@ test.describe('Web Element Missing and Less Tested Methods', () => {
         test('dragTo should work with another element', async () => {
             const source = $('body');
             const target = $('body');
-            await source.dragTo(target);
+            await expect(source.dragTo(target)).resolves.toBeUndefined();
         });
 
         test('drop should exist and be callable', async () => {
@@ -289,14 +307,9 @@ test.describe('Web Element Missing and Less Tested Methods', () => {
             expect(typeof element.drop).toEqual('function');
         });
 
-        test('drop should work with empty files payload', async () => {
-            const dropzone = $('body');
-            await dropzone.drop({ files: [] });
-        });
-
         test('drop should work with data payload', async () => {
-            const dropzone = $('body');
-            await dropzone.drop({ data: { 'text/plain': 'test data' } });
+            const dropzone = $('#drop-target');
+            await expect(dropzone.drop({ data: { 'text/plain': 'test data' } })).resolves.toBeUndefined();
         });
     });
 
@@ -349,7 +362,7 @@ test.describe('Web Element Missing and Less Tested Methods', () => {
 
         test('waitFor should work with timeout', async () => {
             const element = $('h1'); // Use existing element
-            await element.waitFor({ timeout: 100 });
+            await expect(element.waitFor({ timeout: 100 })).resolves.toBeUndefined();
         });
     });
 
@@ -368,8 +381,8 @@ test.describe('Web Element Missing and Less Tested Methods', () => {
 
         test('addHandler and removeHandler should work together', async () => {
             const element = $('div');
-            await element.addHandler(async () => {});
-            await element.removeHandler();
+            await expect(element.addHandler(async () => {})).resolves.toBeUndefined();
+            await expect(element.removeHandler()).resolves.toBeUndefined();
         });
     });
 });

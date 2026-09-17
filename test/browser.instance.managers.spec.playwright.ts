@@ -1,9 +1,5 @@
 import { test, expect, BrowserInstance } from '../src';
-import { Page, Browser, BrowserContext, webkit } from 'playwright-core';
-
-// Migrated from mocha/chai to @playwright/test
-// Note: These tests manually manage browser lifecycle and don't use fixtures
-// to test BrowserInstance's withBrowser/withContext/withPage methods
+import { webkit } from 'playwright-core';
 
 test.describe('BrowserInstance - Context Manager Methods', () => {
 
@@ -24,7 +20,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
                 expect(() => BrowserInstance.browser).not.toThrow();
             } finally {
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -50,7 +46,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
             } finally {
                 await browser1.close();
                 await browser2.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -67,14 +63,15 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
                 
                 try {
                     BrowserInstance.withBrowser(browser);
-                } catch (e) {
+                } catch {
+                    // Expected: withBrowser should not throw when browser is already set
                     errorCaught = true;
                 }
                 
                 expect(errorCaught).toBe(false);
             } finally {
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -94,7 +91,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
             } finally {
                 await context.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -123,7 +120,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
             } finally {
                 await context1.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -148,7 +145,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
                 
                 expect(pageCountAfter).toBeGreaterThan(pageCountBefore);
                 
-                // Clean up the new page
+
                 const pages = context.pages();
                 for (let i = 1; i < pages.length; i++) {
                     await pages[i].close();
@@ -156,7 +153,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
             } finally {
                 await context.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -174,7 +171,8 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
                 
                 try {
                     BrowserInstance.withContext(context);
-                } catch (e) {
+                } catch {
+                    // Expected: withContext should not throw when context is already set
                     errorCaught = true;
                 }
                 
@@ -182,7 +180,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
             } finally {
                 await context.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -204,7 +202,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
             } finally {
                 await context.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -234,7 +232,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
             } finally {
                 await context.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -253,7 +251,8 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
                 
                 try {
                     BrowserInstance.withPage(page);
-                } catch (e) {
+                } catch {
+                    // Expected: withPage should not throw when page is already set
                     errorCaught = true;
                 }
                 
@@ -261,7 +260,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
             } finally {
                 await context.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -282,7 +281,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
                 await newContext.close();
             } finally {
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -304,7 +303,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
             } finally {
                 await context.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -327,7 +326,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
             } finally {
                 await context.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -354,7 +353,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
             } finally {
                 await context.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -381,7 +380,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
             } finally {
                 await context1.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;
@@ -391,7 +390,6 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
         test('should preserve context when switching pages', async () => {
             const browser = await webkit.launch();
             const context = await browser.newContext();
-            const page1 = await context.newPage();
             const page2 = await context.newPage();
             
             try {
@@ -407,7 +405,7 @@ test.describe('BrowserInstance - Context Manager Methods', () => {
             } finally {
                 await context.close();
                 await browser.close();
-                // Clean up after test
+
                 BrowserInstance.browser = undefined;
                 BrowserInstance.currentContext = undefined;
                 BrowserInstance.currentPage = undefined;

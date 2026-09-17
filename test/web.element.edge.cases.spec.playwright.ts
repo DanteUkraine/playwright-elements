@@ -1,9 +1,8 @@
 import { expect } from '../src';
 import { test } from '../src';
-import { $, WebElement, BrowserInstance, BrowserName } from '../src';
+import { $, WebElement, BrowserInstance } from '../src';
 import { localFilePath } from './utils';
 
-// Migrated from mocha/chai to @playwright/test
 
 test.describe('Web Element Edge Cases and Boundary Conditions', () => {
 
@@ -54,10 +53,10 @@ test.describe('Web Element Edge Cases and Boundary Conditions', () => {
     });
 
     test.describe('Boundary Conditions Testing', () => {
-        test('nth with very large index should work', () => {
+        test('nth with very large index should work', async () => {
             const element = $('div').nth(999999);
             expect(element._nth).toBe(999999);
-            expect(element.count()).resolves.toBeLessThanOrEqual(1);
+            expect(await element.count()).toBeLessThanOrEqual(1);
         });
 
         test('nth with negative index should work', () => {
@@ -77,7 +76,8 @@ test.describe('Web Element Edge Cases and Boundary Conditions', () => {
 
         test('has with string argument should point on element witch has specific child', async () => {
             const visibleElement = $(`#visible-target div`).has(`#right-target`);
-            expect(visibleElement.selector).toBeTruthy();
+            expect(typeof visibleElement.selector).toBe('string');
+            expect(visibleElement.selector.length).toBeGreaterThan(0);
         });
 
         test('hasText with WebElement argument should work', () => {

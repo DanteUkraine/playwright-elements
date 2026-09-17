@@ -84,5 +84,11 @@
 </table>
 <img src="./sleeping-cat.jpg" alt="This is the alt text" width="640" height="320"/>
 <iframe src="https://playwright.dev" width="640" height="320"/>
+<input type="file" id="file-upload" multiple>
+<div id="drop-target" style="width: 200px; height: 200px; border: 2px dashed #ccc;">Drop files here</div>
+<script>
+  document.addEventListener('dragover', (e) => e.preventDefault());
+  document.getElementById('drop-target').addEventListener('dragover', (e) => e.preventDefault());
+</script>
 </body>
 </html>

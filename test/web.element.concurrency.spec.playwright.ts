@@ -1,21 +1,20 @@
 import { test, expect } from '../src';
 import { localFilePath } from './utils';
 
-// Migrated from mocha/chai to @playwright/test
 
 test.describe('Web Element Concurrency and Parallel Testing', () => {
 
-    test.beforeEach(async ({ initBrowserInstance, page, goto }) => {
+    test.beforeEach(async ({ page, goto }) => {
         await goto(localFilePath);
-        await page.waitForSelector('h1');
+        await page.locator('h1').waitFor();
     })
 
-    test.afterEach(async ({ initBrowserInstance }) => {
+    test.afterEach(async () => {
         // BrowserInstance cleanup is handled automatically by the fixture
     })
 
     test.describe('Parallel Element Operations', () => {
-        test('multiple elements should be able to perform operations concurrently', async ({ initBrowserInstance }) => {
+        test('multiple elements should be able to perform operations concurrently', async () => {
             const { $ } = await import('../src');
             const element1 = $('div#test-div');
             const element2 = $('h1');
@@ -33,7 +32,7 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
             expect(typeof result3).toBe('number');
         });
 
-        test('concurrent getAll operations should work', async ({ initBrowserInstance }) => {
+        test('concurrent getAll operations should work', async () => {
             const { $ } = await import('../src');
             const elements = [
                 $('div'),
@@ -48,11 +47,12 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
 
             expect(results).toHaveLength(4);
             for (const result of results) {
-                expect(Array.isArray(result)).toBeTruthy();
+                expect(result).toBeInstanceOf(Array);
+                expect(result.length).toBeGreaterThanOrEqual(0);
             }
         });
 
-        test('concurrent text content retrieval should work', async ({ initBrowserInstance }) => {
+        test('concurrent text content retrieval should work', async () => {
             const { $ } = await import('../src');
             const elements = [
                 $('h1'),
@@ -68,7 +68,7 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
             expect(results).toHaveLength(3);
         });
 
-        test('concurrent attribute retrieval should work', async ({ initBrowserInstance }) => {
+        test('concurrent attribute retrieval should work', async () => {
             const { $ } = await import('../src');
             const elements = [
                 $('h1'),
@@ -84,7 +84,7 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
             expect(results).toHaveLength(3);
         });
 
-        test('concurrent chaining operations should work', async ({ initBrowserInstance }) => {
+        test('concurrent chaining operations should work', async () => {
             const { $ } = await import('../src');
             const base = $('div');
             
@@ -104,7 +104,7 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
     });
 
     test.describe('Async For Each Parallelism', () => {
-        test('asyncForEach should process elements in parallel', async ({ initBrowserInstance }) => {
+        test('asyncForEach should process elements in parallel', async () => {
             const { $ } = await import('../src');
             const element = $('li');
             let completed = 0;
@@ -121,7 +121,7 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
             // Performance benchmarks should be in separate benchmark tests
         });
 
-        test('asyncForEach with multiple async operations should work', async ({ initBrowserInstance }) => {
+        test('asyncForEach with multiple async operations should work', async () => {
             const { $ } = await import('../src');
             const element = $('li');
             const results: number[] = [];
@@ -131,11 +131,11 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
                 results.push(count);
             });
 
-            expect(Array.isArray(results)).toBeTruthy();
+            expect(results).toBeInstanceOf(Array);
             expect(results.length).toBeGreaterThan(0);
         });
 
-        test('multiple concurrent asyncForEach operations should work', async ({ initBrowserInstance }) => {
+        test('multiple concurrent asyncForEach operations should work', async () => {
             const { $ } = await import('../src');
             const element1 = $('li');
             const element2 = $('div');
@@ -151,7 +151,7 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
     });
 
     test.describe('Map Operation Parallelism', () => {
-        test('map should process elements in parallel', async ({ initBrowserInstance }) => {
+        test('map should process elements in parallel', async () => {
             const { $ } = await import('../src');
             const element = $('li');
 
@@ -162,12 +162,13 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
             });
 
             // Functional verification: results were returned
-            expect(Array.isArray(results)).toBeTruthy();
+            expect(results).toBeInstanceOf(Array);
+            expect(results.length).toBeGreaterThanOrEqual(0);
             // Note: Timing assertions removed to avoid CI flakiness
             // Performance benchmarks should be in separate benchmark tests
         });
 
-        test('concurrent map operations should work', async ({ initBrowserInstance }) => {
+        test('concurrent map operations should work', async () => {
             const { $ } = await import('../src');
             const element1 = $('li');
             const element2 = $('div');
@@ -177,13 +178,15 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
                 element2.map(el => el.narrowSelector)
             ]);
 
-            expect(Array.isArray(result1)).toBeTruthy();
-            expect(Array.isArray(result2)).toBeTruthy();
+            expect(result1).toBeInstanceOf(Array);
+            expect(result1.length).toBeGreaterThanOrEqual(0);
+            expect(result2).toBeInstanceOf(Array);
+            expect(result2.length).toBeGreaterThanOrEqual(0);
         });
     });
 
     test.describe('Complex Parallel Scenarios', () => {
-        test('nested parallel operations should work', async ({ initBrowserInstance }) => {
+        test('nested parallel operations should work', async () => {
             const { $ } = await import('../src');
             const base = $('div');
             
@@ -199,7 +202,7 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
             expect(results).toHaveLength(2);
         });
 
-        test('parallel chain building should work', async ({ initBrowserInstance }) => {
+        test('parallel chain building should work', async () => {
             const { $, WebElement } = await import('../src');
             const base = $('div');
             
@@ -216,7 +219,7 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
             }
         });
 
-        test('parallel subElements creation should work', async ({ initBrowserInstance }) => {
+        test('parallel subElements creation should work', async () => {
             const { $ } = await import('../src');
             const base = $('div');
             
@@ -231,7 +234,7 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
     });
 
     test.describe('Race Condition Testing', () => {
-        test('concurrent modifications should not affect each other', async ({ initBrowserInstance }) => {
+        test('concurrent modifications should not affect each other', async () => {
             const { $ } = await import('../src');
             const original = $('div');
             
@@ -247,7 +250,7 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
             expect(original._hasText).toBeUndefined(); // Original unchanged
         });
 
-        test('concurrent parent chain modifications should work', async ({ initBrowserInstance }) => {
+        test('concurrent parent chain modifications should work', async () => {
             const { $ } = await import('../src');
             const root = $('html');
             
@@ -259,13 +262,14 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
 
             expect(elements).toHaveLength(3);
             for (const el of elements) {
-                expect(Array.isArray(el.parentElements)).toBeTruthy();
+                expect(el.parentElements).toBeInstanceOf(Array);
+                expect(el.parentElements.length).toBeGreaterThanOrEqual(0);
             }
         });
     });
 
     test.describe('Resource Management', () => {
-        test('creating many elements should not cause memory issues', async ({ initBrowserInstance }) => {
+        test('creating many elements should not cause memory issues', async () => {
             const { $, WebElement } = await import('../src');
             const elements: WebElement[] = [];
             for (let i = 0; i < 500; i++) {
@@ -279,7 +283,7 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
             }
         });
 
-        test('complex chains should not leak memory', async ({ initBrowserInstance }) => {
+        test('complex chains should not leak memory', async () => {
             const { $ } = await import('../src');
             const base = $('div');
             const chains: any[] = [];
@@ -296,7 +300,7 @@ test.describe('Web Element Concurrency and Parallel Testing', () => {
             expect(chains).toHaveLength(100);
         });
 
-        test('nested subElements should not cause circular references', async ({ initBrowserInstance }) => {
+        test('nested subElements should not cause circular references', async () => {
             const { $, WebElement } = await import('../src');
             const root = $('html')
                 .subElements({

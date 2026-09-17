@@ -4,10 +4,7 @@ import fs from 'fs';
 import path, { join } from 'path';
 import { waitForFileContent, waitForFileToExist } from './utils/waitFor';
 
-// Migrated from mocha/chai to @playwright/test
-// This file tests CLI commands, doesn't need browser
-
-const testRoot = join(__dirname, 'tempFlat');
+const testRoot = join(__dirname, 'tempCli');
 
 test.describe('CLI Generator Tests', () => {
 
