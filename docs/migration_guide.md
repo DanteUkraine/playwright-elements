@@ -8,11 +8,14 @@ title: Migration Guide
 
 > **Guide for migrating to playwright-elements version 1.19.0+**
 
-## Version 1.19.0: ExpectProvider Pattern
+## Version 1.19.0: Assertions work automatically; new `testIds` module
 
 ### Overview
 
-Version 1.19.0 introduced a **breaking change** in how WebElement assertions work. This change **decouples the core WebElement class from @playwright/test**, providing better architecture and framework flexibility.
+Version 1.19.0 introduces two notable changes:
+
+1. A new **type-safe `testIds` module** for test ID generation (see [TestIds Module](#testids-module-1190)).
+2. **Assertions now work automatically** when you import from `'playwright-elements'` — `expect()` and `softExpect()` directly use `@playwright/test`'s `expect`, so custom matchers added via `expect.extend()` work out of the box. No provider configuration is required for `@playwright/test`.
 
 ---
 
@@ -20,173 +23,75 @@ Version 1.19.0 introduced a **breaking change** in how WebElement assertions wor
 
 | **Before 1.19.0** | **After 1.19.0** |
 |-------------------|------------------|
-| Direct import of `@playwright/test` expect | No direct dependency on test framework |
-| `expect()` worked out of the box | Requires provider configuration (automatic for @playwright/test) |
-| Tight coupling with Playwright | Framework-agnostic architecture |
-| `useExpect()` method for custom expect | `setExpectProvider()` for provider injection (useExpect maintained for backward compatibility) |
+| `expect()` worked out of the box | `expect()` / `softExpect()` still work out of the box — they now use `@playwright/test`'s `expect` directly |
+| Custom matchers needed extra wiring | Custom matchers added via `expect.extend()` work automatically with full TypeScript autocomplete |
+| `TestId` used a `unique symbol` brand | `TestId` uses a **structural string brand** (`__testIdBrand: "pe/testids"`) — types are interoperable across installed copies |
 
 ---
 
-## Breaking Changes
+## Assertions in 1.19.0
 
-### 1. `expect()` and `softExpect()` now require configuration
+### For `@playwright/test` users — no action needed
 
-**Before:**
-```typescript
-import { $ } from 'playwright-elements';
+Assertions work automatically. `expect()` and `softExpect()` directly use `@playwright/test`'s `expect`:
 
-const element = $('.button');
-await element.expect().toBeVisible(); // Just worked
-```
-
-**After:**
-```typescript
-// For Playwright Test: Automatic (no changes needed)
-const element = $('.button');
-await element.expect().toBeVisible(); // Works automatically
-```
-
-**Error if not configured:**
-```
-Error: Assertion provider not configured. Call WebElement.setExpectProvider() in your test setup. 
-For Playwright: WebElement.setExpectProvider({ expect, softExpect: expect.soft });
-```
-
----
-
-## Migration Steps
-
-### For Playwright Test Users
-
-✅ **No changes required!** The configuration is automatic.
-
-Your existing code will continue to work:
 ```typescript
 import { test } from 'playwright-elements';
 
 test('my test', async ({}) => {
-    await $('.element').expect().toBeVisible(); // Works automatically
+  await $('.element').expect().toBeVisible();
+  await $('.element').softExpect().toBeVisible();
 });
 ```
 
-The library automatically configures the provider in `playwright.test.fixtures.ts`.
+This works because importing from `'playwright-elements'` (or `'playwright-elements/test'`) pulls in `playwright.test.fixtures`, which configures assertions for you.
 
----
+### Custom matchers — automatic
 
-### For Custom Test Framework Users
+Custom matchers added via `expect.extend()` work seamlessly with WebElement instances and provide full TypeScript autocomplete — no configuration required:
 
-⚠️ **Action required:** Configure the provider manually.
+```typescript
+import { expect } from '@playwright/test';
+import { test, $ } from 'playwright-elements';
+
+expect.extend({
+  async toHaveCustomValue(locator, expected) {
+    const value = await locator.getAttribute('data-custom');
+    return { pass: value === expected };
+  }
+});
+
+test('custom matcher', async ({ goto }) => {
+  await goto('/');
+  await $('[data-testid="my-element"]').expect().toHaveCustomValue('test');
+});
+```
+
+### For custom test frameworks — optional
+
+If you are **not** using `@playwright/test`, you can inject your own assertion library. This is optional and only needed for non-Playwright frameworks:
 
 ```typescript
 import { WebElement } from 'playwright-elements';
-import { myCustomExpect, myCustomSoftExpect } from 'my-test-framework';
+import { myExpect, mySoftExpect } from 'my-test-framework';
 
-// Configure once in your test setup file
+// Configure once in your test setup
 WebElement.setExpectProvider({
-    expect: myCustomExpect,
-    softExpect: myCustomSoftExpect
+  expect: myExpect,
+  softExpect: mySoftExpect
 });
 
 // Now all WebElement instances use your custom expect
 await $('.element').expect().toBeVisible();
 ```
 
----
-
-### For Custom Matcher Users
-
-⚠️ **Action required:** Update custom matcher configuration.
-
-**Before (old approach):**
-```typescript
-import { expect } from 'playwright-elements';
-
-expect.extend({
-    async toHaveCustomValue(locator, expected) {
-        // custom implementation
-    }
-});
-
-// This would NOT work with WebElement.expect()
-```
-
-**After (new approach):**
-```typescript
-import { WebElement } from 'playwright-elements';
-import { expect } from '@playwright/test';
-
-// Extend Playwright expect with custom matchers
-const customExpect = expect.extend({
-    async toHaveCustomValue(locator, expected) {
-        // custom implementation
-    }
-});
-
-// Configure WebElement to use extended expect
-WebElement.setExpectProvider({
-    expect: customExpect,
-    softExpect: customExpect.soft
-});
-
-// Now custom matcher works
-await $('.element').expect().toHaveCustomValue('test');
-```
+`setExpectProvider()` accepts an `ExpectProvider` (`{ expect, softExpect }`). `useExpect(provider)` is a deprecated alias kept for backward compatibility.
 
 ---
 
-## Backward Compatibility
+## TestIds Module (1.19.0)
 
-### `useExpect()` Method
-
-The `useExpect()` static method accepts an optional expect provider parameter for backward compatibility:
-
-```typescript
-// With parameter - delegates to setExpectProvider:
-WebElement.useExpect(expect);
-
-// Without parameter - does nothing (backward compatible with 1.x):
-WebElement.useExpect();
-
-// Recommended approach - use setExpectProvider directly:
-WebElement.setExpectProvider({ expect, softExpect: expect.soft });
-```
-
-**Note:** For new code, prefer `setExpectProvider()` for clarity. `useExpect()` is maintained for backward compatibility.
-
----
-
-## Benefits of the New Architecture
-
-### 1. Clean Architecture
-- WebElement works seamlessly with Playwright Test
-
-### 2. Production-Ready
-- **No test dependencies** in core code
-- Can use WebElement classes in production applications
-- Clean separation between test and production code
-
-### 3. Better Type Safety
-- Clear separation between core and test code
-- Type-safe provider pattern
-- Better architecture for custom assertions
-
-### 4. Customizable
-- Easy to inject **custom assertion libraries**
-- Support for **custom matchers**
-- Flexible configuration options
-
-### 5. Clean Architecture
-- Follows **dependency injection** principles
-- **Loose coupling** between components
-- **Single Responsibility** principle applied
-
----
-
-## New Features in 1.19.0
-
-### TestIds Module
-
-Version 1.19.0 introduced a new **TestIds module** for type-safe test ID generation. This module is **zero-dependency** and can be used independently of Playwright.
+Version 1.19.0 introduced a new **`testIds` module** for type-safe test ID generation. This module is **zero-dependency** and can be used independently of Playwright.
 
 #### Import Paths
 
@@ -213,7 +118,7 @@ import { $byTestId } from 'playwright-elements/testIds/selectors';
 
 #### Type Safety
 
-The TestId types use **branded types** to prevent mixing IDs from different categories:
+The TestId types use a **structural string brand** to prevent mixing IDs from different categories:
 
 ```typescript
 // Different types for different ID categories
@@ -224,7 +129,7 @@ const containerId: TestId<'container'> = sid<'container'>('main');
 // const wrong: TestId<'container'> = buttonId; // Error!
 ```
 
-**Important:** Brands are **nominal and per-package**. IDs from your existing project registry are **NOT** interchangeable with the `TestId` type from playwright-elements. You'll need to migrate to use the new types, or use `unsafeId()` as an escape hatch.
+**Important:** The brand is **structural** (`__testIdBrand: "pe/testids"`), so two installed copies of the package produce **interoperable types**. Plain strings are still rejected, and `Kind` is covariant (`TestId<'button'>` is assignable to `TestId<string>` but not vice versa). `unsafeId()` remains the escape hatch for third-party IDs or fixture values that cannot be statically typed.
 
 #### Usage Examples
 
@@ -272,7 +177,7 @@ const ids = {
 };
 ```
 
-**Note:** The new TestId types provide **compile-time safety** and prevent ID collisions through the type system.
+**Note:** The new TestId types provide **compile-time safety** and prevent ID misuse through the type system.
 
 ---
 
@@ -280,96 +185,37 @@ const ids = {
 
 ### Q: Why was this change made?
 
-A: To decouple the core WebElement class from test frameworks, allowing it to be used in production code without test dependencies.
+A: To add a type-safe `testIds` module and to make `expect()` / `softExpect()` use `@playwright/test`'s `expect` directly, so custom matchers added via `expect.extend()` work automatically with full TypeScript autocomplete.
 
 ### Q: Do I need to change my existing Playwright tests?
 
-A: **No**, the configuration is automatic for Playwright Test. Your existing tests will continue to work without any changes.
+A: **No**, assertions are automatic for Playwright Test. Your existing tests will continue to work without any changes.
 
 ### Q: Can I still use custom matchers?
 
-A: **Yes**, you can configure your custom expect implementation using `WebElement.setExpectProvider()`. See [Custom Test Framework Users](#for-custom-test-framework-users) above.
+A: **Yes!** Custom matchers added via `expect.extend()` work automatically with WebElement instances — no configuration required. See [Custom matchers — automatic](#custom-matchers--automatic) above.
 
-### Q: How do I know if the provider is configured?
+### Q: Can I use a custom assertion library?
 
-A: If `expect()` or `softExpect()` work without errors, the provider is configured. If you get an error about "Assertion provider not configured", you need to configure it.
-
-### Q: Can I use different providers for different tests?
-
-A: **Yes**, you can call `WebElement.setExpectProvider()` multiple times to change the provider. However, this is generally not recommended as it can lead to confusion.
+A: Yes, but only if you are not using `@playwright/test`. Call `WebElement.setExpectProvider({ expect, softExpect })` once in your test setup. For `@playwright/test`, no configuration is needed.
 
 ### Q: What happens if I don't configure the provider?
 
-A: Calling `expect()` or `softExpect()` will throw a clear error message:
-```
-Error: Assertion provider not configured. Call WebElement.setExpectProvider() in your test setup.
-```
-
-### Q: Do custom matchers added via `expect.extend()` work with WebElement?
-
-A: **Yes!** This is one of the major improvements in 1.19.0. When you extend Playwright's expect and configure it via `WebElement.setExpectProvider()`, your custom matchers are now available on WebElement instances:
-
-```typescript
-import { expect } from '@playwright/test';
-import { WebElement, $ } from 'playwright-elements';
-
-// Extend Playwright expect with custom matcher
-expect.extend({
-  async toHaveCustomValue(locator, expected) {
-    const value = await locator.getAttribute('data-custom');
-    return { pass: value === expected };
-  }
-});
-
-// Configure WebElement to use extended expect
-WebElement.setExpectProvider({
-  expect: expect,
-  softExpect: expect.soft
-});
-
-// Now custom matcher works with WebElement!
-await $('[data-testid="my-element"]').expect().toHaveCustomValue('test');
-```
+A: Nothing — for `@playwright/test` there is nothing to configure; assertions work automatically. `setExpectProvider()` is only for custom (non-Playwright) frameworks.
 
 ### Q: What about deep imports?
 
-A: If you use a deep import like `import { WebElement } from 'playwright-elements/lib/web.element'`, the automatic configuration from `playwright.test.fixtures` won't apply. However, **the library now attempts a lazy default** by requiring `@playwright/test` on first use. This means:
-
-1. **Use the main entry point (recommended):**
-```typescript
-import { WebElement, $ } from 'playwright-elements';
-```
-
-2. **Deep imports with @playwright/test available:** If `@playwright/test` is installed and available in your environment, deep imports will work automatically on first use.
-
-3. **Manually configure the provider (if @playwright/test is not available):**
-```typescript
-import { WebElement } from 'playwright-elements/lib/web.element';
-import { expect } from '@playwright/test';
-
-WebElement.setExpectProvider({
-  expect: expect,
-  softExpect: expect.soft
-});
-```
-
-**Note:** The lazy default only works if `@playwright/test` is available at runtime. For production code without test dependencies, you must either use the main entry point or manually configure a provider.
+A: Use the main entry point (`import { WebElement, $ } from 'playwright-elements'`) — this is where the Playwright fixtures and side effects live. The verified zero-dependency subpaths are `playwright-elements/testids`, `playwright-elements/testIds/builder`, and `playwright-elements/testIds/selectors`. If you import one of those subpaths, you get the ID/selector utilities but not the Playwright-bound fixtures.
 
 ---
 
 ## Troubleshooting
 
-### Error: "Assertion provider not configured"
-
-**Cause:** You're trying to use `expect()` or `softExpect()` without configuring the provider.
-
-**Solution:** Ensure you're using `import { test } from 'playwright-elements'`
-
 ### Error: "expect is not defined"
 
-**Cause:** You're trying to import `expect` directly from 'playwright-elements' but it's not exported from the main module.
+**Cause:** You're trying to use `expect` without importing it.
 
-**Solution:** Import from '@playwright/test':
+**Solution:** Import `expect` from `@playwright/test`:
 ```typescript
 import { expect } from '@playwright/test';
 ```
@@ -378,22 +224,17 @@ import { expect } from '@playwright/test';
 
 **Cause:** The test setup file might not be included in your CI configuration.
 
-**Solution:** Ensure your `.mocharc.json` or test configuration includes the setup file:
-```json
-{
-  "require": ["./test/mocha.setup.ts"]
-}
-```
+**Solution:** Ensure your Playwright test configuration includes the setup file (see your `playwright.config.ts` `webServer`/`projects`/`globalSetup` settings).
 
 ---
 
 ## Migration Checklist
 
-- [ ] For Playwright Test: No action needed ✅
-- [ ] For Custom frameworks: Configure provider with `WebElement.setExpectProvider()`
-- [ ] For Custom matchers: Update to use new provider pattern
+- [ ] For Playwright Test: No action needed ✅ (assertions work automatically)
+- [ ] For Custom matchers: Nothing to do — `expect.extend()` works automatically
+- [ ] For Custom frameworks: Optionally configure `WebElement.setExpectProvider()`
+- [ ] TestIds: Adopt `sid()` / `factory()` branded types where useful
 - [ ] Run tests to verify migration
-- [ ] Update CI configuration if needed
 
 ---
 

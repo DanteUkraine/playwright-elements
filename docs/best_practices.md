@@ -247,7 +247,8 @@ const loginForm = $('.login-form').with({
   username: $('input[name="username"]'),
   password: $('input[name="password"]'),
   submit: $('button[type="submit"]'),
-  async login(this: WebElement, username: string, password: string) {
+  // `this` is automatically the component — no annotation needed
+  async login(username: string, password: string) {
     await this.username.fill(username);
     await this.password.fill(password);
     await this.submit.click();
@@ -934,32 +935,37 @@ const form: Form = $('.form').with({
 });
 ```
 
-### Use `typeof this` for Custom Methods
+### `this` in custom methods
+
+When you add a method via `.with()`, `this` is automatically the component — its nested elements and sibling methods are available without any `this` annotation. Omitting it keeps the code clean and is fully type-safe:
 
 ```typescript
-// Good - type-safe this
-type Table = WebElement & {
-  rows: WebElement;
-};
-
-const table: Table = $('.table').with({
+// Good — `this` is the component; nested elements are accessible
+const table = $('.table').with({
   rows: $('.row'),
-  
-  async filterRows(this: Table, text: string) {
-    return this.rows.filter({ hasText: text });
-  }
-});
 
-// Bad - loses type safety
-const table2 = $('.table').with({
-  rows: $('.row'),
-  
   async filterRows(text: string) {
-    // this is any, no type safety
     return this.rows.filter({ hasText: text });
   }
 });
 ```
+
+If you prefer to annotate explicitly, use the component type (`this: typeof table` or a named type):
+
+```typescript
+// Good — explicit component type
+type Table = WebElement & { rows: WebElement };
+
+const table: Table = $('.table').with({
+  rows: $('.row'),
+
+  async filterRows(this: Table, text: string) {
+    return this.rows.filter({ hasText: text });
+  }
+});
+```
+
+**Avoid:** annotating `this: WebElement` when the method accesses nested elements — `WebElement` has no nested properties, so `this.rows` would be a type error.
 
 ### Parent Type Annotations
 

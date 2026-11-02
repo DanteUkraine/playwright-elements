@@ -69,10 +69,6 @@ expect(res?.ok()).toBe(true);  // Explicit boolean check
 expect(res?.status()).toBe(200);
 
 // GOOD - Validates flag AND mobile-specific behavior
-import { expectMobileContext } from '../test/utils/mobile.validators';
-await expectMobileContext(page, { expectedDevice: 'iPhone' });
-
-// Or at minimum:
 expect(BrowserInstance.isContextMobile).toBe(true);  // Explicit boolean
 expect(viewport?.width).toBeLessThanOrEqual(390);
 expect(userAgent).toContain('iPhone');
@@ -349,41 +345,6 @@ await expectClientErrorResponse(res, 404);
 await expectServerErrorResponse(res, 500);
 ```
 
-### Mobile Context Validators (`test/utils/mobile.validators.ts`)
-
-```typescript
-import { 
-    expectMobileContext,
-    expectDesktopContext,
-    expectViewport,
-    expectViewportInRange,
-    expectTouchSupport,
-    expectOrientation,
-    expectPixelRatio 
-} from '../test/utils/mobile.validators';
-
-// Validate mobile context
-await expectMobileContext(page, { expectedDevice: 'iPhone' });
-
-// Validate desktop context
-await expectDesktopContext(page);
-
-// Validate specific viewport
-await expectViewport(page, { width: 390, height: 844 });
-
-// Validate viewport range
-await expectViewportInRange(page, { maxWidth: 500 });
-
-// Validate touch support
-await expectTouchSupport(page);
-
-// Validate orientation
-await expectOrientation(page, 'portrait');
-
-// Validate pixel ratio
-await expectPixelRatio(page, 3);
-```
-
 ---
 
 ## Resources
@@ -392,8 +353,6 @@ await expectPixelRatio(page, 3);
 
 - [Project README](README.md)
 - [Playwright Documentation](https://playwright.dev/)
-- [Mocha Documentation](https://mochajs.org/)
-- [Chai Documentation](https://www.chaijs.com/)
 
 ### Test Quality Resources
 

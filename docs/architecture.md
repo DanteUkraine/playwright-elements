@@ -30,7 +30,7 @@ The central class that wraps Playwright's Locator with additional functionality.
 - Chainable selector building
 - Sub-element support with type-safe `with()` method
 - Locator method delegation
-- Assertion support via provider pattern (since v1.19.0)
+- Automatic assertions via @playwright/test (since v1.19.0)
 
 **Architecture Diagram:**
 ```
@@ -44,16 +44,16 @@ WebElement
 │   └── Chaining (and, or, has, hasNot, etc.)
 ├── Sub-Elements
 │   └── Type-safe nested elements
-└── Assertions (via ExpectProvider)
+└── Assertions (direct @playwright/test)
     ├── expect()
     └── softExpect()
 ```
 
 ---
 
-### 2. ExpectProvider Pattern
+### 2. Assertions (1.19.0)
 
-Starting from version 1.19.0, assertions are implemented using a **provider pattern** that decouples WebElement from specific test frameworks.
+Starting from version 1.19.0, `expect()` and `softExpect()` directly use `@playwright/test`'s `expect`. When you import from `'playwright-elements'` (or `'playwright-elements/test'`), the framework configures this automatically, so assertions work out of the box:
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -61,33 +61,22 @@ Starting from version 1.19.0, assertions are implemented using a **provider patt
 │  ┌───────────────────────────────────────────────┐  │
 │  │              expect() / softExpect()             │  │
 │  │                   │                               │  │
-│  └───────────────┬───────────────┬─────────────────┘  │
-│                  │                 │                    │
-└──────────────────┼─────────────────┼────────────────┘
-                   │                 │
-                   ▼                 ▼
+│  └─────────────────────┼────────────────────────────┘  │
+│                        │                                 │
+└────────────────────────┼─────────────────────────────────┘
+                         ▼
 ┌─────────────────────────────────────────────────────┐
-│              ExpectProvider Interface                 │
-│  ┌───────────────────┐  ┌────────────────────────┐  │
-│  │     expect         │  │       softExpect         │  │
-│  │  (locator, msg?)   │  │      (locator, msg?)      │  │
-│  └───────────────────┘  └────────────────────────┘  │
-└─────────────────────────────────────────────────────┘
-                   │
-                   ▼
-┌─────────────────────────────────────────────────────┐
-│            Test Framework Implementation                │
-│  ┌───────────────────┐  ┌────────────────────────┐  │
-│  │  @playwright/test  │  │    Custom Framework      │  │
-│  │  expect / soft     │  │    expect / softExpect   │  │
-│  └───────────────────┘  └────────────────────────┘  │
+│         @playwright/test's expect (automatic)         │
+│   custom matchers via expect.extend() work too        │
 └─────────────────────────────────────────────────────┘
 ```
 
+For **custom (non-`@playwright/test`) frameworks**, you can inject your own assertion library once via `WebElement.setExpectProvider({ expect, softExpect })` — this is optional and unnecessary for `@playwright/test`.
+
 **Benefits:**
-1. **Decoupling**: WebElement doesn't directly depend on @playwright/test
-2. **Flexibility**: Support any test framework
-3. **Testability**: Easy to mock in unit tests
+1. **Zero setup for @playwright/test**: assertions work automatically
+2. **Custom matchers**: `expect.extend()` matchers work automatically with full TypeScript autocomplete
+3. **Flexibility**: custom frameworks can inject their own assertions via `setExpectProvider()`
 4. **Production Use**: Core WebElement can be used without test dependencies
 
 ---
@@ -129,7 +118,7 @@ Playwright-elements extends Playwright's test fixtures with custom fixtures:
 import { test as base, Page, Response, expect } from '@playwright/test';
 import { BrowserInstance, usePage, WebElement } from './index';
 
-// Configure WebElement assertion provider automatically
+// Assertions work automatically: configure @playwright/test's expect for WebElement
 WebElement.setExpectProvider({
     expect: expect,
     softExpect: expect.soft
@@ -156,13 +145,13 @@ User Code
 │       ├── BrowserInstance (optional, for page/context/browser access)
 │       │   └── Playwright Browser/Context/Page
 │       │
-│       └── ExpectProvider (optional, for assertions)
-│           └── Test Framework (Playwright, Mocha, etc.)
+│       └── Assertions (direct @playwright/test; optional setExpectProvider for custom frameworks)
+│           └── @playwright/test's expect
 │
 └── Fixtures (optional, for Playwright Test)
     └── playwright.test.fixtures.ts
         ├── BrowserInstance configuration
-        └── ExpectProvider configuration (automatic)
+        └── Assertions configuration (automatic)
 ```
 
 ---
@@ -232,10 +221,10 @@ Custom utility types for:
 
 ## Design Patterns Used
 
-### 1. Provider Pattern
-- **Purpose**: Decouple WebElement from test frameworks
-- **Implementation**: `ExpectProvider` interface + `setExpectProvider()` method
-- **Benefit**: Framework-agnostic, testable, extensible
+### 1. Automatic Assertions (direct @playwright/test)
+- **Purpose**: Make `expect()` / `softExpect()` work out of the box for @playwright/test
+- **Implementation**: `expect()` / `softExpect()` use `@playwright/test`'s `expect` directly; `setExpectProvider()` optionally injects assertions for custom frameworks
+- **Benefit**: Zero setup for @playwright/test, custom matchers work automatically, optional injection for custom frameworks
 
 ### 2. Singleton Pattern
 - **Purpose**: Manage browser/context/page instances
@@ -278,7 +267,7 @@ await button.expect().toBeVisible();
 - Reusable components
 - Chainable sub-elements
 - Less boilerplate
-- Framework-agnostic (with provider pattern)
+- Automatic assertions for @playwright/test
 
 ### Other Page Object Libraries
 
@@ -344,12 +333,12 @@ WebElement.setExpectProvider({
 
 Playwright-elements combines the power of Playwright's native locators with:
 - Type-safe page object patterns
-- Framework-agnostic architecture (v1.19.0+)
+- Automatic assertions for @playwright/test (v1.19.0+)
 - Minimal boilerplate
 - Extensible design
 - Production-ready core
 
-The ExpectProvider pattern (introduced in v1.19.0) represents a significant architectural improvement, making the library truly framework-agnostic while maintaining backward compatibility.
+Since v1.19.0, `expect()` / `softExpect()` directly use `@playwright/test`'s `expect`, so assertions and custom matchers work out of the box — with optional `setExpectProvider()` injection for custom frameworks.
 
 ---
 
