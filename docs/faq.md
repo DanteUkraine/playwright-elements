@@ -50,7 +50,7 @@ Yes, we recommend completing the [Playwright Getting Started](https://playwright
 
 ### Can I use it with other test frameworks?
 
-Yes! While playwright-elements works seamlessly with `@playwright/test`, it can also be used with other frameworks like Jest, Mocha, or custom setups. You'll need to configure the `ExpectProvider` for assertions to work.
+Yes! While playwright-elements works seamlessly with `@playwright/test` (assertions are automatic), it can also be used with other frameworks like Jest, Mocha, or custom setups. For non-`@playwright/test` frameworks, optionally configure assertions once via `WebElement.setExpectProvider({ expect, softExpect })`.
 
 ---
 
@@ -66,7 +66,7 @@ Make sure you:
 
 ### I get "Assertion provider not configured" error
 
-This means the `ExpectProvider` is not configured. For `@playwright/test`, this happens automatically. If you're using a custom framework:
+This only happens if you're using a custom (non-`@playwright/test`) framework and haven't configured assertions. For `@playwright/test`, assertions work automatically — you won't see this error. If you're using a custom framework, configure it once in your test setup:
 
 ```typescript
 import { WebElement } from 'playwright-elements';
@@ -84,7 +84,7 @@ Technically yes, but you'll lose the main benefits (type safety, autocompletion)
 
 ### What version of Playwright do I need?
 
-Playwright-elements works with Playwright 1.30+. We recommend using the latest version.
+playwright-elements works with Playwright **>= 1.62.x** (the peer-dependency range, since the library imports types directly from `playwright-core`). We recommend using the latest Playwright.
 
 ---
 
@@ -153,7 +153,7 @@ const form = $('.login-form').with({
   username: $('input[name="username"]'),
   password: $('input[name="password"]'),
   
-  async login(this: WebElement, username: string, password: string) {
+  async login(username: string, password: string) {
     await this.username.fill(username);
     await this.password.fill(password);
     await this.submit.click();
@@ -173,7 +173,7 @@ Use the filtering methods:
 const visibleButtons = $('button').hasText('Submit');
 
 // Filter by child element
-const rowsWithCheckbox = $('.row').has('$("input[type=checkbox]")');
+const rowsWithCheckbox = $('.row').has('input[type=checkbox]');
 
 // Filter by attribute
 const disabledButtons = $('button').hasNot('[disabled]');
@@ -439,15 +439,15 @@ generateIndexFile('./pages', {
 
 ### Why do I get "Assertion provider not configured"?
 
-The `ExpectProvider` is not configured. For `@playwright/test`, this is automatic. For custom setups:
+This only happens with a custom (non-`@playwright/test`) framework. For `@playwright/test`, assertions work automatically and you won't see this. If you're using a custom framework, configure it once:
 
 ```typescript
 import { WebElement } from 'playwright-elements';
-import { expect } from '@playwright/test';
+import { myExpect, mySoftExpect } from 'my-framework';
 
 WebElement.setExpectProvider({
-  expect,
-  softExpect: expect.soft
+  expect: myExpect,
+  softExpect: mySoftExpect
 });
 ```
 
@@ -516,7 +516,6 @@ import { BrowserInstance } from 'playwright-elements';
 test('tab switching', async () => {
   await BrowserInstance.switchToPreviousTab();
   await BrowserInstance.switchToTabByIndex(1);
-  await BrowserInstance.switchToTabByTitle('Settings');
 });
 ```
 
@@ -567,19 +566,16 @@ await $('.button').highlight();
 
 ### Type errors with `this` in custom methods
 
-Make sure to use the correct `this` type:
+When you add a method via `.with()`, `this` is automatically the component, so you can omit the `this` parameter and access nested elements directly:
 
 ```typescript
-// Correct
-async login(this: WebElement, username: string) {
+// Correct — `this` is the component; no annotation needed
+async login(username: string) {
   await this.username.fill(username);
 }
-
-// Wrong (missing this parameter)
-async login(username: string) {
-  await this.username.fill(username); // Type error
-}
 ```
+
+If you want to annotate, use the component type (`this: typeof form`) or, for methods that only use base element methods, `this: WebElement`. Avoid `this: WebElement` when the method accesses nested elements — `WebElement` has no nested properties, so `this.username` would be a type error.
 
 ### Cannot use `has()` with `getBy*` selectors
 

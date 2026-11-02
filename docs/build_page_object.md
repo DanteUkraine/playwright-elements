@@ -195,11 +195,15 @@ generateIndexFile('./page.object'); // one time generation
 type TestFixtures = { pageObject: PageObject<typeof pageObjectModule> };
 
 export const test = baseTest.extend({
-  page: [async ({}, use) => {
+  pageObject: [async ({}, use) => {
     await use(buildPageObject(pageObjectModule));
   }, { scope: 'test' }],
 });
 ```
+
+> **Note:** Use `pageObject` (not `page`) as the fixture key. `page` is reserved by
+> `@playwright/test` — shadowing it makes the built-in `page` fixture unavailable in
+> your tests. Every other example in this guide uses `pageObject`.
 
 **Watch mode usage example:**
 ```ts

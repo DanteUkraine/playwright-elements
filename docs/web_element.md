@@ -104,8 +104,9 @@ const form = $('.login-form').with({
   password: $('input[name="password"]'),
   submit: $('button[type="submit"]'),
   
-  // Add custom method with type-safe this
-  async login(this: WebElement, username: string, password: string) {
+  // Add a custom method — `this` is automatically the component, so nested
+  // elements and sibling methods are available without a `this` annotation
+  async login(username: string, password: string) {
     await this.username.fill(username);
     await this.password.fill(password);
     await this.submit.click();
@@ -126,7 +127,7 @@ await form.login('admin', 'password123');
 
 ### 2. Assertions
 
-WebElement provides access to Playwright's assertion library through `.expect()` and `.softExpect()`.
+WebElement provides access to Playwright's assertion library through `.expect()` and `.softExpect()`. No configuration is needed — assertions work automatically with `@playwright/test`.
 
 #### Basic Assertions
 
@@ -174,7 +175,55 @@ await element.expect('Button should be visible').toBeVisible();
 await element.softExpect('Input should have value').toHaveValue('expected');
 ```
 
-**Note:** Custom matchers added via `expect.extend()` work automatically with WebElement.expect() and provide full TypeScript autocomplete.
+#### Custom Matchers
+
+Custom matchers added via `expect.extend()` work automatically with WebElement and provide full TypeScript autocomplete — no configuration needed:
+
+```typescript
+import { expect } from '@playwright/test';
+import { test, $ } from 'playwright-elements';
+
+expect.extend({
+  async toHaveCustomValue(locator, expected) {
+    const actual = await locator.getAttribute('data-custom');
+    return { pass: actual === expected };
+  }
+});
+
+test('custom matcher', async ({ goto }) => {
+  await goto('/');
+  await $('.element').expect().toHaveCustomValue('test');
+});
+```
+
+**How it works:** `WebElement.expect()` directly uses `@playwright/test`'s `expect`, so any matchers added via `expect.extend()` are automatically available with full TypeScript type safety.
+
+#### Custom Assertion Class
+
+For better autocomplete with many custom matchers, extend `WebElement` with a dedicated assertion method:
+
+```typescript
+// customWebElement.ts
+import { WebElement } from 'playwright-elements';
+import { expect } from '@playwright/test';
+
+const customExpect = expect.extend({
+  async toHaveAriaLabel(locator: any, expected: string) {
+    const actual = await locator.getAttribute('aria-label');
+    return { pass: actual === expected };
+  }
+});
+
+export class CustomWebElement extends WebElement {
+  public customExpect(message?: string) {
+    return customExpect(this.locator, message);
+  }
+}
+
+export function $(selector: string): CustomWebElement {
+  return new CustomWebElement(selector);
+}
+```
 
 ---
 
@@ -494,112 +543,6 @@ clone<T extends WebElement>(options?: {
 
 ---
 
-## Assertions
-
-WebElement provides seamless integration with @playwright/test's assertion system. Custom matchers added via `expect.extend()` work automatically.
-
-### Basic Usage
-
-No configuration needed - assertions work automatically with @playwright/test:
-
-```typescript
-import { test } from 'playwright-elements';
-
-test('my test', async ({}) => {
-  await $('.element').expect().toBeVisible();
-  await $('.element').softExpect().toBeVisible();
-});
-```
-
-### Custom Matchers
-
-Extend Playwright's expect with custom matchers - they will automatically work with WebElement:
-
-```typescript
-import { expect } from '@playwright/test';
-import { $ } from 'playwright-elements';
-
-// Extend expect with custom matcher
-expect.extend({
-  async toHaveCustomValue(locator, expected) {
-    const actual = await locator.getAttribute('data-custom');
-    return {
-      pass: actual === expected,
-      message: () => `Expected custom value to be ${expected}, but got ${actual}`
-    };
-  }
-});
-
-// Custom matcher works with full TypeScript autocomplete
-await $('.element').expect().toHaveCustomValue('test');
-```
-
-**How it works:** WebElement.expect() directly uses @playwright/test's expect, so any matchers added via `expect.extend()` are automatically available with full TypeScript type safety.
-
----
-
-## Extended Expect with Custom Matchers
-
-### Adding Custom Matchers
-
-```typescript
-import { WebElement } from 'playwright-elements';
-import { expect } from '@playwright/test';
-
-// Extend Playwright expect with custom matchers
-const customExpect = expect.extend({
-  async toHaveAriaLabel(locator: any, expected: string, options?: { timeout?: number }) {
-    const actual = await locator.getAttribute('aria-label');
-    return { 
-      pass: actual === expected,
-      message: () => `Expected aria-label to be ${expected}, but got ${actual}`
-    };
-  }
-});
-
-// No configuration needed! Custom matchers work automatically with WebElement
-// because WebElement.expect() directly uses @playwright/test's expect
-await $('.button').expect().toHaveAriaLabel('Submit');
-```
-
-### Custom WebElement with Extended Expect
-
-For better autocompletion with many custom matchers:
-
-```typescript
-// customWebElement.ts
-import { WebElement } from 'playwright-elements';
-import { expect } from '@playwright/test';
-
-const customExpect = expect.extend({
-  async toHaveAriaLabel(locator: any, expected: string) {
-    // Custom matcher implementation
-  }
-});
-
-export class CustomWebElement extends WebElement {
-  public customExpect(message?: string) {
-    return customExpect(this.locator, message);
-  }
-}
-
-export function $(selector: string): CustomWebElement {
-  return new CustomWebElement(selector);
-}
-
-// Usage in tests
-import { test } from 'playwright-elements';
-import { $ } from './customWebElement';
-
-test('custom expect matcher', async ({ goto }) => {
-  await goto('/');
-  const header = $(`.navbar`);
-  await header.customExpect().toHaveAriaLabel('Main');
-});
-```
-
----
-
 ## Locator Access
 
 ### `.locator` and `._` Getters
@@ -799,21 +742,33 @@ const header = $('.header').with({
 });
 ```
 
-### 3. Use `this` Type Annotations
+### 3. `this` in custom methods
 
-Always specify the `this` type in custom methods:
+When you add a method via `.with()`, `this` is automatically the component — its nested elements and sibling methods are available without any `this` annotation. Omitting it is the recommended approach:
 
 ```typescript
-// Good
-async login(this: WebElement, username: string) {
+// Good — `this` is the component; nested elements are accessible
+async login(username: string, password: string) {
+  await this.username.fill(username);
+  await this.password.fill(password);
+}
+```
+
+If you prefer to annotate, use the component type (`this: typeof form`) or, for methods that only use base element methods (no nested access), `this: WebElement`:
+
+```typescript
+// Good — explicit component type
+async login(this: typeof form, username: string) {
   await this.username.fill(username);
 }
 
-// Bad (type error)
-async login(username: string) {
-  await this.username.fill(username);
+// Good — base method only; `this: WebElement` is fine
+async reset(this: WebElement) {
+  await this.fill('');
 }
 ```
+
+**Avoid:** annotating `this: WebElement` when the method accesses nested elements — `WebElement` has no nested properties, so `this.username` would be a type error.
 
 ### 4. Combine Selectors Judiciously
 
@@ -841,90 +796,6 @@ const header = $('.header').with({
     }
   })
 });
-```
-
----
-
-[Go to Main Page >>](./../README.md)
-
-### Get by methods
-
-Next methods allow easy way to create locators in complex components.
-
-- [$getByAltText](https://playwright.dev/docs/api/class-page#page-get-by-alt-text)
-- [$getByLabel](https://playwright.dev/docs/api/class-page#page-get-by-label)
-- [$getByPlaceholder](https://playwright.dev/docs/api/class-page#page-get-by-placeholder)
-- [$getByRole](https://playwright.dev/docs/api/class-page#page-get-by-role)
-- [$getByTestId](https://playwright.dev/docs/api/class-page#page-get-by-test-id)
-- [$getByText](https://playwright.dev/docs/api/class-page#page-get-by-text)
-- [$getByTitle](https://playwright.dev/docs/api/class-page#page-get-by-title)
-
-Example:
-```ts
-import { $getByTestId, $getByPlaceholder, $getByTitle } from "playwright-elements"; 
-
-class MainPage {
-    readonly form = $getByTestId(`login-form`)
-        .with({
-            loginField: $getByPlaceholder('Email or phonenumber'),
-            passwordField: $getByPlaceholder('Password'),
-            submitButton: $getByTitle('Login')
-        })
-}
-```
-
-### With
-This builder like method allows you to create multiple sub elements and add custom methods in one json like body.
-
-*Complex component creation:*
-```ts
-import { $ } from "playwright-elements"; 
-
-class MainPage {
-    readonly header = $(`.header`)
-        .with({
-            userInfoSection: $(`.userInfo`)
-                .with({
-                    firstName: $(`.first-name`),
-                    lastName: $(`.last-name`),
-                    avatar: $(`.userImage`)
-                })
-        })
-}
-```
-*Additional methods support with type safe pointer "this"*
-```ts
-import { $ } from "playwright-elements"; 
-
-class MainPage {
-    readonly header = $(`.header`)
-        .with({
-            humburgerButton: $(`.hButton`),
-            menu: $(`.menu`)
-                .with({
-                    item: $(`.menu-item`),
-                    async expand() {
-                      await this.locator.hover();
-                      await this.click();
-                    }
-                }),
-            async someCustomHeaderMethod() {
-              //...
-            }
-        })
-}
-```
-
-Allows selector chaining:
-```ts
-import { $ } from "playwright-elements"; 
-
-class MainPage {
-    readonly element = $getByTestId('parentTestId').$('.child')
-            .with({
-              subChild: $getByTestId('subChildId').$('.subChild2'),
-            });
-}
 ```
 
 ---

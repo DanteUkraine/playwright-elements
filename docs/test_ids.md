@@ -453,6 +453,35 @@ import { testIdValue, sid } from 'playwright-elements';
 // <div :data-testid="testIdValue(sid('my-id'))"></div>
 ```
 
+#### `testIds` namespace
+
+`testIds` is the canonical strippable attribute for `data-testid` — the result of
+`createStrippableAttribute('data-testid')`. It exposes the same helpers as any
+custom instance, bound to `data-testid`, and honours the global strip flag
+(`TEST_IDS_ENABLED` / `PE_TESTIDS` / `NODE_ENV`).
+
+```typescript
+import { testIds, sid } from 'playwright-elements';
+
+testIds.enabled;                  // boolean — is stripping currently on?
+testIds.props(sid('submit'));     // { 'data-testid': 'submit' } when enabled; frozen {} when stripped
+testIds.value(sid('submit'));     // 'submit' when enabled; undefined when stripped
+testIds.selector(sid('submit'));  // '[data-testid="submit"]' (the selector family never strips)
+
+// Selector family:
+testIds.prefixSelector(factory('btn'));   // '[data-testid^="btn-"]'
+testIds.containsSelector('user');         // '[data-testid*="user"]'
+testIds.endsWithSelector('-button');      // '[data-testid$="-button"]'
+testIds.anySelector();                    // '[data-testid]'
+```
+
+Emission mode is cheap to assert in any unit lane:
+
+```typescript
+expect(testIds.enabled).toBe(true);
+expect(testIds.props(sid('submit'))).toEqual({ 'data-testid': 'submit' });
+```
+
 ### Selectors
 
 The `$byTestId*` functions are one-line wrappers over the shared string
