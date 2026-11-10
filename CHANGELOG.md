@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Bun support**: Added `@types/bun` and included Bun types in `tsconfig` (`"types": ["node", "bun"]`) alongside a new `bun.lock` for Bun-based workflows.
 - **Playwright peer bump**: `@playwright/test` and `playwright-core` peer dependencies raised from `>=1.62.x` to `>=1.65.x` (dev dependency `@playwright/test` bumped to `^1.65.0`).
 - **`@types/node`** bumped to `^26.6.6`.
+- **Node.js engine requirement** raised from `>=18.0.0` to `>=22.0.0` in both `playwright-elements` and `@playwright-elements/testids` (Node 18/20 are EOL; CI already tests 22/24/26).
 
 ---
 
