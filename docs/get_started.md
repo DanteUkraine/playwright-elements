@@ -32,7 +32,7 @@ Playwright-elements is designed for:
 
 Before you begin, ensure you have:
 
-1. **Node.js** 18+ installed
+1. **Node.js** 22+ installed
 2. **npm** or **yarn** package manager
 3. Basic knowledge of **TypeScript**
 4. Familiarity with **Playwright** basics (recommended but not required)

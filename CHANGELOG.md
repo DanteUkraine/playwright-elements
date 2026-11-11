@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.20.0] - 2026-11-10
+
+### 🔧 Tooling & Dependencies
+
+- **TypeScript 7 (native compiler)**: Type-checking migrated to the native TypeScript 7 compiler via `@typescript/native` (`tsgo`), replacing the legacy `typescript@^6` package.
+- **Bun support**: Added `@types/bun` and included Bun types in `tsconfig` (`"types": ["node", "bun"]`) alongside a new `bun.lock` for Bun-based workflows.
+- **Playwright peer bump**: `@playwright/test` and `playwright-core` peer dependencies raised from `>=1.62.x` to `>=1.65.x` (dev dependency `@playwright/test` bumped to `^1.65.0`).
+- **`@types/node`** bumped to `^26.6.6`.
+- **Node.js engine requirement** raised from `>=18.0.0` to `>=22.0.0` in both `playwright-elements` and `@playwright-elements/testids` (Node 18/20 are EOL; CI already tests 22/24/26).
+
+---
+
 ## [1.19.0] - 2026-09-14
 
 ### 🚀 Major Changes
@@ -73,5 +85,6 @@ For changes in 1.18.2 and earlier, see the Git history.
 
 ---
 
+[1.20.0]: https://github.com/DanteUkraine/playwright-elements/compare/1.19.0...1.20.0
 [1.19.0]: https://github.com/DanteUkraine/playwright-elements/compare/1.18.2...1.19.0
 [1.18.2]: https://github.com/DanteUkraine/playwright-elements/tree/1.18.2

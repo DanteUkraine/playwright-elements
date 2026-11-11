@@ -84,7 +84,7 @@ Technically yes, but you'll lose the main benefits (type safety, autocompletion)
 
 ### What version of Playwright do I need?
 
-playwright-elements works with Playwright **>= 1.62.x** (the peer-dependency range, since the library imports types directly from `playwright-core`). We recommend using the latest Playwright.
+playwright-elements works with Playwright **>= 1.65.x** (the peer-dependency range, since the library imports types directly from `playwright-core`). We recommend using the latest Playwright.
 
 ---
 
